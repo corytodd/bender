@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
-using Microsoft.Win32.SafeHandles;
 using Xunit;
-using Xunit.Sdk;
 
 namespace BenderLib.Tests
 {

@@ -14,7 +14,7 @@ namespace BenderLib
         /// <param name="source">Array to be split</param>
         /// <param name="chunkMaxSize">Max size of chunk</param>
         /// <returns><see cref="IEnumerable{T}"/> of <see cref="Array"/> of <typeparam name="T"/></returns>
-        /// <see cref="https://stackoverflow.com/q/47683209/1755158"/>
+        /// <see href="https://stackoverflow.com/q/47683209/1755158"/>
         public static IEnumerable<T[]> AsChunks<T>(this T[] source, int chunkMaxSize)
         {
             var pos = 0;
@@ -24,7 +24,7 @@ namespace BenderLib
                 var len = Math.Min(pos + chunkMaxSize, sourceLength) - pos;
                 if (len == 0)
                 {
-                    yield break; ;
+                    yield break;
                 }
                 var arr = new T[len];
                 Array.Copy(source, pos, arr, 0, len);
