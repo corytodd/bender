@@ -114,5 +114,32 @@
                 Matrix = Matrix,
             };
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Element element &&
+                   Name == element.Name &&
+                   LittleEndian == element.LittleEndian &&
+                   IsSigned == element.IsSigned &&
+                   Elide == element.Elide &&
+                   IsReadOnly == element.IsReadOnly &&
+                   Format == element.Format &&
+                   Width == element.Width &&
+                   Matrix == element.Matrix;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 170416633;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+            hashCode = hashCode * -1521134295 + LittleEndian.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsSigned.GetHashCode();
+            hashCode = hashCode * -1521134295 + Elide.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsReadOnly.GetHashCode();
+            hashCode = hashCode * -1521134295 + Format.GetHashCode();
+            hashCode = hashCode * -1521134295 + Width.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Matrix);
+            return hashCode;
+        }
     }
 }

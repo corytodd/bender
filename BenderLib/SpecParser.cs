@@ -9,9 +9,6 @@
     /// </summary>
     public class SpecParser
     {
-
-        public SpecParser() { }
-
         /// <summary>
         /// Parses DataFile as a SpecFile
         /// </summary>

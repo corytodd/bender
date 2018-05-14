@@ -69,5 +69,15 @@ namespace BenderLib.Tests.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] test_invalid {
+            get {
+                object obj = ResourceManager.GetObject("test_invalid", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }
