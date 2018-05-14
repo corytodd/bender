@@ -1,0 +1,37 @@
+---
+format: bender.v1
+name: test_signed
+description: >
+    A test targetting signed versions of all
+    integer types
+
+extensions:
+    - test
+
+base: &base
+    little_endian: yes
+    elide: no
+    readonly: no
+    format: decimal
+    width: 1
+    name: Undefined
+    matrix:
+    signed: yes
+
+elements:
+    - <<: *base
+      name: Signed Byte
+
+    - <<: *base
+      width: 2
+      name: Signed Short
+
+    - <<: *base
+      width: 4
+      name: Signed Int
+
+    - <<: *base
+      width: 8
+      name: Signed Long
+
+matrices:

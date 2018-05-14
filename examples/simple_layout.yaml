@@ -1,0 +1,76 @@
+---
+format: bender.v1
+# Unique name for this layout
+name: simple_layout
+# Friendly description of what your binary file does
+description: >
+    A simple sample binary layout descriptor
+    that can span multiple lines
+    
+# List of known extensions for this type
+extensions:
+    - simple
+
+base: &base
+    little_endian: yes
+    elide: no
+    readonly: no
+    format: ascii
+    width: 4
+    name: Undefined
+    matrix:    
+    signed: no
+    
+elements:
+    # Describe your data elements starting from byte 0
+    # These will be parses in the order written in this file.
+    - <<: *base
+      name: Magic Number
+
+    - <<: *base
+      format: decimal
+      width: 1
+      name: Version
+      
+    - <<: *base
+      signed: yes
+      format: decimal
+      width: 1
+      name: Counter
+
+    - <<: *base
+      format: binary
+      width: 1
+      name: Flags
+
+    - <<: *base
+      little_endian: no
+      format: hex
+      width: 2
+      name: CRC16
+
+    - <<: *base
+      elide: yes
+      format: hex
+      width: 16
+      name: Payload
+      
+    - <<: *base     
+      format: decimal
+      width: 16
+      name: Transform A    
+      matrix: 4x1
+      
+    - <<: *base     
+      format: decimal
+      width: 16
+      name: Transform B   
+      matrix: 2x2    
+      
+matrices:
+    - name: 4x1
+      columns: 4
+      units: 1
+    - name: 2x2
+      columns: 2
+      units: 2      

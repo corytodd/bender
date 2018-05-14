@@ -1,0 +1,37 @@
+---
+format: bender.v1
+name: test_unsigned
+description: >
+    A test targetting unsigned versions of all
+    integer types
+
+extensions:
+    - test
+
+base: &base
+    little_endian: yes
+    elide: no
+    readonly: no
+    format: decimal
+    width: 1
+    name: Undefined
+    matrix:
+    signed: no
+
+elements:
+    - <<: *base
+      name: Unsigned Byte
+
+    - <<: *base
+      width: 2
+      name: Unsigned Short
+
+    - <<: *base
+      width: 4
+      name: Unsigned Int
+
+    - <<: *base
+      width: 8
+      name: Unsigned Long
+
+matrices:
