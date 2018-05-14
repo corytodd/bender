@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Bender": {
+      "commandName": "Project",
+      "commandLineArgs": "-f examples/simple_layout.yaml -b examples/simple_layout.simple",
+      "workingDirectory": "G:\\dotnet\\Bender"
+    }
+  }
+}

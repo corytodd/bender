@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BenderLib\BenderLib.csproj" />
+    <PackageReference Include="YamlDotNet" Version="4.3.2-pre0479" />
   </ItemGroup>
 
 </Project>
