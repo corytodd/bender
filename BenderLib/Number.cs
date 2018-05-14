@@ -7,7 +7,7 @@
     /// Number wrapper holds any number type
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
-    struct Number
+    public struct Number
     {
         [FieldOffset(0)]
         public byte ub;
@@ -16,25 +16,25 @@
         public sbyte sb;
 
         [FieldOffset(0)]
-        public UInt16 us;
+        public ushort us;
 
         [FieldOffset(0)]
-        public Int16 ss;
+        public short ss;
 
         [FieldOffset(0)]
-        public UInt32 ui;
+        public uint ui;
 
         [FieldOffset(0)]
-        public Int32 si;
+        public int si;
 
         [FieldOffset(0)]
-        public UInt64 ul;
+        public ulong ul;
 
         [FieldOffset(0)]
-        public Int64 sl;
+        public long sl;
 
         [FieldOffset(0)]
-        public double d;
+        public double d;        
 
         /// <summary>
         /// Converts raw buffer data into a numeric type. This handles 
@@ -55,25 +55,25 @@
             }
             else
             {
+                // Set the long number for everything so any field can be 
+                // access correctly
                 switch (el.Width)
                 {
                     case 1:
-                        if (el.IsSigned) number.sb = (sbyte)data[0];
-                        else number.ub = data[0];
+                        if (el.IsSigned) number.sl = (sbyte)data[0];
+                        else number.ul = data[0];
                         break;
                     case 2:
-                        if (el.IsSigned) number.ss = BitConverter.ToInt16(data, 0);
-                        else number.us = BitConverter.ToUInt16(data, 0);
+                        if (el.IsSigned) number.sl = BitConverter.ToInt16(data, 0);
+                        else number.ul = BitConverter.ToUInt16(data, 0);
                         break;
                     case 4:
-                        if (el.IsSigned) number.si = BitConverter.ToInt32(data, 0);
-                        else number.ui = BitConverter.ToUInt32(data, 0);
+                        if (el.IsSigned) number.sl = BitConverter.ToInt32(data, 0);
+                        else number.ul = BitConverter.ToUInt32(data, 0);
                         break;
                     case 8:
                         if (el.IsSigned) number.sl = BitConverter.ToInt64(data, 0);
                         else number.ul = BitConverter.ToUInt64(data, 0);
-                        break;
-                    default:
                         break;
                 }
             }

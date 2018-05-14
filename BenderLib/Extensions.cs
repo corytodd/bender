@@ -44,5 +44,17 @@ namespace BenderLib
                 yield return arr;
             } while (pos < sourceLength);
         }
+
+        /// <summary>
+        /// Returns true if this and another y very close
+        /// </summary>
+        /// <param name="x">Self value</param>
+        /// <param name="y">Comparison value</param>
+        /// <returns>True if nearly equal</returns>
+        public static bool AlmostEqual(this double x, double y)
+        {
+            var epsilon = Math.Max(Math.Abs(x), Math.Abs(y)) * 1E-12;
+            return Math.Abs(x - y) <= epsilon;
+        }
     }
 }

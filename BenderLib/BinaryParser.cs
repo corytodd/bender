@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -12,7 +11,7 @@
     /// </summary>
     public class BinaryParser
     {
-        private readonly SpecFile spec_;
+        private readonly SpecFile _mSpec;
 
         /// <summary>
         /// Creates a new parser
@@ -20,7 +19,7 @@
         /// <param name="spec">Binary layout spec</param>
         public BinaryParser(SpecFile spec)
         {
-            spec_ = spec;
+            _mSpec = spec;
         }
 
         /// <summary>
@@ -30,15 +29,14 @@
         /// <returns>Parsed result</returns>
         public Bender Parse(DataFile binary)
         {
-            var bender = new Bender(spec_);
+            var bender = new Bender(_mSpec);
 
             var hostIsLittleEndian = BitConverter.IsLittleEndian;
-            var culture = CultureInfo.CurrentCulture;
 
             using(var stream = new MemoryStream(binary.Data))
             using (var reader = new BinaryReader(stream))
             {
-                foreach(var el in spec_.Elements)
+                foreach(var el in _mSpec.Elements)
                 {
                     var buff = reader.ReadBytes(el.Width);                    
                         
@@ -93,10 +91,10 @@
                         value.Add(string.Format("O{0}", Convert.ToString(number.sl, 8)));
                         break;
                     case ElementFormat.Decimal:
-                        value.Add(number.ul.ToString());
+                        value.Add(number.sl.ToString());
                         break;
                     case ElementFormat.Hex:
-                        value.Add(string.Format("0x{0:X}", number.ul));
+                        value.Add(string.Format("0x{0:X}", number.sl));
                         break;
                     case ElementFormat.ASCII:
                         value.Add(Encoding.ASCII.GetString(data));
@@ -127,14 +125,14 @@
         /// <param name="el">Element descriptor</param>
         /// <param name="data">Raw data</param>
         /// <returns>List of formatted matrix rows</returns>
-        private IList<string> FormatMatrix(Element el, byte[] data)
+        private IEnumerable<string> FormatMatrix(Element el, byte[] data)
         {            
             if(string.IsNullOrEmpty(el.Matrix))
             {
                 return new List<string> { string.Format("No payload tag specified on element: {0}", el.Name) };
             }
 
-            var payload = spec_.Matrices.FirstOrDefault(p => p.Name.Equals(el.Matrix, StringComparison.InvariantCultureIgnoreCase));
+            var payload = _mSpec.Matrices.FirstOrDefault(p => p.Name.Equals(el.Matrix, StringComparison.InvariantCultureIgnoreCase));
             if(payload == null)
             {
                 return new List<string> { string.Format("Unknown payload type {0} on element {1}", el.Matrix, el.Name) };
@@ -145,12 +143,12 @@
             elClone.Matrix = string.Empty;
             elClone.Width = payload.Units;
 
-            string formatter(Element el_, byte[] data_)
+            string Formatter(Element e, byte[] d)
             {
-                return FormatBuffer(el_, data_).Value.First();
+                return FormatBuffer(e, d).Value.First();
             }
 
-            return payload.Format(elClone, data, formatter);
+            return payload.Format(elClone, data, Formatter);
         }
        
     }
