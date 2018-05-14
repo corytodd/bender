@@ -1,4 +1,6 @@
-﻿namespace BenderLib
+﻿using System.Linq;
+
+namespace BenderLib
 {
     using System.Collections.Generic;
     using System.Text;
@@ -13,8 +15,13 @@
 
         public int Units { get; set; }
 
-        public IList<string> Format(Element el, byte[] data, Formatter formatter)
+        public IEnumerable<string> Format(Element el, byte[] data, Formatter formatter)
         {
+            if (Units == 0)
+            {
+                return Enumerable.Empty<string>();
+            }
+
             var value = new List<string>();
             var sb = new StringBuilder();
             sb.Append("[ ");
@@ -29,16 +36,15 @@
                 ++count;
 
                 sb.AppendFormat("{0} ", formatter.Invoke(el, unit));
-                if (++cols % Columns == 0)
-                {
-                    sb.Append("]");
-                    value.Add(sb.ToString());
-                    sb.Clear();
+                if (++cols % Columns != 0) continue;
 
-                    if (count != totalVars)
-                    {
-                        sb.Append("[ ");
-                    }
+                sb.Append("]");
+                value.Add(sb.ToString());
+                sb.Clear();
+
+                if (count != totalVars)
+                {
+                    sb.Append("[ ");
                 }
             }
 
