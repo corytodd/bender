@@ -1,0 +1,39 @@
+---
+format: bender.v1
+name: test_strings
+description: >
+    A test targetting string types
+
+extensions:
+    - test
+
+base: &base
+    little_endian: yes
+    elide: no
+    readonly: no
+    format: ascii
+    width: 1
+    name: Undefined
+    matrix:
+    signed: yes
+
+elements:
+    - <<: *base
+      name: ASCII     
+      width: 4
+
+    - <<: *base
+      format: UTF16
+      width: 8
+      
+    - <<: *base
+      name: ASCII     
+      width: 4
+      little_endian: no      
+
+    - <<: *base
+      format: UTF16
+      width: 8      
+      little_endian: no
+      
+matrices:
