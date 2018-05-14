@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    class Options
+    internal class Options
     {
         public Options()
         {
@@ -30,19 +30,14 @@
             return Message;
         }
     }
-    
-    class ArgParser
+
+    internal class ArgParser
     {       
-        private IList<string> required_ = new List<string>() { "-f", "-b", "-p" };
-
-        public ArgParser()
-        {
-
-        }
+        private readonly IList<string> _mRequired = new List<string> { "-f", "-b", "-p" };
 
         public Options Parse(string[] args)
         {
-            Options result = new Options();
+            var result = new Options();
 
             if (args.Length == 0)
             {
@@ -61,7 +56,8 @@
                 {
                     return result;
                 }
-                else if (nextCapture != null)
+
+                if (nextCapture != null)
                 {
                     nextCapture(str);
                     nextCapture = null;
@@ -92,19 +88,17 @@
                 }
             }
 
-            if(satisified.Equals(required_))
-            {
-                result.Okay = false;
-                result.Message = string.Format("Missing expected parameters: {0}",
-                    string.Join(",", required_.Except(satisified)));
-            }
+            if (!satisified.Equals(_mRequired)) return result;
+            result.Okay = false;
+            result.Message = string.Format("Missing expected parameters: {0}",
+                string.Join(",", _mRequired.Except(satisified)));
 
             return result;
         }
 
         public string Usage()
         {
-            return "Bender.exe -f /path/to/spec.yaml -b /path/to/your.bin";
+            return "Bender.exe -f /path/to/spec.yaml -b /path/to/your.bin [--print-spec]";
         }
     }
 }

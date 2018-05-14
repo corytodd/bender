@@ -20,6 +20,7 @@ namespace BenderLib.Tests
             var parser = new SpecParser();
             var result = parser.Parse(df);
 
+            Assert.False(string.IsNullOrEmpty(result.ToString()));
             Assert.Equal("bender.v1", result.Format);
             Assert.Equal("simple_layout", result.Name);
             Assert.Equal("A simple sample binary layout descriptor that can span multiple lines\n", result.Description);

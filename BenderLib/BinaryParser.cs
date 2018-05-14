@@ -127,12 +127,12 @@
         /// <returns>List of formatted matrix rows</returns>
         private IEnumerable<string> FormatMatrix(Element el, byte[] data)
         {            
-            if(string.IsNullOrEmpty(el.Matrix))
+            if (_mSpec.Matrices == null)
             {
-                return new List<string> { string.Format("No payload tag specified on element: {0}", el.Name) };
+                return new List<string> { string.Format("No matrices specified but element {0} has referenced one", el.Name)};
             }
 
-            var payload = _mSpec.Matrices.FirstOrDefault(p => p.Name.Equals(el.Matrix, StringComparison.InvariantCultureIgnoreCase));
+            var payload = _mSpec.Matrices.FirstOrDefault(p => el.Matrix.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
             if(payload == null)
             {
                 return new List<string> { string.Format("Unknown payload type {0} on element {1}", el.Matrix, el.Name) };
