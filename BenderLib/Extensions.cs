@@ -8,18 +8,6 @@ namespace BenderLib
     {
 
         /// <summary>
-        /// Return a copy of s reversed
-        /// </summary>
-        /// <param name="s">string to reverse</param>
-        /// <returns>New string</returns>
-        public static string Reverse(this string s)
-        {
-            char[] charArray = s.ToCharArray();
-            Array.Reverse(charArray);
-            return new string(charArray);
-        }
-
-        /// <summary>
         /// Splits <paramref name="source"/> into chunks of size not greater than <paramref name="chunkMaxSize"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>

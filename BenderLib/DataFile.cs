@@ -9,11 +9,11 @@
     [DebuggerDisplay("Size = {Size}")]
     public class DataFile
     {
-        private readonly byte[] data_;
+        private readonly byte[] _mData;
 
         private DataFile(byte[] data)
         {
-            data_ = data;
+            _mData = data;
         }
 
         /// <summary>
@@ -46,7 +46,7 @@
         /// Returns raw data as a UTF8 string
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => System.Text.Encoding.UTF8.GetString(data_);
+        public override string ToString() => System.Text.Encoding.UTF8.GetString(_mData);
 
         /// <summary>
         /// Wraps raw data in a string reader
@@ -60,18 +60,17 @@
         /// <summary>
         /// Returns a copy of underlying data
         /// </summary>
-        public byte[] Data { get { return (byte[])data_.Clone(); } }
+        public byte[] Data => (byte[])_mData.Clone();
 
         /// <summary>
         /// Returns true if this DataFile is empty
         /// </summary>
-        public bool Empty { get { return data_.Length == 0; } }
+        public bool Empty => _mData.Length == 0;
 
         /// <summary>
         /// Returns length of data in bytes
         /// </summary>
         /// <returns></returns>
-        public int Size { get { return data_.Length; } }        
-   
+        public int Size => _mData.Length;
     }
 }
