@@ -9,6 +9,7 @@ description: >
     
 # List of known extensions for this type
 extensions:
+    - test
     - simple
 
 base: &base

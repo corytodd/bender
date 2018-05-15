@@ -1,17 +1,18 @@
 ---
 format: bender.v1
-name: test_floats
+name: test_strings
 description: >
-    A test targetting float types
+    A test targeting string types
 
 extensions:
     - test
+    - strings
 
 base: &base
     little_endian: yes
     elide: no
     readonly: no
-    format: float
+    format: ascii
     width: 1
     name: Undefined
     matrix:
@@ -19,25 +20,21 @@ base: &base
 
 elements:
     - <<: *base
-      name: Some small number
-      width: 8
+      name: ASCII     
+      width: 4
 
     - <<: *base
-      name: Some large number    
+      format: UTF16
       width: 8
       
     - <<: *base
       name: ASCII     
-      width: 8
+      width: 4
       little_endian: no      
 
     - <<: *base
       format: UTF16
       width: 8      
       little_endian: no
-      matrix: dne
       
 matrices:
-    - name: 4x1
-      columns: 4
-      units: 1

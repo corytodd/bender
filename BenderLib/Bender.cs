@@ -22,8 +22,7 @@
         /// <summary>
         /// Create a new Bender with this reference spec
         /// </summary>
-        /// <param name="spec"></param>
-        public Bender(SpecFile spec)
+        public Bender()
         {
             FormattedFields = new List<FormattedField>();
         }
@@ -31,7 +30,7 @@
         /// <summary>
         /// Returns list of formatted data extracted from binary
         /// </summary>
-        public IList<FormattedField> FormattedFields { get; private set; }
+        public IList<FormattedField> FormattedFields { get; }
 
 
     }

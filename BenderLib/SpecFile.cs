@@ -39,6 +39,8 @@
 
         public IList<Matrix> Matrices { get; set; }
 
+        public IList<Deferred> Deferreds { get; set; }
+
         /// <summary>
         /// Pretty print in tabular form:
         /// Name : Description

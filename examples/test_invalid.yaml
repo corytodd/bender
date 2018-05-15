@@ -7,7 +7,7 @@ description: >
 
 extensions:
     - test
-    - unsigned
+    - invalid
 
 base: &base
     little_endian: yes
@@ -21,18 +21,6 @@ base: &base
 
 elements:
     - <<: *base
-      name: Unsigned Byte
-
-    - <<: *base
-      width: 2
-      name: Unsigned Short
-
-    - <<: *base
-      width: 4
-      name: Unsigned Int
-
-    - <<: *base
-      width: 8
-      name: Unsigned Long
+    name: Unsigned Byte
 
 matrices:

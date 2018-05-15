@@ -2,8 +2,7 @@
   "profiles": {
     "Bender": {
       "commandName": "Project",
-      "commandLineArgs": "-f examples/simple_layout.yaml -b examples/simple_layout.simple",
-      "workingDirectory": "G:\\dotnet\\Bender"
+      "commandLineArgs": "-s examples/test_deferred.yaml -b examples/test_deferred_binary.simple"
     }
   }
 }

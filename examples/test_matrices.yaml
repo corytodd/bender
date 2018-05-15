@@ -6,6 +6,7 @@ description: >
 
 extensions:
     - test
+    - matrices
 
 base: &base
     little_endian: yes
@@ -26,3 +27,6 @@ elements:
       name: No matrix tag
 
 matrices:
+    - name: unused
+      columns: 2
+      units: 1

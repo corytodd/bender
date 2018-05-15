@@ -16,7 +16,6 @@
         Hex,
         ASCII,
         UTF16,
-        Float,
     }
 
     [DebuggerDisplay("Name = {Name}, Width = {Width}")]
@@ -66,6 +65,12 @@
         /// Matrix defintion in the spec file
         /// </summary>
         public string Matrix { get; set; }    
+
+        /// <summary>
+        /// If this block is referencing future data, the deferred
+        /// field must match an object in the deferreds list.
+        /// </summary>
+        public string Deferred { get; set; }
         
         /// <summary>
         /// Generator yields each line from ToString()

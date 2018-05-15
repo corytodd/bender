@@ -139,20 +139,5 @@ namespace BenderLib.Tests
             Assert.True(9223372036854775808 == Number.From(el, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 }).ul);
             Assert.True(18446744073709551615 == Number.From(el, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }).ul);
         }
-
-        [Fact]
-        public void TestDouble()
-        {
-            var el = new Element
-            {
-                Format = ElementFormat.Float,
-                Width = 8,
-                IsSigned = false,
-            };
-
-            Assert.True(3.7179659497173697E+183.AlmostEqual(Number.From(el, new byte[] { 0, 0, 0, 0, 0, 0, 12, 102 }).d));
-            Assert.True(4.9406564584124654E-324.AlmostEqual(Number.From(el, new byte[] { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }).d));
-
-        }
     }
 }
