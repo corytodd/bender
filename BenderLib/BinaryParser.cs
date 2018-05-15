@@ -46,6 +46,21 @@
                         Array.Reverse(buff);
                     }
 
+                    // If this is deferred read, collect the deferred data
+                    if (!string.IsNullOrEmpty(el.Deferred))
+                    {
+                        buff = HandleDeferredRead(el, binary, buff);
+
+                        if (buff == null)
+                        {
+                            bender.FormattedFields.Add(new Bender.FormattedField
+                            {
+                                Name = el.Name, Value = new List<string> { "Error: Invalid deferred object" }
+                            });
+                        }
+
+                    }
+
                     var formatted = FormatBuffer(el, buff);
 
                     // '-' means left align
@@ -54,6 +69,31 @@
             }
 
             return bender;
+        }
+
+        private byte[] HandleDeferredRead(Element el, DataFile binary, byte[] buff)
+        {
+            if (_mSpec.Deferreds == null)
+            {
+                return null;
+            }
+
+            var def = _mSpec.Deferreds.FirstOrDefault(d => d.Name != null && d.Name.Equals(el.Deferred));
+            if (def == null)
+            {
+                return null;
+            }
+
+            var size = Number.From(def.SizeWidth, false, 0, buff);
+            var offset = Number.From(def.OffsetWidth, false, size.si, buff);
+
+            using (var stream = new MemoryStream(binary.Data))
+            using (var reader = new BinaryReader(stream))
+            {
+                el.Width = size.si;
+                reader.BaseStream.Position = offset.sl;
+                return reader.ReadBytes(size.si);
+            }
         }
 
         /// <summary>

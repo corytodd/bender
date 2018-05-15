@@ -35,5 +35,13 @@ namespace BenderLib.Tests
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }
+
+        [Fact]
+        public void TestParseDeferred()
+        {
+            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_deferred));
+            var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.test_deferred_binary));
+            Assert.NotNull(bender);
+        }
     }
 }

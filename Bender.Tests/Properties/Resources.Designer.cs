@@ -93,6 +93,16 @@ namespace BenderLib.Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] test_deferred_binary {
+            get {
+                object obj = ResourceManager.GetObject("test_deferred_binary", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] test_empty_matrices {
             get {
                 object obj = ResourceManager.GetObject("test_empty_matrices", resourceCulture);

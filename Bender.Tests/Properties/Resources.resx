@@ -127,6 +127,9 @@
   <data name="test_deferred" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\examples\test_deferred.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="test_deferred_binary" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\examples\test_deferred_binary.simple;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="test_empty_matrices" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\examples\test_empty_matrices.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

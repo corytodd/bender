@@ -1,11 +1,8 @@
 ---
 format: bender.v1
-name: test_deferred
+name: test_deferred_missing
 description: >
-    A test targeting deferred data reading. Deferred data
-    is where a size and offset record are placed in a static
-    space which refer to a dynamic block of data someplace else
-    in the file.
+    A test targeting deferred data reading... but with no defined deferreds
 
 extensions:
     - test
@@ -45,6 +42,3 @@ matrices:
       units: 1
 
 deferreds:
-    - name: neat_blob
-      size_width: 4
-      offset_width: 4

@@ -60,8 +60,8 @@ namespace BenderLib.Tests
             Assert.Equal(4, def.OffsetWidth);
 
             // Make sure that the element in this file has the right deferred name
-            var el = spec.Elements.First();
-            Assert.Equal(el.Deferred, def.Name);
+            var el = spec.Elements.FirstOrDefault(e => def.Name.Equals(e.Deferred));
+            Assert.NotNull(el);
         }
     }
 }
