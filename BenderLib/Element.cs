@@ -16,7 +16,6 @@
         Hex,
         ASCII,
         UTF16,
-        Float,
     }
 
     [DebuggerDisplay("Name = {Name}, Width = {Width}")]

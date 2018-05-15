@@ -7,7 +7,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenderLib", "BenderLib\Bend
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bender", "Bender\Bender.csproj", "{3B69DF82-ABC3-4440-86E9-D9ED099242BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BenderLib.Tests", "Bender.Tests\BenderLib.Tests.csproj", "{24E4376E-4BE0-4F06-BFE9-26065DB5029E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenderLib.Tests", "Bender.Tests\BenderLib.Tests.csproj", "{24E4376E-4BE0-4F06-BFE9-26065DB5029E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Specs", "Specs", "{9440F112-43D7-47F9-8AC8-EB127560BF17}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		readme.md = readme.md
+		examples\simple_layout.yaml = examples\simple_layout.yaml
+		examples\test_missing_matrix.yaml = examples\test_missing_matrix.yaml
+		examples\test_signed.yaml = examples\test_signed.yaml
+		examples\test_strings.yaml = examples\test_strings.yaml
+		examples\test_unsigned.yaml = examples\test_unsigned.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

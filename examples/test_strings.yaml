@@ -2,7 +2,7 @@
 format: bender.v1
 name: test_strings
 description: >
-    A test targetting string types
+    A test targeting string types
 
 extensions:
     - test

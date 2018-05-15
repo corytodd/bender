@@ -2,7 +2,7 @@
 format: bender.v1
 name: test_signed
 description: >
-    A test targetting signed versions of all
+    A test targeting signed versions of all
     integer types
 
 extensions:

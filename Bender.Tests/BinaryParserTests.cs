@@ -15,7 +15,15 @@ namespace BenderLib.Tests
         [Fact]
         public void TestParseMissingMatrix()
         {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_missing_matrix));
+            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_matrices));
+            var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
+            Assert.NotNull(bender);
+        }
+
+        [Fact]
+        public void TestParseEmptyMatrices()
+        {
+            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_empty_matrices));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }
@@ -24,14 +32,6 @@ namespace BenderLib.Tests
         public void TestParseStrings()
         {
             var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_strings));
-            var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
-            Assert.NotNull(bender);
-        }
-
-        [Fact]
-        public void TestParseFloats()
-        {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_floats));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }

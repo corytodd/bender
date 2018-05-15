@@ -102,9 +102,6 @@
                     case ElementFormat.UTF16:
                         value.Add(Encoding.Unicode.GetString(data));
                         break;
-                    case ElementFormat.Float:
-                        value.Add(number.d.ToString("#.#####"));
-                        break;
                 }
             }
             else
@@ -135,7 +132,7 @@
             var payload = _mSpec.Matrices.FirstOrDefault(p => el.Matrix.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
             if(payload == null)
             {
-                return new List<string> { string.Format("Unknown payload type {0} on element {1}", el.Matrix, el.Name) };
+                return new List<string> { string.Format("Unknown matrix type {0} on element {1}", el.Matrix, el.Name) };
             }
 
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop

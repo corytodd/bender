@@ -83,9 +83,9 @@ namespace BenderLib.Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] test_floats {
+        internal static byte[] test_empty_matrices {
             get {
-                object obj = ResourceManager.GetObject("test_floats", resourceCulture);
+                object obj = ResourceManager.GetObject("test_empty_matrices", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -103,9 +103,9 @@ namespace BenderLib.Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] test_missing_matrix {
+        internal static byte[] test_matrices {
             get {
-                object obj = ResourceManager.GetObject("test_missing_matrix", resourceCulture);
+                object obj = ResourceManager.GetObject("test_matrices", resourceCulture);
                 return ((byte[])(obj));
             }
         }

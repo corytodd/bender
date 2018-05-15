@@ -1,6 +1,6 @@
 ---
 format: bender.v1
-name: test_missing_matrix
+name: test_empty_matrices
 description: >
     A test that has a missing matrix definition
 

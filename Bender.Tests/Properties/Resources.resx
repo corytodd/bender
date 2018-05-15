@@ -124,14 +124,14 @@
   <data name="simple_layout_binary" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\examples\simple_layout_binary.simple;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="test_floats" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\examples\test_floats.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="test_empty_matrices" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\examples\test_empty_matrices.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="test_invalid" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>C:\Users\catix\Downloads\test_invalid.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="test_missing_matrix" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\examples\test_missing_matrix.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="test_matrices" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\examples\test_matrices.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="test_strings" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\examples\test_strings.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
