@@ -6,6 +6,7 @@ description: >
 
 extensions:
     - test
+    - strings
 
 base: &base
     little_endian: yes

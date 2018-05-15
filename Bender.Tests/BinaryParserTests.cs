@@ -23,7 +23,7 @@ namespace BenderLib.Tests
         [Fact]
         public void TestParseEmptyMatrices()
         {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_empty_matrices));
+            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_matrices_malformed));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }
@@ -31,7 +31,7 @@ namespace BenderLib.Tests
         [Fact]
         public void TestParseStrings()
         {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_strings));
+            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_string));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }

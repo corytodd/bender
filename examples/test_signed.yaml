@@ -7,6 +7,7 @@ description: >
 
 extensions:
     - test
+    - signed
 
 base: &base
     little_endian: yes

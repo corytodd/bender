@@ -9,6 +9,7 @@ description: >
 
 extensions:
     - test
+    - deferred
 
 base: &base
     little_endian: yes

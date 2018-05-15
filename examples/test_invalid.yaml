@@ -7,6 +7,7 @@ description: >
 
 extensions:
     - test
+    - invalid
 
 base: &base
     little_endian: yes

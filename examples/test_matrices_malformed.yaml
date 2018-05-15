@@ -6,7 +6,8 @@ description: >
 
 extensions:
     - test
-
+    - matrices
+    
 base: &base
     little_endian: yes
     elide: no
