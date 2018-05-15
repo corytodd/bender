@@ -1,0 +1,40 @@
+---
+format: bender.v1
+name: test_deferred
+description: >
+    A test targeting deferred data reading. Deferred data
+    is where a size and offset record are placed in a static
+    space which refer to a dynamic block of data someplace else
+    in the file.
+
+extensions:
+    - test
+
+base: &base
+    little_endian: yes
+    elide: no
+    readonly: no
+    format: decimal
+    width: 1
+    name: Undefined
+    matrix:
+    signed: no
+
+elements:
+    - <<: *base
+      name: Blob Test
+      # width should be the sum of size_width and offset_width in deferred
+      width: 8
+      deferred: neat_blob
+      format: hex
+      matrix: 2x2
+
+matrices:
+    - name: 2x2
+      columns: 2
+      units: 2
+
+deferreds:
+    - name: neat_blob
+      size_width: 4
+      offset_width: 4

@@ -2,7 +2,7 @@
 format: bender.v1
 name: test_unsigned
 description: >
-    A test targetting unsigned versions of all
+    A test targeting unsigned versions of all
     integer types
 
 extensions:

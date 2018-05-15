@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace BenderLib.Tests
@@ -43,6 +45,23 @@ namespace BenderLib.Tests
 
             Assert.False(string.IsNullOrEmpty(el.ToString()));
             Assert.Equal(el.GetHashCode(), result.Base.GetHashCode());
+        }
+
+        [Fact]
+        public void TestParseDeferred()
+        {
+            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_deferred));
+            Assert.NotNull(spec.Deferreds);
+            Assert.Equal(1, spec.Deferreds.Count);
+
+            var def = spec.Deferreds.First();
+            Assert.Equal("neat_blob", def.Name);
+            Assert.Equal(4, def.SizeWidth);
+            Assert.Equal(4, def.OffsetWidth);
+
+            // Make sure that the element in this file has the right deferred name
+            var el = spec.Elements.First();
+            Assert.Equal(el.Deferred, def.Name);
         }
     }
 }

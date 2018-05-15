@@ -9,7 +9,8 @@ A YAML driven binary file viewer
 | extensions | _empty_ | List of extensions associated with the file you are describing |
 | base | _empty_ | The default element for your spec |
 | elements | _empty_ | Ordered list of elements in your file |
-| matrices | _empty_ | Matrix data format spec
+| matrices | _empty_ | Matrix data format spec |
+| deferreds | _empty_ | List of dynamic data descriptors |
 
 ### Element Object
 An element is the name we use to describe one or more bytes in a binary file. It has a collection of fields that control how the bytes are read, stored, and displayed.
@@ -24,6 +25,7 @@ Before the definition of the elements list, there is defined a single element na
 | width | How many bytes are in this element | A positive integer |
 | name | Name to display for this element | strings |
 | matrix | Name of matrix formatter to use | Must be defined in your matrices list (see next section) |
+| deferred | Name of deferred object | Optionally specifcy that this element is really a pointer to more data |
 | signed | Represent bytes as a signed value | YAML bool |
 
 ### Matrix Object
@@ -34,3 +36,21 @@ by any element's matrix field. When a matrix is detected by the Bender parser, t
 | name | Name referenced by an element | strings |
 | columns | How many variables per row | A positive integer |
 | Units | How many bytes per variable | A positive integer |
+
+### Deferred Object
+Sometimes your binary has dynamic data. We can still parse it by using a deferred definition. Using this approach, you are defining a contract that gives an offset (relative to the start of the file) and a size in bytes of future data. Once all the elements have been read, the deferred data types are processed according to your spec.
+
+This pattern is based on the technique of inserting a marker in your binary that is effectively a custom pointer. You are free to use whichever data types
+you would like for size and offset and long with the sum of their size in bytes is equal to the width specified in the parent element.
+```
+typedef def_location_t {
+	uint32_t size;
+	uint32_t offset;
+};
+```
+
+| Field | Description | Legal Values |
+|:------|:------------|:-------------|
+| name | Name referenced by an element | strings |
+| size_width | Width in bytes of size field | A positive integer |
+| offset_width | Width in bytes of offset field | A positive integer |
