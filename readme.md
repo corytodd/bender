@@ -16,6 +16,7 @@ A YAML driven binary file viewer
 An element is the name we use to describe one or more bytes in a binary file. It has a collection of fields that control how the bytes are read, stored, and displayed.
 
 Before the definition of the elements list, there is defined a single element name base. This describes your spec by taking advantage of YAML merge keys.
+
 | Field | Description | Legal Values |
 |:------|:------------|:-------------|
 | little_endian | What order the bytes are stored in the file | YAML bool |
@@ -31,6 +32,7 @@ Before the definition of the elements list, there is defined a single element na
 ### Matrix Object
 A matrix formatter is a definition for representing your data as a matrix. The name of the matrix can be referenced
 by any element's matrix field. When a matrix is detected by the Bender parser, the format of the parent element controls the representation of the bytes. In the table below, the Units field controls the width of each variable in the array. The width parameter of the parent element control the *total* byte count fed into the matrix formatter.
+
 | Field | Description | Legal Values |
 |:------|:------------|:-------------|
 | name | Name referenced by an element | strings |
@@ -42,7 +44,7 @@ Sometimes your binary has dynamic data. We can still parse it by using a deferre
 
 This pattern is based on the technique of inserting a marker in your binary that is effectively a custom pointer. You are free to use whichever data types
 you would like for size and offset and long with the sum of their size in bytes is equal to the width specified in the parent element.
-```
+```c
 typedef def_location_t {
 	uint32_t size;
 	uint32_t offset;
