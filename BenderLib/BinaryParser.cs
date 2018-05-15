@@ -29,7 +29,7 @@
         /// <returns>Parsed result</returns>
         public Bender Parse(DataFile binary)
         {
-            var bender = new Bender(_mSpec);
+            var bender = new Bender();
 
             var hostIsLittleEndian = BitConverter.IsLittleEndian;
 
