@@ -33,7 +33,7 @@
 
     internal class ArgParser
     {       
-        private readonly IList<string> _mRequired = new List<string> { "-f", "-b", "-p" };
+        private readonly IList<string> _mRequired = new List<string> { "-s", "-b" };
 
         public Options Parse(string[] args)
         {
@@ -66,8 +66,8 @@
                 {
                     switch (str)
                     {
-                        case "-f":
-                        case "--file":
+                        case "-s":
+                        case "--spec":
                             nextCapture = (s) => result.SpecFile = s;
                             satisified.Add("-f");
                             break;
@@ -98,7 +98,11 @@
 
         public string Usage()
         {
-            return "Bender.exe -f /path/to/spec.yaml -b /path/to/your.bin [--print-spec]";
+            const string usage = "Bender.exe -f /path/to/spec.yaml -b /path/to/your.bin [--print-spec]\n" +
+                                 "-s,--spec\t\tIndicates which specification to use. This is the file in YAML\n" +
+                                 "-b,--binary\t\tIndicates which binary to parse. This is the binary described by your spec\n" +
+                                 "-p,--print-spec\t\tPrints the spec file to stdout (optional)";
+            return usage;
         }
     }
 }

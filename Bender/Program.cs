@@ -4,11 +4,11 @@ using BenderLib;
 
 namespace Bender
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            ArgParser parser = new ArgParser();
+            var parser = new ArgParser();
             var opts = parser.Parse(args);
 
             var ret = Run(opts);
