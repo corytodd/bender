@@ -54,3 +54,12 @@ typedef def_location_t {
 | name | Name referenced by an element | strings |
 | size_width | Width in bytes of size field | A positive integer |
 | offset_width | Width in bytes of offset field | A positive integer |
+
+
+### Structure
+Sometimes your data is more than just a number or a matrix. Use structures to define sequences of bytes that create more complicated data types.
+
+| Field | Description | Legal Values |
+|:------|:------------|:-------------|
+| name  | Name referenced by and element | strings |
+| elements | A list of elements contained in this structure | Any valid Element |

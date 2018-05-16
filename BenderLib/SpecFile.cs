@@ -37,9 +37,23 @@
         /// </summary>
         public IList<Element> Elements { get; set; }
 
+        /// <summary>
+        /// List of matrix formatters
+        /// </summary>
+        /// <value>The matrices.</value>
         public IList<Matrix> Matrices { get; set; }
 
+        /// <summary>
+        /// List of named deferred objects
+        /// </summary>
+        /// <value>The deferreds.</value>
         public IList<Deferred> Deferreds { get; set; }
+
+        /// <summary>
+        /// List of named structures
+        /// </summary>
+        /// <value>The structures.</value>
+		public IList<Structure> Structures { get; set; }
 
         /// <summary>
         /// Pretty print in tabular form:
