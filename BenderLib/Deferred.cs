@@ -13,15 +13,15 @@
         public string Name { get; set; }
 
         /// <summary>
-        /// Width of bytes of size field
+        /// Units of bytes of size field
         /// </summary>
-        [YamlMember(Alias = "size_width", ApplyNamingConventions = false)]
-        public int SizeWidth { get; set; }
+        [YamlMember(Alias = "size_units", ApplyNamingConventions = false)]
+        public int SizeUnits { get; set; }
 
         /// <summary>
-        /// Width in bytes of the offset field
+        /// Units in bytes of the offset field
         /// </summary>
-        [YamlMember(Alias = "offset_width", ApplyNamingConventions = false)]
-        public int OffsetWidth { get; set; }
+        [YamlMember(Alias = "offset_units", ApplyNamingConventions = false)]
+        public int OffsetUnits { get; set; }
     }
 }

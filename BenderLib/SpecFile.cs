@@ -30,12 +30,14 @@
         /// <summary>
         /// Default based element
         /// </summary>
-        public Element Base { get; set; }
+        [YamlMember(Alias = "base_element", ApplyNamingConventions = false)]
+        public Element BaseElement { get; set; }
 
         /// <summary>
-        /// Ordered list of elements in this file
+        /// Default based element
         /// </summary>
-        public IList<Element> Elements { get; set; }
+        [YamlMember(Alias = "base_matrix", ApplyNamingConventions = false)]
+        public Matrix BaseMatrix { get; set; }
 
         /// <summary>
         /// List of matrix formatters
@@ -85,7 +87,7 @@
             sb.AppendLine();
 
             sb.AppendLine("Default Element:");
-            foreach (var str in Base.EnumerateLayout())
+            foreach (var str in BaseElement.EnumerateLayout())
             {
                 sb.AppendFormat("\t{0}\n", str);
             }

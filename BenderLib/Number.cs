@@ -36,7 +36,7 @@
         /// <returns>Number type</returns>
         public static Number From(Element el, byte[] data)
         {
-            return From(el.Width, el.IsSigned, 0, data);
+            return From(el.Units, el.IsSigned, 0, data);
         }
 
         /// <summary>

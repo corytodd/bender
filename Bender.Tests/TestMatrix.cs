@@ -10,7 +10,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,
@@ -46,7 +46,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,
@@ -85,7 +85,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,
@@ -110,7 +110,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,

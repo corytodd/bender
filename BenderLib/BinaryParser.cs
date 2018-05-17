@@ -38,7 +38,7 @@
             {
                 foreach(var el in _mSpec.Elements)
                 {
-                    var buff = reader.ReadBytes(el.Width);                    
+                    var buff = reader.ReadBytes(el.Units);                    
                         
                     // If byte order does not match, flip now
                     if(!(el.LittleEndian && hostIsLittleEndian))
@@ -84,13 +84,13 @@
                 return null;
             }
 
-            var size = Number.From(def.SizeWidth, false, 0, buff);
-            var offset = Number.From(def.OffsetWidth, false, size.si, buff);
+            var size = Number.From(def.SizeUnits, false, 0, buff);
+            var offset = Number.From(def.OffsetUnits, false, size.si, buff);
 
             using (var stream = new MemoryStream(binary.Data))
             using (var reader = new BinaryReader(stream))
             {
-                el.Width = size.si;
+                el.Units = size.si;
                 reader.BaseStream.Position = offset.sl;
                 return reader.ReadBytes(size.si);
             }
@@ -124,7 +124,7 @@
                 {
                     case ElementFormat.Binary:
                         // Make sure every byte has 8 places, 0 filled if needed
-                        var binary = Convert.ToString(number.sl, 2).PadLeft(el.Width * 8, '0');
+                        var binary = Convert.ToString(number.sl, 2).PadLeft(el.Units * 8, '0');
                         value.Add(string.Format("b{0}", binary));
                         break;
                     case ElementFormat.Octal:
@@ -178,7 +178,7 @@
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
             var elClone = el.Clone();
             elClone.Matrix = string.Empty;
-            elClone.Width = payload.Units;
+            elClone.Units = payload.Units;
 
             string Formatter(Element e, byte[] d)
             {

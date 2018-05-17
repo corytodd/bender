@@ -10,7 +10,7 @@ namespace BenderLib.Tests
             var src = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,
@@ -22,7 +22,7 @@ namespace BenderLib.Tests
             var clone = src.Clone();
 
             Assert.Equal(src.Name, clone.Name);
-            Assert.Equal(src.Width, clone.Width);
+            Assert.Equal(src.Units, clone.Units);
             Assert.Equal(src.Format, clone.Format);
             Assert.Equal(src.Matrix, clone.Matrix);
             Assert.Equal(src.LittleEndian, clone.LittleEndian);
@@ -37,7 +37,7 @@ namespace BenderLib.Tests
             var src = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,
@@ -48,7 +48,7 @@ namespace BenderLib.Tests
 
             var actual = src.ToString();
             Assert.Contains(src.Name, actual);
-            Assert.Contains(src.Width.ToString(), actual);
+            Assert.Contains(src.Units.ToString(), actual);
             Assert.Contains(src.Format.ToString(), actual);
             Assert.Contains(src.LittleEndian.ToString(), actual);
             Assert.Contains(src.IsSigned.ToString(), actual);
@@ -62,7 +62,7 @@ namespace BenderLib.Tests
             var src = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,
@@ -73,7 +73,7 @@ namespace BenderLib.Tests
 
             var actual = string.Join(",", src.EnumerateLayout());
             Assert.Contains(src.Name, actual);
-            Assert.Contains(src.Width.ToString(), actual);
+            Assert.Contains(src.Units.ToString(), actual);
             Assert.Contains(src.Format.ToString(), actual);
             Assert.Contains(src.LittleEndian.ToString(), actual);
             Assert.Contains(src.IsSigned.ToString(), actual);

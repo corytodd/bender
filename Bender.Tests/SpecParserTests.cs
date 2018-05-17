@@ -36,15 +36,15 @@ namespace BenderLib.Tests
                 Elide = false,
                 IsReadOnly = false,
                 Format = ElementFormat.ASCII,
-                Width = 4,
+                Units = 4,
                 Name = "Undefined",
                 Matrix = null,
                 IsSigned = false
             };
-            Assert.Equal(el, result.Base);
+            Assert.Equal(el, result.BaseElement);
 
             Assert.False(string.IsNullOrEmpty(el.ToString()));
-            Assert.Equal(el.GetHashCode(), result.Base.GetHashCode());
+            Assert.Equal(el.GetHashCode(), result.BaseElement.GetHashCode());
         }
 
         [Fact]
@@ -56,8 +56,8 @@ namespace BenderLib.Tests
 
             var def = spec.Deferreds.First();
             Assert.Equal("neat_blob", def.Name);
-            Assert.Equal(4, def.SizeWidth);
-            Assert.Equal(4, def.OffsetWidth);
+            Assert.Equal(4, def.SizeUnits);
+            Assert.Equal(4, def.OffsetUnits);
 
             // Make sure that the element in this file has the right deferred name
             var el = spec.Elements.FirstOrDefault(e => def.Name.Equals(e.Deferred));
