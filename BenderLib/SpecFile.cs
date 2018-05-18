@@ -58,6 +58,16 @@
 		public IList<Structure> Structures { get; set; }
 
         /// <summary>
+        /// Ordered list of elements in this file
+        /// </summary>
+        public IList<Element> Elements { get; set; }
+
+        /// <summary>
+        /// Gets or Sets ordered layout tags
+        /// </summary>
+        public IList<string> Layout { get; set; }
+
+        /// <summary>
         /// Pretty print in tabular form:
         /// Name : Description
         /// -------------------------------
