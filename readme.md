@@ -1,6 +1,14 @@
 # Bender
 A YAML driven binary file viewer
 
+This program reads in a binary file specification written in YAML and emits neat, formatted data to your console.
+
+1) Define your YAML spec
+2) Feed YAML spec and a binary to Bender
+3) Profit
+
+![](examples/sample_01.PNG)
+
 ## YAML Definition
 | Name | Default Value | Description |
 |:-----|:--------------|:------------|

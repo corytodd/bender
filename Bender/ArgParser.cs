@@ -109,7 +109,7 @@
             const string usage = "Bender.exe -f /path/to/spec.yaml -b /path/to/your.bin [--print-spec]\n" +
                                  "-s,--spec\t\tIndicates which specification to use. This is the file in YAML\n" +
                                  "-b,--binary\t\tIndicates which binary to parse. This is the binary described by your spec\n" +
-                                 "-r,--root\t\tManually specify a YAML root for detecting binary specs (Optional)" +
+                                 "-r,--root\t\tManually specify a YAML root for detecting binary specs (Optional)\n" +
                                  "-p,--print-spec\t\tPrints the spec file to stdout (optional)";
             return usage;
         }
