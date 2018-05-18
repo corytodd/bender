@@ -1,5 +1,7 @@
 ﻿namespace BenderLib
 {
+    using System.Collections.Generic;
+    using System.Text;
     using YamlDotNet.Serialization;
 
     /// <summary>
@@ -23,5 +25,29 @@
         /// </summary>
         [YamlMember(Alias = "offset_units", ApplyNamingConventions = false)]
         public int OffsetUnits { get; set; }
+
+        /// <summary>
+        /// Generator yields each line from ToString()
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> EnumerateLayout()
+        {
+            var content = ToString().Split('\n');
+            foreach (var str in content)
+            {
+                yield return str;
+            }
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendFormat("Name: {0}\n", Name);
+            sb.AppendFormat("Size Units: {0}\n", SizeUnits);
+            sb.AppendFormat("Offset Units: {0}\n", OffsetUnits);
+
+            return sb.ToString();
+        }
     }
 }

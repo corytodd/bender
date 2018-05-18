@@ -110,6 +110,43 @@
             }
             sb.AppendLine();
 
+            sb.AppendLine("Default Matrix:");
+            foreach (var str in BaseMatrix.EnumerateLayout())
+            {
+                sb.AppendFormat("\t{0}\n", str);
+            }
+            sb.AppendLine();
+
+            sb.AppendLine("Matrices:");
+            foreach (var m in Matrices)
+            {
+                foreach (var str in m.EnumerateLayout())
+                {
+                    sb.AppendFormat("\t{0}\n", str);
+                }
+                sb.AppendLine();
+            }
+
+            sb.AppendLine("Deferreds:");
+            foreach (var m in Deferreds)
+            {
+                foreach (var str in m.EnumerateLayout())
+                {
+                    sb.AppendFormat("\t{0}\n", str);
+                }
+                sb.AppendLine();
+            }
+
+            sb.AppendLine("Structures:");
+            foreach (var m in Structures)
+            {
+                foreach (var str in m.EnumerateLayout())
+                {
+                    sb.AppendFormat("\t{0}\n", str);
+                }
+                sb.AppendLine();
+            }
+
             sb.AppendLine("Elements:");
             foreach(var el in Elements)
             {
@@ -118,6 +155,13 @@
                 }
                 sb.AppendLine();
             }
+
+            sb.AppendLine("Layout:");
+            foreach (var str in Layout)
+            {
+                sb.AppendFormat("\t{0}\n", str);
+            }
+            sb.AppendLine();
 
             return sb.ToString();
         }

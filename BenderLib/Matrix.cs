@@ -76,5 +76,29 @@
 
             return value;
         }
+
+        /// <summary>
+        /// Generator yields each line from ToString()
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> EnumerateLayout()
+        {
+            var content = ToString().Split('\n');
+            foreach (var str in content)
+            {
+                yield return str;
+            }
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendFormat("Name: {0}\n", Name);
+            sb.AppendFormat("Columns: {0}\n", Columns);
+            sb.AppendFormat("Units: {0}\n", Units);
+
+            return sb.ToString();
+        }
     }
 }

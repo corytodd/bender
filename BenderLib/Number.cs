@@ -53,7 +53,7 @@
         public static Number From(int width, bool signed, int offset, byte[] data)
         {
             var number = new Number();
-
+            
             // Set the long number for everything so any field can be 
             // access correctly
             switch (width)
