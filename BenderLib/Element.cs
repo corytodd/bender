@@ -47,18 +47,9 @@
     public class Element
     {
         /// <summary>
-        /// Private constructor for copy operation
-        /// </summary>
-        /// <param name="name"></param>
-        private Element(string name)
-        {
-            Name = name;
-        }
-
-        /// <summary>
         /// Human friendly name of this element
         /// </summary>
-        public readonly string Name;
+        public string Name { get; set; }
 
         /// <summary>
         /// True if btyes are in little Endian order
@@ -134,8 +125,9 @@
         /// <returns>Copy of this</returns>
         public Element Clone()
         {
-            return new Element(Name)
+            return new Element
             {
+                Name = Name,
                 LittleEndian = LittleEndian,
                 IsSigned = IsSigned,
                 Elide = Elide,
