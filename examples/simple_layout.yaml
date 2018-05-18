@@ -12,66 +12,106 @@ extensions:
     - test
     - simple
 
-base: &base
-    little_endian: yes
-    elide: no
-    readonly: no
-    format: ascii
-    width: 4
+base_element: &base_element
     name: Undefined
-    matrix:    
-    signed: no
+    elide: no
+    units: 4            # Bytes wide (1, 2, 4 etc.)
+    signed: no          # Is integer signed
+    format: ascii       # binary, decimal, octal, hex, ascii, utf16
+    little_endian: yes  # byte storage order
+    matrix:             # References a matrix by name
+    deferred:           # References a deferred by name
     
+base_matrix: &base_matrix
+    name: Undefined
+    columns: 2          # Number of values per row
+    units: 2            # Bytes wide (1, 2, 4 etc.)
+
+matrices:
+    - <<: *base_matrix
+      name: 4x1
+      columns: 4
+      units: 1
+    - <<: *base_matrix
+      name: 2x2
+      columns: 2
+      units: 2      
+
+deferreds:
+    - name: int_int
+      size_units: 4     # Bytes wide (1, 2, 4 etc.)
+      offset_units: 4   # Bytes wide (1, 2, 4 etc.)
+
+structures:
+    # A named, ordered list of elements
+    - name: Range
+      elements:
+        - <<: *base_element
+          name: Pair Count
+          units: 4
+          format: decimal
+        - <<: *base_element
+          name: Start
+          units: 4
+          format: decimal
+        - <<: *base_element
+          name: End
+          units: 4
+          format: decimal
+
 elements:
-    # Describe your data elements starting from byte 0
-    # These will be parses in the order written in this file.
-    - <<: *base
+    # A name descriptor for a sequence of bytes
+    - <<: *base_element
       name: Magic Number
 
-    - <<: *base
+    - <<: *base_element
       format: decimal
-      width: 1
+      units: 1
       name: Version
       
-    - <<: *base
+    - <<: *base_element
       signed: yes
       format: decimal
-      width: 1
+      units: 1
       name: Counter
 
-    - <<: *base
+    - <<: *base_element
       format: binary
-      width: 1
+      units: 1
       name: Flags
 
-    - <<: *base
+    - <<: *base_element
       little_endian: no
       format: hex
-      width: 2
+      units: 2
       name: CRC16
 
-    - <<: *base
+    - <<: *base_element
       elide: yes
       format: hex
-      width: 16
+      units: 16
       name: Payload
       
-    - <<: *base     
+    - <<: *base_element     
       format: decimal
-      width: 16
+      units: 16
       name: Transform A    
       matrix: 4x1
       
-    - <<: *base     
+    - <<: *base_element     
       format: decimal
-      width: 16
+      units: 16
       name: Transform B   
       matrix: 2x2    
       
-matrices:
-    - name: 4x1
-      columns: 4
-      units: 1
-    - name: 2x2
-      columns: 2
-      units: 2      
+layout:
+    # References any structure or element defined above
+    - Magic Number
+    - Version
+    - Counter
+    - Flags
+    - CRC16
+    - Payload
+    - Transform A  
+    - Transform B 
+    - Range
