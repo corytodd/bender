@@ -61,9 +61,7 @@
 
                     }
 
-                    var formatted = FormatBuffer(el, buff);
-
-                    // '-' means left align
+                    var formatted = FormatBuffer(el, buff);          
                     bender.FormattedFields.Add(formatted);
                 }
             }
@@ -71,6 +69,15 @@
             return bender;
         }
 
+        /// <summary>
+        /// Use buff data to locate a deferred record. If the record can be located,
+        /// it will be parsed according the element rules and the raw byte[] will be
+        /// returned for further processing.
+        /// </summary>
+        /// <param name="el">Element rules</param>
+        /// <param name="binary">Binary source file</param>
+        /// <param name="buff">Buffer record</param>
+        /// <returns>Deferred data block</returns>
         private byte[] HandleDeferredRead(Element el, DataFile binary, byte[] buff)
         {
             if (_mSpec.Deferreds == null)

@@ -2,7 +2,11 @@
 {
     using System.Collections.Generic;
     using System.Text;
+    using YamlDotNet.Serialization;
 
+    /// <summary>
+    /// Represents YAML specification for Bender files
+    /// </summary>
     public class SpecFile
     {
         /// <summary>
@@ -77,9 +81,12 @@
         /// Default Element:
         ///    key : value
         ///    key : value
-        ///    
+        /// Default Matrix:
+        ///    key : value
+        ///    key : value       
+        /// ...
         /// Elements:
-        ///    
+        ///   ...
         /// </summary>
         /// <returns></returns>
         public override string ToString()

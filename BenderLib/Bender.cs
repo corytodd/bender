@@ -8,7 +8,8 @@
     public class Bender
     {
         /// <summary>
-        /// Contains one complete, formatted field entry
+        /// Contains one complete, formatted field entry that can span
+        /// rows and maintain column alignment.
         /// { "field name", "decode value(s) that"
         ///                 "can span lines" }
         /// </summary>
@@ -31,7 +32,5 @@
         /// Returns list of formatted data extracted from binary
         /// </summary>
         public IList<FormattedField> FormattedFields { get; }
-
-
     }
 }

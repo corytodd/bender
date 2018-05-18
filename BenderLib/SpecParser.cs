@@ -29,7 +29,7 @@
                     return deserializer.Deserialize<SpecFile>(parser);
                 }
             }
-            catch (SemanticErrorException ex)
+            catch (YamlException ex)
             {                
                 throw new ParseException(ex.Message);
             }

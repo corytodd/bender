@@ -10,21 +10,55 @@
     /// </summary>
     public enum ElementFormat
     {
+        /// <summary>
+        /// Format value as binary with 'b' prefix and
+        /// 8 characters per byte (left zero padded). LSB
+        /// is on the right end of the string.
+        /// e.g. b011100101
+        /// </summary>
         Binary,
+        /// <summary>
+        /// Format value as octal with 'o' prefix
+        /// </summary>
         Octal,
+        /// <summary>
+        /// Format as decimal
+        /// </summary>
         Decimal,
+        /// <summary>
+        /// Format value as hex with '0x' prefix
+        /// </summary>
         Hex,
+        /// <summary>
+        /// Parse as ASCII text
+        /// </summary>
         ASCII,
+        /// <summary>
+        /// Format value as a UTF-16 string
+        /// </summary>
         UTF16,
     }
 
-    [DebuggerDisplay("Name = {Name}, Width = {Width}")]
+    /// <summary>
+    /// Element defines rules for a sequence of bytes. The name
+    /// of an element must be unique to the specification file
+    /// </summary>
+    [DebuggerDisplay("Name = {Name}, Units = {Units}")]
     public class Element
     {
         /// <summary>
+        /// Private constructor for copy operation
+        /// </summary>
+        /// <param name="name"></param>
+        private Element(string name)
+        {
+            Name = name;
+        }
+
+        /// <summary>
         /// Human friendly name of this element
         /// </summary>
-        public string Name { get; set; }
+        public readonly string Name;
 
         /// <summary>
         /// True if btyes are in little Endian order
@@ -100,9 +134,8 @@
         /// <returns>Copy of this</returns>
         public Element Clone()
         {
-            return new Element
+            return new Element(Name)
             {
-                Name = Name,
                 LittleEndian = LittleEndian,
                 IsSigned = IsSigned,
                 Elide = Elide,

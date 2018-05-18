@@ -6,7 +6,7 @@
     /// <summary>
     /// Wraps arbitrary data
     /// </summary>
-    [DebuggerDisplay("Size = {Size}")]
+    [DebuggerDisplay("Size = {" + nameof(Size) + "}")]
     public class DataFile
     {
         private readonly byte[] _mData;
@@ -34,12 +34,7 @@
         /// <returns>Datafile</returns>
         public static DataFile From(string filePath)
         {
-            try
-            {
-                return new DataFile(File.ReadAllBytes(filePath));
-            } catch {
-                return new DataFile(new byte[0]);
-            }
+            return !File.Exists(filePath) ? DataFile.From(new byte[0]) : new DataFile(File.ReadAllBytes(filePath));
         }
 
         /// <summary>

@@ -8,6 +8,7 @@
     /// </summary>
     public class BenderPrinter
     {
+        // '-' means left align
         private static readonly string DefaultRowFormat = "{0,-20} {1,-16}" + Environment.NewLine;
         private static readonly string DefaultHeader = string.Format(DefaultRowFormat, "Element", "Value");
         private static readonly string DefaultLineDelimiter = new string('=', 80);
@@ -44,15 +45,15 @@
         /// <param name="stream">Where data is being written to</param>
         public void WriteStream(Bender bender, Stream stream)
         {
-            void writeBytes(string s)
+            void WriteBytes(string s)
             {
                 var bytes = System.Text.Encoding.UTF8.GetBytes(s);
                 stream.Write(bytes, 0, bytes.Length);
             }
 
-            writeBytes(Header);
-            writeBytes(LineDelimiter);
-            writeBytes(Environment.NewLine);
+            WriteBytes(Header);
+            WriteBytes(LineDelimiter);
+            WriteBytes(Environment.NewLine);
 
             foreach (var f in bender.FormattedFields)
             {
@@ -63,11 +64,11 @@
                     if (isFirst)
                     {
                         isFirst = false;
-                        writeBytes(string.Format(RowFormat, f.Name, v));
+                        WriteBytes(string.Format(RowFormat, f.Name, v));
                     }
                     else
                     {
-                        writeBytes(string.Format(RowFormat, string.Empty, v));
+                        WriteBytes(string.Format(RowFormat, string.Empty, v));
                     }
 
                 }
