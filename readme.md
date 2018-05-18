@@ -7,7 +7,7 @@ This program reads in a binary file specification written in YAML and emits neat
 2) Feed YAML spec and a binary to Bender
 3) Profit
 
-![](examples/sample_01.png)
+![](examples/sample_01.PNG)
 
 ## YAML Definition
 | Name | Default Value | Description |
