@@ -27,46 +27,105 @@
         /// </summary>
         /// <param name="binary">Data to parse</param>
         /// <returns>Parsed result</returns>
+        /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
+        /// number with width bytes</exception>
         public Bender Parse(DataFile binary)
+        {
+            if (binary == null)
+            {
+                throw new ArgumentException("{0} cannot be null", nameof(binary));
+            }
+
+            if (binary.Empty)
+            {
+                throw new ArgumentException("{0} cannot be empty", nameof(binary));
+            }
+
+            try
+            {
+                return TryParse(binary);
+            }
+            catch (OutOfDataException ex)
+            {
+                throw ex as ParseException;
+            }
+        }
+
+        private Bender TryParse(DataFile binary)
         {
             var bender = new Bender();
 
-            var hostIsLittleEndian = BitConverter.IsLittleEndian;
-
-            using(var stream = new MemoryStream(binary.Data))
+            using (var stream = new MemoryStream(binary.Data))
             using (var reader = new BinaryReader(stream))
             {
-                foreach(var el in _mSpec.Elements)
+
+                foreach (var str in _mSpec.Layout)
                 {
-                    var buff = reader.ReadBytes(el.Units);                    
-                        
-                    // If byte order does not match, flip now
-                    if(!(el.LittleEndian && hostIsLittleEndian))
+                    var els = new List<Element>();
+                    var st = _mSpec.Structures.FirstOrDefault(o => o.Name.Equals(str));
+                    if (st != null)
                     {
-                        Array.Reverse(buff);
+                        els.AddRange(st.Elements);
                     }
-
-                    // If this is deferred read, collect the deferred data
-                    if (!string.IsNullOrEmpty(el.Deferred))
+                    else
                     {
-                        buff = HandleDeferredRead(el, binary, buff);
-
-                        if (buff == null)
+                        var el = _mSpec.Elements.FirstOrDefault(o => o.Name.Equals(str));
+                        if (el != null)
                         {
-                            bender.FormattedFields.Add(new Bender.FormattedField
-                            {
-                                Name = el.Name, Value = new List<string> { "Error: Invalid deferred object" }
-                            });
+                            els.Add(el);
                         }
-
                     }
 
-                    var formatted = FormatBuffer(el, buff);          
-                    bender.FormattedFields.Add(formatted);
+                    if (els.Count == 0)
+                    {
+                        var formatted = new Bender.FormattedField
+                        {
+                            Name = str,
+                            Value = new List<string> { "Undefined object" }
+                        };
+                        bender.FormattedFields.Add(formatted);
+                    }
+                    else
+                    {
+                        foreach (var el in els)
+                        {
+                            var formatted = HandleElement(el, reader, binary);
+                            bender.FormattedFields.Add(formatted);
+                        }
+                    }
                 }
             }
 
             return bender;
+        }
+
+        private Bender.FormattedField HandleElement(Element el, BinaryReader reader, DataFile binary)
+        {
+            var buff = reader.ReadBytes(el.Units);
+
+            // If byte order does not match, flip now
+            if (!(el.LittleEndian && BitConverter.IsLittleEndian))
+            {
+                Array.Reverse(buff);
+            }
+
+            // If this is deferred read, collect the deferred data
+            if (string.IsNullOrEmpty(el.Deferred))
+            {
+                return FormatBuffer(el, buff);
+            }
+            buff = HandleDeferredRead(el, binary, buff);
+
+            if (buff == null)
+            {
+                return new Bender.FormattedField
+                {
+                    Name = el.Name,
+                    Value = new List<string> { "Error: Invalid deferred object" }
+                };
+            }
+
+            return FormatBuffer(el, buff);
         }
 
         /// <summary>
@@ -109,6 +168,8 @@
         /// <param name="el">Element rules</param>
         /// <param name="data">Data to format</param>
         /// <returns>Formatted string</returns>
+        /// <exception cref="OutOfDataException">Raised if data from offset does not have enough bytes to make a
+        /// number with width bytes</exception>
         private Bender.FormattedField FormatBuffer(Element el, byte[] data)
         {
             if (el.Elide)
@@ -123,37 +184,46 @@
         
             var value = new List<string>();
 
-            if (string.IsNullOrEmpty(el.Matrix))
+            if (!string.IsNullOrEmpty(el.Matrix))
             {
-                var number = Number.From(el, data);
-
-                switch (el.Format)
-                {
-                    case ElementFormat.Binary:
-                        // Make sure every byte has 8 places, 0 filled if needed
-                        var binary = Convert.ToString(number.sl, 2).PadLeft(el.Units * 8, '0');
-                        value.Add(string.Format("b{0}", binary));
-                        break;
-                    case ElementFormat.Octal:
-                        value.Add(string.Format("O{0}", Convert.ToString(number.sl, 8)));
-                        break;
-                    case ElementFormat.Decimal:
-                        value.Add(number.sl.ToString());
-                        break;
-                    case ElementFormat.Hex:
-                        value.Add(string.Format("0x{0:X}", number.sl));
-                        break;
-                    case ElementFormat.ASCII:
-                        value.Add(Encoding.ASCII.GetString(data));
-                        break;
-                    case ElementFormat.UTF16:
-                        value.Add(Encoding.Unicode.GetString(data));
-                        break;
-                }
+                value.AddRange(FormatMatrix(el, data));
             }
             else
             {
-                value.AddRange(FormatMatrix(el, data));
+                try
+                {
+                    var number = Number.From(el, data);
+
+                    switch (el.Format)
+                    {
+                        case ElementFormat.Binary:
+                            // Make sure every byte has 8 places, 0 filled if needed
+                            var binary = Convert.ToString(number.sl, 2).PadLeft(el.Units * 8, '0');
+                            value.Add(string.Format("b{0}", binary));
+                            break;
+                        case ElementFormat.Octal:
+                            value.Add(string.Format("O{0}", Convert.ToString(number.sl, 8)));
+                            break;
+                        case ElementFormat.Decimal:
+                            value.Add(number.sl.ToString());
+                            break;
+                        case ElementFormat.Hex:
+                            value.Add(string.Format("0x{0:X}", number.sl));
+                            break;
+                        case ElementFormat.ASCII:
+                            value.Add(Encoding.ASCII.GetString(data));
+                            break;
+                        case ElementFormat.UTF16:
+                            value.Add(Encoding.Unicode.GetString(data));
+                            break;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    throw new OutOfDataException(
+                        "Element {0}: Not enough data left to create a {1} byte number ({2} bytes left)",
+                        el.Name, el.Units, data.Length);
+                }
             }
 
             return new Bender.FormattedField

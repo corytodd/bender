@@ -1,5 +1,6 @@
 ﻿namespace BenderLib
 {
+    using System.Collections.Generic;
     using YamlDotNet.Serialization;
     using YamlDotNet.Core;
     using YamlDotNet.Serialization.NamingConventions;
@@ -30,8 +31,13 @@
                 }
             }
             catch (YamlException ex)
-            {                
+            {
                 throw new ParseException(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                var err = string.Format("Malformed YAML, try running through an online validator: {0}", ex.Message);
+                throw new ParseException(err);
             }
         }
     }

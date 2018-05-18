@@ -1,8 +1,7 @@
-﻿using System.Text;
-
-namespace BenderLib
+﻿namespace BenderLib
 {
 	using System.Collections.Generic;
+	using System.Text;
 
     public class Structure
     {
