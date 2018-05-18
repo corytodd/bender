@@ -10,13 +10,12 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var mat = new Matrix
@@ -46,13 +45,12 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var mat = new Matrix
@@ -85,13 +83,12 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var mat = new Matrix
@@ -110,13 +107,12 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Name = "Test",
-                Width = 8,
+                Units = 8,
                 Format = ElementFormat.ASCII,
                 Matrix = string.Empty,
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var mat = new Matrix

@@ -10,7 +10,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Format = ElementFormat.Decimal,
-                Width = 1,
+                Units = 1,
                 IsSigned = true,
             };
 
@@ -28,7 +28,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Format = ElementFormat.Decimal,
-                Width = 1,
+                Units = 1,
                 IsSigned = false,
             };
 
@@ -44,7 +44,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Format = ElementFormat.Decimal,
-                Width = 2,
+                Units = 2,
                 IsSigned = true,
             };
 
@@ -62,7 +62,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Format = ElementFormat.Decimal,
-                Width = 2,
+                Units = 2,
                 IsSigned = false,
             };
 
@@ -78,7 +78,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Format = ElementFormat.Decimal,
-                Width = 4,
+                Units = 4,
                 IsSigned = true,
             };
 
@@ -96,7 +96,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Format = ElementFormat.Decimal,
-                Width = 4,
+                Units = 4,
                 IsSigned = false,
             };
 
@@ -112,7 +112,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Format = ElementFormat.Decimal,
-                Width = 8,
+                Units = 8,
                 IsSigned = true,
             };
 
@@ -130,7 +130,7 @@ namespace BenderLib.Tests
             var el = new Element
             {
                 Format = ElementFormat.Decimal,
-                Width = 8,
+                Units = 8,
                 IsSigned = false,
             };
 

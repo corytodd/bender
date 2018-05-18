@@ -83,89 +83,9 @@ namespace BenderLib.Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] test_deferred {
-            get {
-                object obj = ResourceManager.GetObject("test_deferred", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         internal static byte[] test_deferred_binary {
             get {
                 object obj = ResourceManager.GetObject("test_deferred_binary", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] test_deferred_malformed {
-            get {
-                object obj = ResourceManager.GetObject("test_deferred_malformed", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] test_invalid {
-            get {
-                object obj = ResourceManager.GetObject("test_invalid", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] test_matrices {
-            get {
-                object obj = ResourceManager.GetObject("test_matrices", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] test_matrices_malformed {
-            get {
-                object obj = ResourceManager.GetObject("test_matrices_malformed", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] test_signed {
-            get {
-                object obj = ResourceManager.GetObject("test_signed", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] test_string {
-            get {
-                object obj = ResourceManager.GetObject("test_string", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] test_unsigned {
-            get {
-                object obj = ResourceManager.GetObject("test_unsigned", resourceCulture);
                 return ((byte[])(obj));
             }
         }

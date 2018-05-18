@@ -1,5 +1,7 @@
 ﻿namespace BenderLib
 {
+    using System.Collections.Generic;
+    using System.Text;
     using YamlDotNet.Serialization;
 
     /// <summary>
@@ -13,15 +15,39 @@
         public string Name { get; set; }
 
         /// <summary>
-        /// Width of bytes of size field
+        /// Units of bytes of size field
         /// </summary>
-        [YamlMember(Alias = "size_width", ApplyNamingConventions = false)]
-        public int SizeWidth { get; set; }
+        [YamlMember(Alias = "size_units", ApplyNamingConventions = false)]
+        public int SizeUnits { get; set; }
 
         /// <summary>
-        /// Width in bytes of the offset field
+        /// Units in bytes of the offset field
         /// </summary>
-        [YamlMember(Alias = "offset_width", ApplyNamingConventions = false)]
-        public int OffsetWidth { get; set; }
+        [YamlMember(Alias = "offset_units", ApplyNamingConventions = false)]
+        public int OffsetUnits { get; set; }
+
+        /// <summary>
+        /// Generator yields each line from ToString()
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> EnumerateLayout()
+        {
+            var content = ToString().Split('\n');
+            foreach (var str in content)
+            {
+                yield return str;
+            }
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendFormat("Name: {0}\n", Name);
+            sb.AppendFormat("Size Units: {0}\n", SizeUnits);
+            sb.AppendFormat("Offset Units: {0}\n", OffsetUnits);
+
+            return sb.ToString();
+        }
     }
 }

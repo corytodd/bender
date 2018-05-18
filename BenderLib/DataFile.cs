@@ -6,7 +6,7 @@
     /// <summary>
     /// Wraps arbitrary data
     /// </summary>
-    [DebuggerDisplay("Size = {Size}")]
+    [DebuggerDisplay("Size = {" + nameof(Size) + "}")]
     public class DataFile
     {
         private readonly byte[] _mData;
@@ -34,12 +34,18 @@
         /// <returns>Datafile</returns>
         public static DataFile From(string filePath)
         {
-            try
-            {
-                return new DataFile(File.ReadAllBytes(filePath));
-            } catch {
-                return new DataFile(new byte[0]);
-            }
+            return !File.Exists(filePath) ? DataFile.From(new byte[0]) : new DataFile(File.ReadAllBytes(filePath));
+        }
+
+        /// <summary>
+        /// Create a datafile directly from an ASCII string
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static DataFile FromASCII(string content)
+        {
+            var buff = System.Text.Encoding.ASCII.GetBytes(content);
+            return new DataFile(buff);
         }
 
         /// <summary>

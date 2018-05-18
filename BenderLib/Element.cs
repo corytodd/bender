@@ -10,15 +10,40 @@
     /// </summary>
     public enum ElementFormat
     {
+        /// <summary>
+        /// Format value as binary with 'b' prefix and
+        /// 8 characters per byte (left zero padded). LSB
+        /// is on the right end of the string.
+        /// e.g. b011100101
+        /// </summary>
         Binary,
+        /// <summary>
+        /// Format value as octal with 'o' prefix
+        /// </summary>
         Octal,
+        /// <summary>
+        /// Format as decimal
+        /// </summary>
         Decimal,
+        /// <summary>
+        /// Format value as hex with '0x' prefix
+        /// </summary>
         Hex,
+        /// <summary>
+        /// Parse as ASCII text
+        /// </summary>
         ASCII,
+        /// <summary>
+        /// Format value as a UTF-16 string
+        /// </summary>
         UTF16,
     }
 
-    [DebuggerDisplay("Name = {Name}, Width = {Width}")]
+    /// <summary>
+    /// Element defines rules for a sequence of bytes. The name
+    /// of an element must be unique to the specification file
+    /// </summary>
+    [DebuggerDisplay("Name = {Name}, Units = {Units}")]
     public class Element
     {
         /// <summary>
@@ -45,12 +70,6 @@
         public bool Elide { get; set; }
 
         /// <summary>
-        /// True to disallow modiyfing this object
-        /// </summary>
-        [YamlMember(Alias = "readonly", ApplyNamingConventions = false)]
-        public bool IsReadOnly { get; set; }
-
-        /// <summary>
         /// How the bytes should be assembled
         /// </summary>
         public ElementFormat Format { get; set; }
@@ -58,7 +77,7 @@
         /// <summary>
         /// Number of bytes in element
         /// </summary>
-        public int Width { get; set; }
+        public int Units { get; set; }
         
         /// <summary>
         /// If this block contains a payload, Matrix value should match a known
@@ -93,9 +112,8 @@
             sb.AppendFormat("Elide: {0}\n", Elide);
             sb.AppendFormat("Signed: {0}\n", IsSigned);
             sb.AppendFormat("Format: {0}\n", Format);
-            sb.AppendFormat("Width: {0}\n", Width);
+            sb.AppendFormat("Units: {0}\n", Units);
             sb.AppendFormat("Payload: {0}\n", Matrix);
-            sb.AppendFormat("Read Only: {0}\n", IsReadOnly);
             sb.AppendFormat("Little Endian: {0}\n", LittleEndian);
 
             return sb.ToString();
@@ -113,9 +131,8 @@
                 LittleEndian = LittleEndian,
                 IsSigned = IsSigned,
                 Elide = Elide,
-                IsReadOnly = IsReadOnly,
                 Format = Format,
-                Width = Width,
+                Units = Units,
                 Matrix = Matrix,
             };
         }
@@ -127,9 +144,8 @@
                    LittleEndian == element.LittleEndian &&
                    IsSigned == element.IsSigned &&
                    Elide == element.Elide &&
-                   IsReadOnly == element.IsReadOnly &&
                    Format == element.Format &&
-                   Width == element.Width &&
+                   Units == element.Units &&
                    Matrix == element.Matrix;
         }
 
@@ -137,13 +153,6 @@
         {
             var hashCode = 170416633;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
-            hashCode = hashCode * -1521134295 + LittleEndian.GetHashCode();
-            hashCode = hashCode * -1521134295 + IsSigned.GetHashCode();
-            hashCode = hashCode * -1521134295 + Elide.GetHashCode();
-            hashCode = hashCode * -1521134295 + IsReadOnly.GetHashCode();
-            hashCode = hashCode * -1521134295 + Format.GetHashCode();
-            hashCode = hashCode * -1521134295 + Width.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Matrix);
             return hashCode;
         }
     }

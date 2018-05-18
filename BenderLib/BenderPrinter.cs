@@ -8,6 +8,7 @@
     /// </summary>
     public class BenderPrinter
     {
+        // '-' means left align
         private static readonly string DefaultRowFormat = "{0,-20} {1,-16}" + Environment.NewLine;
         private static readonly string DefaultHeader = string.Format(DefaultRowFormat, "Element", "Value");
         private static readonly string DefaultLineDelimiter = new string('=', 80);
@@ -42,17 +43,29 @@
         /// </summary>
         /// <param name="bender">Data to write</param>
         /// <param name="stream">Where data is being written to</param>
+        /// <exception cref="ArgumentException">Raised is bender or stream are null or if stream cannot be written</exception>
         public void WriteStream(Bender bender, Stream stream)
         {
-            void writeBytes(string s)
+            if (bender == null)
+            {
+                throw new ArgumentException("{0} cannot be null", nameof(bender));
+            }
+
+            if (stream == null || !stream.CanWrite)
+            {
+                throw new ArgumentException("{0} cannot be written", nameof(stream));
+            }
+
+            // Helper function wraps stream write operation
+            void WriteBytes(string s)
             {
                 var bytes = System.Text.Encoding.UTF8.GetBytes(s);
                 stream.Write(bytes, 0, bytes.Length);
             }
 
-            writeBytes(Header);
-            writeBytes(LineDelimiter);
-            writeBytes(Environment.NewLine);
+            WriteBytes(Header);
+            WriteBytes(LineDelimiter);
+            WriteBytes(Environment.NewLine);
 
             foreach (var f in bender.FormattedFields)
             {
@@ -63,11 +76,11 @@
                     if (isFirst)
                     {
                         isFirst = false;
-                        writeBytes(string.Format(RowFormat, f.Name, v));
+                        WriteBytes(string.Format(RowFormat, f.Name, v));
                     }
                     else
                     {
-                        writeBytes(string.Format(RowFormat, string.Empty, v));
+                        WriteBytes(string.Format(RowFormat, string.Empty, v));
                     }
 
                 }

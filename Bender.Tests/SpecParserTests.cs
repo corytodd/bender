@@ -10,7 +10,7 @@ namespace BenderLib.Tests
         [Fact]
         public void TestInvalidFile()
         {
-            var df = DataFile.From(Properties.Resources.test_invalid);
+            var df = DataFile.FromASCII(TestData.TestInvalidYAML);
             var parser = new SpecParser();
             Assert.Throws<ParseException>(() => parser.Parse(df));
         }
@@ -34,30 +34,30 @@ namespace BenderLib.Tests
             {
                 LittleEndian = true,
                 Elide = false,
-                IsReadOnly = false,
                 Format = ElementFormat.ASCII,
-                Width = 4,
+                Units = 4,
                 Name = "Undefined",
                 Matrix = null,
                 IsSigned = false
             };
-            Assert.Equal(el, result.Base);
+            Assert.Equal(el, result.BaseElement);
 
             Assert.False(string.IsNullOrEmpty(el.ToString()));
-            Assert.Equal(el.GetHashCode(), result.Base.GetHashCode());
+            Assert.Equal(el.GetHashCode(), result.BaseElement.GetHashCode());
         }
 
         [Fact]
         public void TestParseDeferred()
         {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_deferred));
+            var df = DataFile.FromASCII(TestData.TestDeferred);
+            var spec = new SpecParser().Parse(df);
             Assert.NotNull(spec.Deferreds);
             Assert.Equal(1, spec.Deferreds.Count);
 
             var def = spec.Deferreds.First();
             Assert.Equal("neat_blob", def.Name);
-            Assert.Equal(4, def.SizeWidth);
-            Assert.Equal(4, def.OffsetWidth);
+            Assert.Equal(4, def.SizeUnits);
+            Assert.Equal(4, def.OffsetUnits);
 
             // Make sure that the element in this file has the right deferred name
             var el = spec.Elements.FirstOrDefault(e => def.Name.Equals(e.Deferred));

@@ -36,7 +36,7 @@
         /// <returns>Number type</returns>
         public static Number From(Element el, byte[] data)
         {
-            return From(el.Width, el.IsSigned, 0, data);
+            return From(el.Units, el.IsSigned, 0, data);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@
         public static Number From(int width, bool signed, int offset, byte[] data)
         {
             var number = new Number();
-
+            
             // Set the long number for everything so any field can be 
             // access correctly
             switch (width)
