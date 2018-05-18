@@ -14,62 +14,62 @@
         /// Will always be in the format: bender.vX
         /// where X is the schema revision
         /// </summary>
-        public string Format { get; set; }
+        public string Format { get; set; } = string.Empty;
 
         /// <summary>
         /// Friendly name for what this bender is describing
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Detailed description of bender
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// List of file extension known to associate with this specification
         /// </summary>
-        public IList<string> Extensions { get; set; }
+        public IList<string> Extensions { get; set; } = new List<string>();
 
         /// <summary>
         /// Default based element
         /// </summary>
         [YamlMember(Alias = "base_element", ApplyNamingConventions = false)]
-        public Element BaseElement { get; set; }
+        public Element BaseElement { get; set; } = new Element();
 
         /// <summary>
         /// Default based element
         /// </summary>
         [YamlMember(Alias = "base_matrix", ApplyNamingConventions = false)]
-        public Matrix BaseMatrix { get; set; }
+        public Matrix BaseMatrix { get; set; } = new Matrix();
 
         /// <summary>
         /// List of matrix formatters
         /// </summary>
         /// <value>The matrices.</value>
-        public IList<Matrix> Matrices { get; set; }
+        public IList<Matrix> Matrices { get; set; } = new List<Matrix>();
 
         /// <summary>
         /// List of named deferred objects
         /// </summary>
         /// <value>The deferreds.</value>
-        public IList<Deferred> Deferreds { get; set; }
+        public IList<Deferred> Deferreds { get; set; } = new List<Deferred>();
 
         /// <summary>
         /// List of named structures
         /// </summary>
         /// <value>The structures.</value>
-		public IList<Structure> Structures { get; set; }
+		public IList<Structure> Structures { get; set; } = new List<Structure>();
 
         /// <summary>
         /// Ordered list of elements in this file
         /// </summary>
-        public IList<Element> Elements { get; set; }
+        public IList<Element> Elements { get; set; } = new List<Element>();
 
         /// <summary>
         /// Gets or Sets ordered layout tags
         /// </summary>
-        public IList<string> Layout { get; set; }
+        public IList<string> Layout { get; set; } = new List<string>();
 
         /// <summary>
         /// Pretty print in tabular form:

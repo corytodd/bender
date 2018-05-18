@@ -44,9 +44,27 @@ namespace Bender
             {
                 return 1;
             }
+            
+            try
+            {
+                var bender = new BinaryParser(spec).Parse(binary);
+                WriteToConsole(spec, bender);               
+                return 0;
+            }
+            catch (ParseException ex)
+            {
+                Console.WriteLine("Failed to parse binary file: {0}", ex.Message);
+                return 1;
+            }
+        }
 
-            var bender = new BinaryParser(spec).Parse(binary);
-
+        /// <summary>
+        /// Pritn bender file to console
+        /// </summary>
+        /// <param name="spec">Original spec file</param>
+        /// <param name="bender">Parsed binder</param>
+        private static void WriteToConsole(SpecFile spec, BenderLib.Bender bender)
+        {
             Console.WriteLine("Binary File - {0}{1}", spec.Name, Environment.NewLine);
             using (var stream = new MemoryStream())
             {
@@ -65,8 +83,6 @@ namespace Bender
             }
 
             Console.WriteLine();
-
-            return 0;
         }
 
         private static SpecFile GetSpecFile(Options opts)
