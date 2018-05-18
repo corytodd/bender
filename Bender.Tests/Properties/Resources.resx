@@ -124,31 +124,7 @@
   <data name="simple_layout_binary" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\examples\simple_layout_binary.simple;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="test_deferred" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\examples\test_deferred.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="test_deferred_binary" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\examples\test_deferred_binary.simple;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="test_deferred_malformed" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\examples\test_deferred_malformed.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="test_invalid" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\examples\test_invalid.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="test_matrices" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\examples\test_matrices.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="test_matrices_malformed" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\examples\test_matrices_malformed.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="test_signed" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\examples\test_signed.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="test_string" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\examples\test_string.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="test_unsigned" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\examples\test_unsigned.yaml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

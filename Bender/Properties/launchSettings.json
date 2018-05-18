@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Bender": {
-      "commandName": "Project",
-      "commandLineArgs": "-s examples/test_deferred.yaml -b examples/test_deferred_binary.simple"
+      "commandName": "Project"
     }
   }
 }

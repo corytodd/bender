@@ -38,6 +38,17 @@
         }
 
         /// <summary>
+        /// Create a datafile directly from an ASCII string
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static DataFile FromASCII(string content)
+        {
+            var buff = System.Text.Encoding.ASCII.GetBytes(content);
+            return new DataFile(buff);
+        }
+
+        /// <summary>
         /// Returns raw data as a UTF8 string
         /// </summary>
         /// <returns></returns>

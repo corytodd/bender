@@ -53,11 +53,11 @@ structures:
         - <<: *base_element
           name: Start
           units: 4
-          format: decimal
+          format: hex
         - <<: *base_element
           name: End
           units: 4
-          format: decimal
+          format: hex
 
 elements:
     # A name descriptor for a sequence of bytes

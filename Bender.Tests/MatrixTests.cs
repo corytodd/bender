@@ -16,7 +16,6 @@ namespace BenderLib.Tests
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var mat = new Matrix
@@ -52,7 +51,6 @@ namespace BenderLib.Tests
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var mat = new Matrix
@@ -91,7 +89,6 @@ namespace BenderLib.Tests
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var mat = new Matrix
@@ -116,7 +113,6 @@ namespace BenderLib.Tests
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var mat = new Matrix

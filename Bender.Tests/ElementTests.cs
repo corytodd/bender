@@ -16,7 +16,6 @@ namespace BenderLib.Tests
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var clone = src.Clone();
@@ -28,7 +27,6 @@ namespace BenderLib.Tests
             Assert.Equal(src.LittleEndian, clone.LittleEndian);
             Assert.Equal(src.IsSigned, clone.IsSigned);
             Assert.Equal(src.Elide, clone.Elide);
-            Assert.Equal(src.IsReadOnly, clone.IsReadOnly);
         }
 
         [Fact]
@@ -43,7 +41,6 @@ namespace BenderLib.Tests
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var actual = src.ToString();
@@ -53,7 +50,6 @@ namespace BenderLib.Tests
             Assert.Contains(src.LittleEndian.ToString(), actual);
             Assert.Contains(src.IsSigned.ToString(), actual);
             Assert.Contains(src.Elide.ToString(), actual);
-            Assert.Contains(src.IsReadOnly.ToString(), actual);
         }
 
         [Fact]
@@ -68,7 +64,6 @@ namespace BenderLib.Tests
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
-                IsReadOnly = true,
             };
 
             var actual = string.Join(",", src.EnumerateLayout());
@@ -78,7 +73,6 @@ namespace BenderLib.Tests
             Assert.Contains(src.LittleEndian.ToString(), actual);
             Assert.Contains(src.IsSigned.ToString(), actual);
             Assert.Contains(src.Elide.ToString(), actual);
-            Assert.Contains(src.IsReadOnly.ToString(), actual);
         }
     }
 }

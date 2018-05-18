@@ -7,7 +7,7 @@ namespace BenderLib.Tests
         [Fact]
         public void TestParseMatchingSpec()
         {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.simple_layout));
+            var spec = new SpecParser().Parse(DataFile.FromASCII(TestData.SimpleTest));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }
@@ -15,15 +15,7 @@ namespace BenderLib.Tests
         [Fact]
         public void TestParseMissingMatrix()
         {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_matrices));
-            var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
-            Assert.NotNull(bender);
-        }
-
-        [Fact]
-        public void TestParseEmptyMatrices()
-        {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_matrices_malformed));
+            var spec = new SpecParser().Parse(DataFile.FromASCII(TestData.TestMatrices));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }
@@ -31,7 +23,7 @@ namespace BenderLib.Tests
         [Fact]
         public void TestParseStrings()
         {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_string));
+            var spec = new SpecParser().Parse(DataFile.FromASCII(TestData.StringTest));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }
@@ -39,7 +31,7 @@ namespace BenderLib.Tests
         [Fact]
         public void TestParseDeferred()
         {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_deferred));
+            var spec = new SpecParser().Parse(DataFile.FromASCII(TestData.TestDeferred));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.test_deferred_binary));
             Assert.NotNull(bender);
         }

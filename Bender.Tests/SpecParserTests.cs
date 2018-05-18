@@ -10,7 +10,7 @@ namespace BenderLib.Tests
         [Fact]
         public void TestInvalidFile()
         {
-            var df = DataFile.From(Properties.Resources.test_invalid);
+            var df = DataFile.FromASCII(TestData.TestInvalidYAML);
             var parser = new SpecParser();
             Assert.Throws<ParseException>(() => parser.Parse(df));
         }
@@ -34,7 +34,6 @@ namespace BenderLib.Tests
             {
                 LittleEndian = true,
                 Elide = false,
-                IsReadOnly = false,
                 Format = ElementFormat.ASCII,
                 Units = 4,
                 Name = "Undefined",
@@ -50,7 +49,8 @@ namespace BenderLib.Tests
         [Fact]
         public void TestParseDeferred()
         {
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.test_deferred));
+            var df = DataFile.FromASCII(TestData.TestDeferred);
+            var spec = new SpecParser().Parse(df);
             Assert.NotNull(spec.Deferreds);
             Assert.Equal(1, spec.Deferreds.Count);
 
