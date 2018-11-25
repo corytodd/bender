@@ -52,7 +52,7 @@
             }
 
             Action<string> nextCapture = null;
-            var satisified = new List<string>();
+            var satisfied = new List<string>();
 
             // Read input in pairs
             foreach(var str in args)
@@ -78,7 +78,7 @@
                         case "-b":
                         case "--binary":
                             nextCapture = (s) => result.BinaryFile = s;
-                            satisified.Add("-b");
+                            satisfied.Add("-b");
                             break;
                         case "-p":
                         case "--print-spec":
@@ -96,17 +96,17 @@
                 }
             }
 
-            if (!satisified.Equals(_mRequired)) return result;
+            if (!satisfied.Equals(_mRequired)) return result;
             result.Okay = false;
             result.Message = string.Format("Missing expected parameters: {0}",
-                string.Join(",", _mRequired.Except(satisified)));
+                string.Join(",", _mRequired.Except(satisfied)));
 
             return result;
         }
 
         public string Usage()
         {
-            const string usage = "Bender.exe -f /path/to/spec.yaml -b /path/to/your.bin [--print-spec]\n" +
+            const string usage = "Bender.exe -s /path/to/spec.yaml -b /path/to/your.bin [--print-spec]\n" +
                                  "-s,--spec\t\tIndicates which specification to use. This is the file in YAML\n" +
                                  "-b,--binary\t\tIndicates which binary to parse. This is the binary described by your spec\n" +
                                  "-r,--root\t\tManually specify a YAML root for detecting binary specs (Optional)\n" +
