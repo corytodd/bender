@@ -30,6 +30,7 @@ Before the definition of the elements list, there is defined a single element na
 
 | Field | Description | Legal Values |
 |:------|:------------|:-------------|
+
 | name | Name to display for this element | strings |
 | elide | Hide this element from display | YAML bool |
 | units | How many bytes are in this element | A positive integer |
@@ -45,6 +46,7 @@ by any element's matrix field. When a matrix is detected by the Bender parser, t
 
 | Field | Description | Legal Values |
 |:------|:------------|:-------------|
+
 | name | Name referenced by an element | strings |
 | columns | How many variables per row | A positive integer |
 | units | How many bytes per variable | A positive integer |

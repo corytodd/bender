@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Bender": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-s \"G:\\dotnet\\Bender\\examples\\simple_layout.yaml\" -b \"G:\\dotnet\\Bender\\examples\\simple_layout_binary.simple\""
     }
   }
 }

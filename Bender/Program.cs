@@ -59,7 +59,7 @@ namespace Bender
         }
 
         /// <summary>
-        /// Pritn bender file to console
+        /// Print bender file to console
         /// </summary>
         /// <param name="spec">Original spec file</param>
         /// <param name="bender">Parsed binder</param>
@@ -91,7 +91,7 @@ namespace Bender
             var paths = new List<string>();
             var specs = new List<SpecFile>();
 
-            // Prefer to use the explicity file
+            // Prefer to use the explicit file
             if (!string.IsNullOrEmpty(opts.SpecFile))
             {
                 paths.Add(opts.SpecFile);
