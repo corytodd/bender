@@ -5,7 +5,7 @@
     using YamlDotNet.Serialization;
 
     /// <summary>
-    /// Decribes data that should be read from another location
+    /// Describes data that should be read from another location
     /// </summary>
     public class Deferred
     {
