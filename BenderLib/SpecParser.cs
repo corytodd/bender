@@ -6,7 +6,7 @@
     using YamlDotNet.Serialization.NamingConventions;
 
     /// <summary>
-    /// Parse a specication file that is in YAML format
+    /// Parse a specification file that is in YAML format
     /// </summary>
     public class SpecParser
     {

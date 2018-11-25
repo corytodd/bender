@@ -29,7 +29,7 @@
         /// Converts raw buffer data into a numeric type. This handles 
         /// sign conversion. Data is not checked for length validity, the caller
         /// must take caution to ensure data has exactly the number of bytes for the
-        /// format perscribed by the element specification.
+        /// format prescribed by the element specification.
         /// </summary>
         /// <param name="el">Element spec</param>
         /// <param name="data">Raw data</param>
@@ -43,7 +43,7 @@
         /// Converts raw buffer data into a numeric type. This handles 
         /// sign conversion. Data is not checked for length validity, the caller
         /// must take caution to ensure data has exactly the number of bytes for the
-        /// format perscribed by the element specification.
+        /// format prescribed by the element specification.
         /// </summary>
         /// <param name="width">Count of bytes to read</param>
         /// <param name="signed">True if value should be read a signed value</param>

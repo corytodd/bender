@@ -178,7 +178,7 @@
                 {
                     Name = el.Name,
                     Value = new List<string>
-                    { string.Format("Elided {0} btyes", data.Length) }
+                    { string.Format("Elided {0} bytes", data.Length) }
                 };
             }
         

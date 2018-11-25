@@ -6,7 +6,7 @@
     using YamlDotNet.Serialization;
 
     /// <summary>
-    // Supported element formats
+    /// Supported element formats
     /// </summary>
     public enum ElementFormat
     {
@@ -52,14 +52,14 @@
         public string Name { get; set; }
 
         /// <summary>
-        /// True if btyes are in little Endian order
+        /// True if bytes are in little Endian order
         /// </summary>
         [YamlMember(Alias = "little_endian", ApplyNamingConventions = false)]
         public bool LittleEndian { get; set; }
 
         /// <summary>
         /// True if value should be a signed type
-        /// Only applies to numerics.
+        /// Only applies to numbers.
         /// </summary>
         [YamlMember(Alias = "signed", ApplyNamingConventions = false)]
         public bool IsSigned { get; set; }
@@ -81,7 +81,7 @@
         
         /// <summary>
         /// If this block contains a payload, Matrix value should match a known
-        /// Matrix defintion in the spec file
+        /// Matrix definition in the spec file
         /// </summary>
         public string Matrix { get; set; }    
 
