@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="YamlDotNet" Version="8.1.1" />
+    <!-- https://github.com/aaubry/YamlDotNet/issues/492 blocks upgrade -->
+    <PackageReference Include="YamlDotNet" Version="[8.1.0]" />
   </ItemGroup>
 
 </Project>

@@ -24,7 +24,7 @@
                 {
                     var parser = new MergingParser(new Parser(reader));
                     var deserializer = new DeserializerBuilder()
-                        .WithNamingConvention(new CamelCaseNamingConvention())
+                        .WithNamingConvention(CamelCaseNamingConvention.Instance)
                         .Build();
 
                     return deserializer.Deserialize<SpecFile>(parser);
