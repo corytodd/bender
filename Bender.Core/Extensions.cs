@@ -1,5 +1,5 @@
 ﻿
-namespace BenderLib
+namespace Bender.Core
 {
     using System;
     using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿namespace BenderLib
+﻿namespace Bender.Core
 {
     using System.Collections.Generic;
     using System.Text;

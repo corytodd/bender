@@ -29,9 +29,9 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <ProjectReference Include="..\BenderLib\BenderLib.csproj" />
+    <ProjectReference Include="..\Bender.Core\Bender.Core.csproj" />
   </ItemGroup>
 
 </Project>

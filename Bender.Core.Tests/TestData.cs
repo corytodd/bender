@@ -1,4 +1,4 @@
-﻿namespace BenderLib.Tests
+﻿namespace Bender.Core.Tests
 {
     static class TestData
     {

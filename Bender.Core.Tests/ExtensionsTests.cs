@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Xunit;
 
-namespace BenderLib.Tests
+namespace Bender.Core.Tests
 {
     public class ExtensionsTests
     {

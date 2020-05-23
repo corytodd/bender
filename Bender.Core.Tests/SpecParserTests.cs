@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace BenderLib.Tests
+namespace Bender.Core.Tests
 {
     public class SpecParserTests
     {
