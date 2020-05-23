@@ -13,6 +13,9 @@
         private static readonly string DefaultHeader = string.Format(DefaultRowFormat, "Element", "Value");
         private static readonly string DefaultLineDelimiter = new string('=', 80);
 
+        /// <summary>
+        ///     Create a new Bender pretty printer
+        /// </summary>
         public BenderPrinter()
         {
             Header = DefaultHeader;

@@ -15,8 +15,14 @@
         /// </summary>
         public struct FormattedField
         {
+            /// <summary>
+            ///     Field key
+            /// </summary>
             public string Name { get; set; }
 
+            /// <summary>
+            ///     Field values
+            /// </summary>
             public IList<string> Value { get; set; }
         }
 

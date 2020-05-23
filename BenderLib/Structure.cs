@@ -3,6 +3,9 @@
 	using System.Collections.Generic;
 	using System.Text;
 
+    /// <summary>
+    /// Structure represents a struct in binary form
+    /// </summary>
     public class Structure
     {
         /// <summary>
@@ -28,6 +31,9 @@
             }
         }
 
+        /// <summary>
+        ///     Returns all properties as newline delimited string
+        /// </summary>
         public override string ToString()
         {
             var sb = new StringBuilder();

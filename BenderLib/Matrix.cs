@@ -90,6 +90,9 @@
             }
         }
 
+        /// <summary>
+        ///     Returns all properties as newline delimited string
+        /// </summary>
         public override string ToString()
         {
             var sb = new StringBuilder();

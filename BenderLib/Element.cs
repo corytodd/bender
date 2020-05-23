@@ -104,6 +104,9 @@
             }
         }
 
+        /// <summary>
+        ///     Returns all properties as newline delimited string
+        /// </summary>
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -137,6 +140,7 @@
             };
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             return obj is Element element &&
@@ -149,6 +153,7 @@
                    Matrix == element.Matrix;
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             var hashCode = 170416633;
