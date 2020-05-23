@@ -14,10 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Specs", "Specs", "{9440F112
 		LICENSE = LICENSE
 		readme.md = readme.md
 		examples\simple_layout.yaml = examples\simple_layout.yaml
-		examples\test_missing_matrix.yaml = examples\test_missing_matrix.yaml
-		examples\test_signed.yaml = examples\test_signed.yaml
-		examples\test_strings.yaml = examples\test_strings.yaml
-		examples\test_unsigned.yaml = examples\test_unsigned.yaml
+		examples\simple_layout_binary.simple = examples\simple_layout_binary.simple
+		examples\test_deferred_binary.simple = examples\test_deferred_binary.simple
 	EndProjectSection
 EndProject
 Global
