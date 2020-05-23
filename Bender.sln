@@ -11,14 +11,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenderLib.Tests", "Bender.T
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Specs", "Specs", "{9440F112-43D7-47F9-8AC8-EB127560BF17}"
 	ProjectSection(SolutionItems) = preProject
-		LICENSE = LICENSE
-		readme.md = readme.md
 		examples\simple_layout.yaml = examples\simple_layout.yaml
-		examples\test_missing_matrix.yaml = examples\test_missing_matrix.yaml
-		examples\test_signed.yaml = examples\test_signed.yaml
-		examples\test_strings.yaml = examples\test_strings.yaml
-		examples\test_unsigned.yaml = examples\test_unsigned.yaml
+		examples\simple_layout_binary.simple = examples\simple_layout_binary.simple
+		examples\test_deferred_binary.simple = examples\test_deferred_binary.simple
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Meta", "Meta", "{71A73E4E-A81A-4958-B307-8B59C9665732}"
+ProjectSection(SolutionItems) = preProject
+	.gitattributes = .gitattributes
+	.gitignore = .gitignore
+	LICENSE = LICENSE
+	readme.md = readme.md
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

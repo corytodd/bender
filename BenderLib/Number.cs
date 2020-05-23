@@ -9,20 +9,44 @@
     [StructLayout(LayoutKind.Explicit)]
     public struct Number
     {
+        /// <summary>
+        /// Unsigned byte
+        /// </summary>
         [FieldOffset(0)] public byte ub;
 
+        /// <summary>
+        /// Signed byte
+        /// </summary>
         [FieldOffset(0)] public sbyte sb;
 
+        /// <summary>
+        /// Unsigned short
+        /// </summary>
         [FieldOffset(0)] public ushort us;
 
+        /// <summary>
+        /// Signed short
+        /// </summary>
         [FieldOffset(0)] public short ss;
 
+        /// <summary>
+        /// unsigned int
+        /// </summary>
         [FieldOffset(0)] public uint ui;
 
+        /// <summary>
+        /// signed int
+        /// </summary>
         [FieldOffset(0)] public int si;
 
+        /// <summary>
+        /// Unsigned long
+        /// </summary>
         [FieldOffset(0)] public ulong ul;
 
+        /// <summary>
+        /// Signed long
+        /// </summary>
         [FieldOffset(0)] public long sl;
 
         /// <summary>
@@ -59,20 +83,48 @@
             switch (width)
             {
                 case 1:
-                    if (signed) number.sl = (sbyte)data[0];
-                    else number.ul = data[0];
+                    if (signed)
+                    {
+                        number.sl = (sbyte)data[0];
+                    }
+                    else
+                    {
+                        number.ul = data[0];
+                    }
+
                     break;
                 case 2:
-                    if (signed) number.sl = BitConverter.ToInt16(data, offset);
-                    else number.ul = BitConverter.ToUInt16(data, offset);
+                    if (signed)
+                    {
+                        number.sl = BitConverter.ToInt16(data, offset);
+                    }
+                    else
+                    {
+                        number.ul = BitConverter.ToUInt16(data, offset);
+                    }
+
                     break;
                 case 4:
-                    if (signed) number.sl = BitConverter.ToInt32(data, offset);
-                    else number.ul = BitConverter.ToUInt32(data, offset);
+                    if (signed)
+                    {
+                        number.sl = BitConverter.ToInt32(data, offset);
+                    }
+                    else
+                    {
+                        number.ul = BitConverter.ToUInt32(data, offset);
+                    }
+
                     break;
                 case 8:
-                    if (signed) number.sl = BitConverter.ToInt64(data, offset);
-                    else number.ul = BitConverter.ToUInt64(data, offset);
+                    if (signed)
+                    {
+                        number.sl = BitConverter.ToInt64(data, offset);
+                    }
+                    else
+                    {
+                        number.ul = BitConverter.ToUInt64(data, offset);
+                    }
+
                     break;
             }
 

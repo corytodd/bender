@@ -4,13 +4,15 @@ namespace BenderLib
     using System;
     using System.Collections.Generic;
 
+    /// <summary>
+    ///     Library extension methods
+    /// </summary>
     public static class Extensions
     {
 
         /// <summary>
         /// Splits <paramref name="source"/> into chunks of size not greater than <paramref name="chunkMaxSize"/>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="source">Array to be split</param>
         /// <param name="chunkMaxSize">Max size of chunk</param>
         /// <returns><see cref="IEnumerable{T}"/> of <see cref="Array"/> of <typeparam name="T"/></returns>

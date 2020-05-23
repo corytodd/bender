@@ -8,6 +8,7 @@
     /// </summary>
     public class ParseException : Exception
     {
+        /// <inheritdoc />
         public ParseException(string fmt, params object[] args) : base(string.Format(fmt, args)) { }
     }
 
@@ -17,6 +18,7 @@
     /// </summary>
     public class OutOfDataException : ParseException
     {
+        /// <inheritdoc />
         public OutOfDataException(string fmt, params object[] args) : base(fmt, args)
         {
         }
