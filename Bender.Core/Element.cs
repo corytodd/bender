@@ -37,6 +37,10 @@
         /// Format value as a UTF-16 string
         /// </summary>
         UTF16,
+        /// <summary>
+        /// Format as hex string, no prefix
+        /// </summary>
+        HexString
     }
 
     /// <summary>

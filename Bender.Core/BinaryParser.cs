@@ -208,7 +208,11 @@
                             value.Add(number.sl.ToString());
                             break;
                         case ElementFormat.Hex:
-                            value.Add(string.Format("0x{0:X}", number.sl));
+                        case ElementFormat.HexString:
+                            var prefix = el.Format == ElementFormat.Hex ? "0x" : "";
+                            var width = (el.Units * 2).NextPowerOf2();
+                            var hex = Convert.ToString(number.sl, 16).PadLeft(width, '0');
+                            value.Add($"{prefix}{hex}");
                             break;
                         case ElementFormat.ASCII:
                             value.Add(Encoding.ASCII.GetString(data));

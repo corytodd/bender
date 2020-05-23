@@ -34,5 +34,28 @@ namespace Bender.Core
                 yield return arr;
             } while (pos < sourceLength);
         }
+
+        /// <summary>
+        /// Returns the nearest power of 2 greater than v
+        /// For example 1->2, 5->8, 13->16
+        /// </summary>
+        /// <param name="v">Starting value</param>
+        /// <returns>Next greatest power of 2</returns>
+        public static int NextPowerOf2(this int v)
+        {
+            if (v == 1)
+            {
+                return 2;
+            }
+            
+            v--;
+            v |= v >> 1;
+            v |= v >> 2;
+            v |= v >> 4;
+            v |= v >> 8;
+            v |= v >> 16;
+            v++;
+            return v;
+        }
     }
 }
