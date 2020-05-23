@@ -1,22 +1,23 @@
 ﻿namespace Bender.Core
 {
-	using System.Collections.Generic;
-	using System.Text;
+    using System.IO;
+    using System.Collections.Generic;
+    using System.Text;
 
     /// <summary>
     /// Structure represents a struct in binary form
     /// </summary>
-    public class Structure
+    public class Structure : IElement
     {
         /// <summary>
         /// Gets or Sets name of this structure
         /// </summary>
-		public string Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets or Sets ordered list of elements in this structure
         /// </summary>
-		public IList<Element> Elements { get; set; }
+        public IList<Element> Elements { get; set; }
 
         /// <summary>
         /// Generator yields each line from ToString()
@@ -29,6 +30,30 @@
             {
                 yield return str;
             }
+        }
+
+        /// <summary>
+        /// Formats data into an ordered list of matrix rows. Each row is
+        /// formatted using the rules defined in element.
+        /// </summary>
+        /// <param name="el">Element rules</param>
+        /// <param name="data">Data to format</param>
+        /// <param name="formatter">Converts extracted data into a formatted string</param>
+        /// <returns>List of rows, formatted as strings</returns>
+        public IEnumerable<string> TryFormat(Element el, byte[] data, IElement.Formatter formatter)
+        {
+            var result = new List<string>(Elements.Count);
+
+            using var stream = new MemoryStream(data);
+            using var reader = new BinaryReader(stream);
+
+            foreach (var childEl in Elements)
+            {
+                var field = reader.ReadBytes(childEl.Units);
+                result.Add($"[ {childEl.Name}: {formatter.Invoke(childEl, field)} ]");
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -47,6 +72,7 @@
                 {
                     sb.AppendFormat("\t\t{0}\n", str);
                 }
+
                 sb.AppendLine();
             }
 

@@ -32,7 +32,7 @@ namespace Bender.Core.Tests
 
             var buff = new byte[] {42, 42, 42, 42, 42, 42, 42, 42};
 
-            var result = mat.Format(el, buff, Formatter);
+            var result = mat.TryFormat(el, buff, Formatter);
             foreach (var row in result)
             {
                 Assert.Equal("[ 42 42 42 42 ]", row);
@@ -67,7 +67,7 @@ namespace Bender.Core.Tests
 
             var buff = new byte[] { 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42 };
 
-            var result = mat.Format(el, buff, Formatter);
+            var result = mat.TryFormat(el, buff, Formatter);
             foreach (var row in result)
             {
                 Assert.Equal("[ 0x42424242 ]", row);
@@ -98,7 +98,7 @@ namespace Bender.Core.Tests
                 Units = 0,
             };
 
-            Assert.Empty(mat.Format(el, new byte[0], null));
+            Assert.Empty(mat.TryFormat(el, new byte[0], null));
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace Bender.Core.Tests
 
             var buff = new byte[] { 0x42, 0x42 };
 
-            var result = mat.Format(el, buff, Formatter);
+            var result = mat.TryFormat(el, buff, Formatter);
             foreach (var row in result)
             {
                 Assert.Equal("[ 0x4242 ]", row);
