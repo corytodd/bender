@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BenderLib;
+using Bender.Core;
 
 namespace Bender
 {
@@ -63,7 +63,7 @@ namespace Bender
         /// </summary>
         /// <param name="spec">Original spec file</param>
         /// <param name="bender">Parsed binder</param>
-        private static void WriteToConsole(SpecFile spec, BenderLib.Bender bender)
+        private static void WriteToConsole(SpecFile spec, Core.Bender bender)
         {
             Console.WriteLine("Binary File - {0}{1}", spec.Name, Environment.NewLine);
             using (var stream = new MemoryStream())

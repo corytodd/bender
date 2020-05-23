@@ -19,10 +19,10 @@ jobs:
           dotnet-version: 3.1.101
       - name: Install dependencies
         run: dotnet restore
-        working-directory: BenderLibs.Tests
+        working-directory: Bender.Core.Tests
       - name: Build
         run: dotnet build --framework netcoreapp3.1 --configuration Release --no-restore
-        working-directory: BenderLibs.Tests
+        working-directory: Bender.Core.Tests
       - name: Test
         run: dotnet test --framework netcoreapp3.1 --no-restore --verbosity normal
-        working-directory: BenderLibs.Tests
+        working-directory: Bender.Core.Tests

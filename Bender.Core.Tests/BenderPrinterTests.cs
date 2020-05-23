@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Xunit;
 
-namespace BenderLib.Tests
+namespace Bender.Core.Tests
 {
     public class BenderPrinterTests
     {
