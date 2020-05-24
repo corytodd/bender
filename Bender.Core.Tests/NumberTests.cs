@@ -139,5 +139,25 @@ namespace Bender.Core.Tests
             Assert.True(9223372036854775808 == Number.From(el, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 }).ul);
             Assert.True(18446744073709551615 == Number.From(el, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }).ul);
         }
+
+        [Fact]
+        public void TestEqualityOperatorOrder()
+        {
+            var number = Number.From(4, false, 0, new byte[] {1, 0, 0, 0});
+
+            // Operator order matters, both must be implemented
+            Assert.True(number == 1);
+            Assert.True(1 == number);
+        }
+        
+        [Fact]
+        public void TestInequalityOperatorOrder()
+        {
+            var number = Number.From(4, false, 0, new byte[] {0, 0, 0, 1});
+
+            // Operator order matters, both must be implemented
+            Assert.True(number != 1);
+            Assert.True(1 != number);
+        }
     }
 }
