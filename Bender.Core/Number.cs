@@ -40,11 +40,24 @@
         }
         
         /// <summary>
+        /// Returns true if values are equal
+        /// </summary>
+        public static bool operator ==(int left, Number right)
+        {
+            return right.Equals(left);
+        }
+        
+        /// <summary>
         /// Returns true if values are not equal
         /// </summary>
         public static bool operator !=(Number left, int right)
         {
             return !left.Equals(right);
+        }
+        
+        public static bool operator !=(int left, Number right)
+        {
+            return !right.Equals(left);
         }
 
         /// <summary>

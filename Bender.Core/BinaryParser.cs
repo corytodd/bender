@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
 
     /// <summary>
     /// Reads a binary file and formats the data as specified in the SpecFile
@@ -111,12 +110,13 @@
             }
 
             buff = HandleDeferredRead(el, binary, buff);
-            if (buff == null)
+            if (buff == null || buff.Length == 0)
             {
+                var message = buff is null ? "Error: Invalid deferred object" : "Empty";
                 return new Bender.FormattedField
                 {
                     Name = el.Name,
-                    Value = new List<string> {"Error: Invalid deferred object"}
+                    Value = new List<string> {message}
                 };
             }
 
@@ -126,7 +126,9 @@
         /// <summary>
         /// Use buff data to locate a deferred record. If the record can be located,
         /// it will be parsed according the element rules and the raw byte[] will be
-        /// returned for further processing.
+        /// returned for further processing. If the object is empty, an empty
+        /// buffer will be returned. If the deferred is not found or malformed,
+        /// a null buffer will be returned.
         /// </summary>
         /// <param name="el">Element rules</param>
         /// <param name="binary">Binary source file</param>
@@ -147,6 +149,10 @@
 
             var size = Number.From(def.SizeUnits, false, 0, buff);
             var offset = Number.From(def.OffsetUnits, false, size.si, buff);
+            if (size == 0 || offset == 0)
+            {
+                return new byte[0];
+            }
 
             using var stream = new MemoryStream(binary.Data);
             using var reader = new BinaryReader(stream);
@@ -225,7 +231,7 @@
             var elClone = el.Clone();
             elClone.Matrix = string.Empty;
             elClone.Units = payload.Units;
-            
+
             return payload.TryFormat(elClone, data, DefaultFormatter);
         }
 
@@ -235,21 +241,21 @@
             {
                 return new List<string> {$"No structure specified but element {el.Name} has referenced {el.Structure}"};
             }
-            
+
             var payload = _spec.Structures.FirstOrDefault(p =>
                 el.Structure.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
             if (payload == null)
             {
                 return new List<string> {$"Unknown structure type {el.Structure} on element {el.Name}"};
             }
-            
+
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
             var elClone = el.Clone();
             elClone.Structure = string.Empty;
 
             return payload.TryFormat(elClone, data, DefaultFormatter);
         }
-        
+
         private string DefaultFormatter(Element e, byte[] d)
         {
             return FormatBuffer(e, d).Value.First();
