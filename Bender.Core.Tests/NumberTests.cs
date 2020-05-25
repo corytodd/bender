@@ -16,10 +16,10 @@ namespace Bender.Core.Tests
 
 
             // Test the widest data type because it includes all smaller data types
-            Assert.Equal(0, Number.From(el, new byte[] { 0 }).sl);
-            Assert.True(127 == Number.From(el, new byte[] { 127 }).sl);
-            Assert.Equal(-1, Number.From(el, new byte[] { 255 }).sl);
-            Assert.Equal(-128, Number.From(el, new byte[] { 128 }).sl);
+            Assert.Equal(0, Number.From(el, new byte[] {0}).sl);
+            Assert.True(127 == Number.From(el, new byte[] {127}).sl);
+            Assert.Equal(-1, Number.From(el, new byte[] {255}).sl);
+            Assert.Equal(-128, Number.From(el, new byte[] {128}).sl);
         }
 
         [Fact]
@@ -32,10 +32,10 @@ namespace Bender.Core.Tests
                 IsSigned = false,
             };
 
-            Assert.True(0 ==  Number.From(el, new byte[] { 0 }).ul);
-            Assert.True(127 == Number.From(el, new byte[] { 127 }).ul);
-            Assert.True(255 == Number.From(el, new byte[] { 255 }).ul);
-            Assert.True(128 == Number.From(el, new byte[] { 128 }).ul);
+            Assert.True(0 == Number.From(el, new byte[] {0}).ul);
+            Assert.True(127 == Number.From(el, new byte[] {127}).ul);
+            Assert.True(255 == Number.From(el, new byte[] {255}).ul);
+            Assert.True(128 == Number.From(el, new byte[] {128}).ul);
         }
 
         [Fact]
@@ -50,10 +50,10 @@ namespace Bender.Core.Tests
 
 
             // Test the widest data type because it includes all smaller data types
-            Assert.Equal(0, Number.From(el, new byte[] { 0, 0 }).sl);
-            Assert.Equal(32767, Number.From(el, new byte[] { 0xFF, 0x7F }).sl);
-            Assert.Equal(-32768, Number.From(el, new byte[] { 0x00, 0x80 }).sl);
-            Assert.Equal(-1, Number.From(el, new byte[] { 0xFF, 0xFF }).sl);
+            Assert.Equal(0, Number.From(el, new byte[] {0, 0}).sl);
+            Assert.Equal(32767, Number.From(el, new byte[] {0xFF, 0x7F}).sl);
+            Assert.Equal(-32768, Number.From(el, new byte[] {0x00, 0x80}).sl);
+            Assert.Equal(-1, Number.From(el, new byte[] {0xFF, 0xFF}).sl);
         }
 
         [Fact]
@@ -66,10 +66,10 @@ namespace Bender.Core.Tests
                 IsSigned = false,
             };
 
-            Assert.True(0 == Number.From(el, new byte[] { 0, 0 }).ul);
-            Assert.True(32767 == Number.From(el, new byte[] { 0xFF, 0x7F }).ul);
-            Assert.True(32768 == Number.From(el, new byte[] { 0x00, 0x80 }).ul);
-            Assert.True(65535 == Number.From(el, new byte[] { 0xFF, 0xFF }).ul);
+            Assert.True(0 == Number.From(el, new byte[] {0, 0}).ul);
+            Assert.True(32767 == Number.From(el, new byte[] {0xFF, 0x7F}).ul);
+            Assert.True(32768 == Number.From(el, new byte[] {0x00, 0x80}).ul);
+            Assert.True(65535 == Number.From(el, new byte[] {0xFF, 0xFF}).ul);
         }
 
         [Fact]
@@ -84,10 +84,10 @@ namespace Bender.Core.Tests
 
 
             // Test the widest data type because it includes all smaller data types
-            Assert.Equal(0, Number.From(el, new byte[] { 0, 0, 0, 0 }).sl);
-            Assert.Equal(2147483647, Number.From(el, new byte[] { 0xFF, 0xFF, 0xFF, 0x7F }).sl);
-            Assert.Equal(-2147483648, Number.From(el, new byte[] { 0x00, 0x00, 0x00, 0x80 }).sl);
-            Assert.Equal(-1, Number.From(el, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF }).sl);
+            Assert.Equal(0, Number.From(el, new byte[] {0, 0, 0, 0}).sl);
+            Assert.Equal(2147483647, Number.From(el, new byte[] {0xFF, 0xFF, 0xFF, 0x7F}).sl);
+            Assert.Equal(-2147483648, Number.From(el, new byte[] {0x00, 0x00, 0x00, 0x80}).sl);
+            Assert.Equal(-1, Number.From(el, new byte[] {0xFF, 0xFF, 0xFF, 0xFF}).sl);
         }
 
         [Fact]
@@ -100,10 +100,10 @@ namespace Bender.Core.Tests
                 IsSigned = false,
             };
 
-            Assert.True(0 == Number.From(el, new byte[] { 0, 0, 0, 0 }).ul);
-            Assert.True(2147483647 == Number.From(el, new byte[] { 0xFF, 0xFF, 0xFF, 0x7F }).ul);
-            Assert.True(2147483648 == Number.From(el, new byte[] { 0x00, 0x00, 0x00, 0x80 }).ul);
-            Assert.True(4294967295 == Number.From(el, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF }).ul);
+            Assert.True(0 == Number.From(el, new byte[] {0, 0, 0, 0}).ul);
+            Assert.True(2147483647 == Number.From(el, new byte[] {0xFF, 0xFF, 0xFF, 0x7F}).ul);
+            Assert.True(2147483648 == Number.From(el, new byte[] {0x00, 0x00, 0x00, 0x80}).ul);
+            Assert.True(4294967295 == Number.From(el, new byte[] {0xFF, 0xFF, 0xFF, 0xFF}).ul);
         }
 
         [Fact]
@@ -118,10 +118,12 @@ namespace Bender.Core.Tests
 
 
             // Test the widest data type because it includes all smaller data types
-            Assert.Equal(0, Number.From(el, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }).sl);
-            Assert.Equal(9223372036854775807, Number.From(el, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F }).sl);
-            Assert.Equal(-9223372036854775808, Number.From(el, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 }).sl);
-            Assert.Equal(-1, Number.From(el, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }).sl);
+            Assert.Equal(0, Number.From(el, new byte[] {0, 0, 0, 0, 0, 0, 0, 0}).sl);
+            Assert.Equal(9223372036854775807,
+                Number.From(el, new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F}).sl);
+            Assert.Equal(-9223372036854775808,
+                Number.From(el, new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80}).sl);
+            Assert.Equal(-1, Number.From(el, new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}).sl);
         }
 
         [Fact]
@@ -134,30 +136,65 @@ namespace Bender.Core.Tests
                 IsSigned = false,
             };
 
-            Assert.True(0 == Number.From(el, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }).ul);
-            Assert.True(9223372036854775807 == Number.From(el, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F }).ul);
-            Assert.True(9223372036854775808 == Number.From(el, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 }).ul);
-            Assert.True(18446744073709551615 == Number.From(el, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }).ul);
+            Assert.True(0 == Number.From(el, new byte[] {0, 0, 0, 0, 0, 0, 0, 0}).ul);
+            Assert.True(9223372036854775807 ==
+                        Number.From(el, new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F}).ul);
+            Assert.True(9223372036854775808 ==
+                        Number.From(el, new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80}).ul);
+            Assert.True(18446744073709551615 ==
+                        Number.From(el, new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}).ul);
         }
 
         [Fact]
         public void TestEqualityOperatorOrder()
         {
-            var number = Number.From(4, false, 0, new byte[] {1, 0, 0, 0});
+            var element = new Element {Units = 4};
+            var number = Number.From(element, new byte[] {1, 0, 0, 0});
 
             // Operator order matters, both must be implemented
             Assert.True(number == 1);
             Assert.True(1 == number);
         }
-        
+
         [Fact]
         public void TestInequalityOperatorOrder()
         {
-            var number = Number.From(4, false, 0, new byte[] {0, 0, 0, 1});
+            var element = new Element {Units = 4};
+            var number = Number.From(element, new byte[] {0, 0, 0, 1});
 
             // Operator order matters, both must be implemented
             Assert.True(number != 1);
             Assert.True(1 != number);
+        }
+
+        [Fact]
+        public void TestFloatSingle()
+        {
+            // Setup
+            var element = new Element {Units = 4, PrintFormat = Bender.PrintFormat.Float};
+            var bytes = new byte[] {0x4D, 0x93, 0x49, 0x41};
+
+            // Execute
+            var actual = Number.From(element, bytes);
+
+            // Test
+            const float expected = 12.5985f;
+            Assert.Equal(actual.fs, expected, 1);
+        }
+
+        [Fact]
+        public void TestFloatDouble()
+        {
+            // Setup
+            var element = new Element {Units = 8, PrintFormat = Bender.PrintFormat.Float};
+            var bytes = new byte[] {0xd0, 0x5f, 0xc5, 0xb7, 0x53, 0x07, 0xf8, 0x40};
+
+            // Execute
+            var actual = Number.From(element, bytes);
+
+            // Test
+            const double expected = 98421.232365965148231;
+            Assert.Equal(actual.fd, expected, 1);
         }
     }
 }

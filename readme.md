@@ -1,7 +1,17 @@
 # Bender
 A YAML driven binary file viewer
 
-This program reads in a binary file specification written in YAML and emits neat, formatted data to your console.
+This program reads in a binary file specification written in YAML and emits neat, formatted data to your console. 
+
+## Why Use Bender 
+
+Parsing binary files containing arbitrary and dynamic can be tedious. A typical use case would be serialized binary 
+data consumed by space-constrained device. You might not need a parser, perhaps you have safely figured out a struct 
+packing scheme to read and write the data. However, when you want to peek at the data from outside of your application,
+you must write a parser or use some type of hex dump application. 
+
+Bender allows you to define you binary layout in plain-text to control how the contents are rendered for you. This 
+tool really shines when you have non-trivial data structures with dynamic layouts.
 
 1) Define your YAML spec
 2) Feed YAML spec and a binary to Bender
@@ -34,7 +44,7 @@ You may take advantage of YAML merge keys to generate base objects from which yo
 | elide | Hide this element from display | YAML bool |
 | units | How many bytes are in this element | A positive integer |
 | signed | Represent bytes as a signed value | YAML bool |
-| format | How the bytes should be interpreted | binary, octal, decimal, hex, ascii, utf16, hexstr, float |
+| format | How the bytes should be interpreted | binary, octal, decimal, hex, ascii, unicode, hexstr, float |
 | little_endian | What order the bytes are stored in the file | YAML bool |
 | is_deferred | True if this object is a deferral | Optionally specify that this element is a pointer to more data |
 | is_array_count| True if this value is a count of the next object | Optionally hint that the next object is repeated N times |
@@ -104,11 +114,11 @@ An element may be formatted as any of the following:
 - decimal No prefix
 - hex Uses 0x prefix
 - ascii Interprets string as 7-bits per character. Length is == Units of elements. 
-- utf16 Interprets string as 16-bits per character. Length is == Units of elements.
+- unicode Interprets string as unicode characters. Length in bytes will not equal count of bytes.
 - bigint Interprets arbitrary count of bytes as a hex formatted string without a prefix.
 - float Units must be 4 bytes for single precision or 8 bytes for double precision.
 
 For string types, the units field of element is the count of letters in the string. For ASCII, that happens to 
-be equal to the count of bytes. For UTF-16, since each character is 2-bytes the units are 2 but the character length 
-is half the byte length.
+be equal to the count of bytes. For Unicode, since each character is composed of multiple bytes,
+the length in bytes will not equal the character count.
 

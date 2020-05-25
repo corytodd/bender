@@ -300,10 +300,16 @@
             if (el.IsDeferred)
             {
                 // Deferred object is always 8 bytes (2 ints)
-                buff = _reader.ReadBytes(8);
+                buff = _reader.ReadBytes(4);
                 const int intWidth = 4;
-                var size = Number.From(intWidth, false, 0, buff);
-                var offset = Number.From(intWidth, false, intWidth, buff);
+
+                var sizeEl = new Element {Units = intWidth, Name = "size_bytes"};
+                buff = ReadNextElement(sizeEl);
+                var size = Number.From(sizeEl,  buff);
+                
+                var offsetEl = new Element {Units = intWidth, Name = "offset_bytes"};
+                buff = ReadNextElement(offsetEl);
+                var offset = Number.From(offsetEl,  buff);
 
                 if (size == 0 || offset == 0)
                 {

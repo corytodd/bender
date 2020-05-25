@@ -142,22 +142,16 @@
                     case Bender.PrintFormat.Ascii:
                         result.Add(Encoding.ASCII.GetString(data));
                         break;
-                    case Bender.PrintFormat.Utf16:
+                    case Bender.PrintFormat.Unicode:
                         result.Add(Encoding.Unicode.GetString(data));
                         break;
                     case Bender.PrintFormat.Float:
                         // Reinterpret data as floating point
                         var stream = new MemoryStream(data);
                         var reader = new BinaryReader(stream);
-                        if (el.Units == 4 && data.Length == 4)
+                        if ((el.Units == 4 && data.Length == 4) || (el.Units == 8 && data.Length == 8))
                         {
-                            var f = reader.ReadSingle();
-                            result.Add(f.ToString("F"));
-                        }
-                        else if (el.Units == 8 && data.Length == 8)
-                        {
-                            var d = reader.ReadDouble();
-                            result.Add(d.ToString("F")); 
+                            result.Add(number.fd.ToString("F"));
                         }
                         else
                         {

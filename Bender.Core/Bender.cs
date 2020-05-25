@@ -81,9 +81,9 @@
             Ascii,
 
             /// <summary>
-            /// Format value as a UTF-16 string
+            /// Format value as a Unicode string
             /// </summary>
-            Utf16,
+            Unicode,
 
             /// <summary>
             /// Number with arbitrary count of digits

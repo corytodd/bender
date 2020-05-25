@@ -16,7 +16,7 @@
         {
             return sl == other;
         }
-        
+
         /// <summary>
         /// Returns true if values are equal
         /// </summary>
@@ -30,7 +30,7 @@
         {
             return si;
         }
-        
+
         /// <summary>
         /// Returns true if values are equal
         /// </summary>
@@ -38,7 +38,7 @@
         {
             return left.Equals(right);
         }
-        
+
         /// <summary>
         /// Returns true if values are equal
         /// </summary>
@@ -46,7 +46,7 @@
         {
             return right.Equals(left);
         }
-        
+
         /// <summary>
         /// Returns true if values are not equal
         /// </summary>
@@ -54,7 +54,7 @@
         {
             return !left.Equals(right);
         }
-        
+
         /// <summary>
         /// Returns true if values are not equal
         /// </summary>
@@ -70,7 +70,7 @@
         {
             return left.si < right;
         }
-        
+
         /// <summary>
         /// Performs a signed compare
         /// </summary>
@@ -78,8 +78,8 @@
         {
             return left.si > right;
         }
-        
-        
+
+
         /// <summary>
         /// Performs a signed compare
         /// </summary>
@@ -87,7 +87,7 @@
         {
             return left < right.si;
         }
-        
+
         /// <summary>
         /// Performs a signed compare
         /// </summary>
@@ -99,42 +99,62 @@
         /// <summary>
         /// Unsigned byte
         /// </summary>
-        [FieldOffset(0)] public byte ub;
+        [FieldOffset(0)]
+        public byte ub;
 
         /// <summary>
         /// Signed byte
         /// </summary>
-        [FieldOffset(0)] public sbyte sb;
+        [FieldOffset(0)]
+        public sbyte sb;
 
         /// <summary>
         /// Unsigned short
         /// </summary>
-        [FieldOffset(0)] public ushort us;
+        [FieldOffset(0)]
+        public ushort us;
 
         /// <summary>
         /// Signed short
         /// </summary>
-        [FieldOffset(0)] public short ss;
+        [FieldOffset(0)]
+        public short ss;
 
         /// <summary>
         /// unsigned int
         /// </summary>
-        [FieldOffset(0)] public uint ui;
+        [FieldOffset(0)]
+        public uint ui;
 
         /// <summary>
         /// signed int
         /// </summary>
-        [FieldOffset(0)] public int si;
+        [FieldOffset(0)]
+        public int si;
 
         /// <summary>
         /// Unsigned long
         /// </summary>
-        [FieldOffset(0)] public ulong ul;
+        [FieldOffset(0)]
+        public ulong ul;
 
         /// <summary>
         /// Signed long
         /// </summary>
-        [FieldOffset(0)] public long sl;
+        [FieldOffset(0)]
+        public long sl;
+
+        /// <summary>
+        /// Single precision float
+        /// </summary>
+        [FieldOffset(0)]
+        public float fs;
+
+        /// <summary>
+        /// Double precision float
+        /// </summary>
+        [FieldOffset(0)]
+        public double fd;
 
         /// <summary>
         /// Converts raw buffer data into a numeric type. This handles 
@@ -147,32 +167,20 @@
         /// <returns>Number type</returns>
         public static Number From(Element el, byte[] data)
         {
-            return From(el.Units, el.IsSigned, 0, data);
-        }
-
-        /// <summary>
-        /// Converts raw buffer data into a numeric type. This handles 
-        /// sign conversion. Data is not checked for length validity, the caller
-        /// must take caution to ensure data has exactly the number of bytes for the
-        /// format prescribed by the element specification.
-        /// </summary>
-        /// <param name="width">Count of bytes to read</param>
-        /// <param name="signed">True if value should be read a signed value</param>
-        /// <param name="offset">Position in data buffer to start reading from</param>
-        /// <param name="data">Raw data</param>
-        /// <returns>Number type</returns>
-        public static Number From(int width, bool signed, int offset, byte[] data)
-        {
+            const int offset = 0;
+            var width = el.Units;
+            var isSigned = el.IsSigned;
+            var isFloat = el.PrintFormat == Bender.PrintFormat.Float;
             var number = new Number();
-            
+
             // Set the long number for everything so any field can be 
             // access correctly
             switch (width)
             {
                 case 1:
-                    if (signed)
+                    if (isSigned)
                     {
-                        number.sl = (sbyte)data[0];
+                        number.sl = (sbyte) data[0];
                     }
                     else
                     {
@@ -181,7 +189,7 @@
 
                     break;
                 case 2:
-                    if (signed)
+                    if (isSigned)
                     {
                         number.sl = BitConverter.ToInt16(data, offset);
                     }
@@ -192,7 +200,11 @@
 
                     break;
                 case 4:
-                    if (signed)
+                    if (isFloat)
+                    {
+                        number.fs = BitConverter.ToSingle(data);
+                    }
+                    else if (isSigned)
                     {
                         number.sl = BitConverter.ToInt32(data, offset);
                     }
@@ -203,7 +215,11 @@
 
                     break;
                 case 8:
-                    if (signed)
+                    if (isFloat)
+                    {
+                        number.fd = BitConverter.ToDouble(data);
+                    }
+                    else if (isSigned)
                     {
                         number.sl = BitConverter.ToInt64(data, offset);
                     }
@@ -217,8 +233,6 @@
 
             return number;
         }
-        
-        
 
         /// <inheritdoc />
         public override string ToString()
