@@ -72,4 +72,5 @@ Before the definition of the elements list, there is defined a single element na
 | little_endian | What order the bytes are stored in the file | YAML bool |
 | matrix | Name of matrix formatter to use | Must be defined in your matrices list (see next section) |
 | is_deferred | True if this object is a deferral | Optionally specify that this element is a pointer to more data |
+| is_array_count| True if this value is a count of the next object | Optionally hint that the next object is repeated N times |
 

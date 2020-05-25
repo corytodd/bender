@@ -15,12 +15,13 @@ extensions:
 base_element: &base_element
     name: Undefined
     elide: no
-    units: 4            # Bytes wide (1, 2, 4 etc.)
-    signed: no          # Is integer signed
-    format: ascii       # binary, decimal, octal, hex, ascii, utf16, single, double
-    little_endian: yes  # byte storage order
-    matrix:             # References a matrix by name
-    is_deferred: false  # Is this pointing to more data
+    units: 4              # Bytes wide (1, 2, 4 etc.)
+    signed: no            # Is integer signed
+    format: ascii         # binary, decimal, octal, hex, ascii, utf16, hexstring, single, double
+    little_endian: yes    # byte storage order
+    matrix:               # References a matrix by name
+    is_deferred: false    # Is this pointing to more data
+    is_array_count: false # Is this a count of the following object?
     
 base_matrix: &base_matrix
     name: Undefined

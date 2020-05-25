@@ -59,6 +59,12 @@
         public bool IsDeferred { get; set; }
 
         /// <summary>
+        /// True if this value represents the count of an array
+        /// </summary>
+        [YamlMember(Alias = "is_array_count", ApplyNamingConventions = false)]
+        public bool IsArrayCount { get; set; }
+        
+        /// <summary>
         /// If this block is referencing a structure, Structure
         /// value should match a known structure definition
         /// </summary>
