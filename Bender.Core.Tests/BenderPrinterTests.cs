@@ -34,7 +34,7 @@ Magic Number         abcd
 Version              1               
 Counter              -1              
 Flags                b00000010       
-CRC16                0x0301          
+CRC16                0x0103          
 Payload              Elided 16 bytes 
 Transform A          [ 5 4 0 1 ]     
                      [ 2 3 4 5 ]     

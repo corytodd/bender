@@ -31,7 +31,7 @@ namespace Bender.Core.Tests
 
             var el = new Element
             {
-                LittleEndian = true,
+                IsLittleEndian = true,
                 Elide = false,
                 PrintFormat = Bender.PrintFormat.Ascii,
                 Units = 4,

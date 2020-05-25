@@ -167,6 +167,12 @@
         /// <returns>Number type</returns>
         public static Number From(Element el, byte[] data)
         {
+            // If byte order does not match, flip now
+            if (!(el.IsLittleEndian && BitConverter.IsLittleEndian))
+            {
+                Array.Reverse(data);
+            }
+            
             const int offset = 0;
             var width = el.Units;
             var isSigned = el.IsSigned;

@@ -300,7 +300,6 @@
             if (el.IsDeferred)
             {
                 // Deferred object is always 8 bytes (2 ints)
-                buff = _reader.ReadBytes(4);
                 const int intWidth = 4;
 
                 var sizeEl = new Element {Units = intWidth, Name = "size_bytes"};
@@ -327,12 +326,12 @@
             else
             {
                 buff = _reader.ReadBytes(el.Units);
-            }
-
-            // If byte order does not match, flip now
-            if (!(el.LittleEndian && BitConverter.IsLittleEndian))
-            {
-                Array.Reverse(buff);
+                
+                // If byte order does not match, flip now
+                if (!(el.IsLittleEndian && BitConverter.IsLittleEndian))
+                {
+                    Array.Reverse(buff);
+                }
             }
 
             return buff;

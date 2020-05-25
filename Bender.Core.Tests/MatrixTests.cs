@@ -13,7 +13,7 @@ namespace Bender.Core.Tests
                 Units = 8,
                 PrintFormat = Bender.PrintFormat.Ascii,
                 Matrix = null,
-                LittleEndian = true,
+                IsLittleEndian = true,
                 IsSigned = true,
                 Elide = false,
             };
@@ -47,7 +47,7 @@ namespace Bender.Core.Tests
                 Units = 8,
                 PrintFormat = Bender.PrintFormat.Ascii,
                 Matrix = null,
-                LittleEndian = true,
+                IsLittleEndian = true,
                 IsSigned = true,
                 Elide = false,
             };
@@ -81,7 +81,7 @@ namespace Bender.Core.Tests
                 Units = 8,
                 PrintFormat = Bender.PrintFormat.Ascii,
                 Matrix = null,
-                LittleEndian = true,
+                IsLittleEndian = true,
                 IsSigned = true,
                 Elide = false,
             };
@@ -104,7 +104,7 @@ namespace Bender.Core.Tests
                 Units = 8,
                 PrintFormat = Bender.PrintFormat.Ascii,
                 Matrix = null,
-                LittleEndian = true,
+                IsLittleEndian = true,
                 IsSigned = true,
                 Elide = false,
             };
