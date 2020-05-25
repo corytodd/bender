@@ -36,12 +36,6 @@
         /// </summary>
         [YamlMember(Alias = "base_element", ApplyNamingConventions = false)]
         public Element BaseElement { get; set; } = new Element();
-
-        /// <summary>
-        /// Default based element
-        /// </summary>
-        [YamlMember(Alias = "base_matrix", ApplyNamingConventions = false)]
-        public Matrix BaseMatrix { get; set; } = new Matrix();
         
         /// <summary>
         /// List of named structures
@@ -93,13 +87,6 @@
 
             sb.AppendLine("Default Element:");
             foreach (var str in BaseElement.EnumerateLayout())
-            {
-                sb.AppendFormat("\t{0}\n", str);
-            }
-            sb.AppendLine();
-
-            sb.AppendLine("Default Matrix:");
-            foreach (var str in BaseMatrix.EnumerateLayout())
             {
                 sb.AppendFormat("\t{0}\n", str);
             }
