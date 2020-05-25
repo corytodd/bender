@@ -10,6 +10,93 @@
     public struct Number
     {
         /// <summary>
+        /// Returns true if values are equal
+        /// </summary>
+        public bool Equals(int other)
+        {
+            return sl == other;
+        }
+        
+        /// <summary>
+        /// Returns true if values are equal
+        /// </summary>
+        public override bool Equals(object obj)
+        {
+            return obj is int other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return si;
+        }
+        
+        /// <summary>
+        /// Returns true if values are equal
+        /// </summary>
+        public static bool operator ==(Number left, int right)
+        {
+            return left.Equals(right);
+        }
+        
+        /// <summary>
+        /// Returns true if values are equal
+        /// </summary>
+        public static bool operator ==(int left, Number right)
+        {
+            return right.Equals(left);
+        }
+        
+        /// <summary>
+        /// Returns true if values are not equal
+        /// </summary>
+        public static bool operator !=(Number left, int right)
+        {
+            return !left.Equals(right);
+        }
+        
+        /// <summary>
+        /// Returns true if values are not equal
+        /// </summary>
+        public static bool operator !=(int left, Number right)
+        {
+            return !right.Equals(left);
+        }
+
+        /// <summary>
+        /// Performs a signed compare
+        /// </summary>
+        public static bool operator <(Number left, int right)
+        {
+            return left.si < right;
+        }
+        
+        /// <summary>
+        /// Performs a signed compare
+        /// </summary>
+        public static bool operator >(Number left, int right)
+        {
+            return left.si > right;
+        }
+        
+        
+        /// <summary>
+        /// Performs a signed compare
+        /// </summary>
+        public static bool operator <(int left, Number right)
+        {
+            return left < right.si;
+        }
+        
+        /// <summary>
+        /// Performs a signed compare
+        /// </summary>
+        public static bool operator >(int left, Number right)
+        {
+            return left > right.si;
+        }
+
+        /// <summary>
         /// Unsigned byte
         /// </summary>
         [FieldOffset(0)] public byte ub;
@@ -129,6 +216,14 @@
             }
 
             return number;
+        }
+        
+        
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return sl.ToString();
         }
     }
 }

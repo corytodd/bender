@@ -1,7 +1,8 @@
 ﻿namespace Bender.Core
 {
-	using System.Collections.Generic;
-	using System.Text;
+    using System.IO;
+    using System.Collections.Generic;
+    using System.Text;
 
     /// <summary>
     /// Structure represents a struct in binary form
@@ -11,12 +12,12 @@
         /// <summary>
         /// Gets or Sets name of this structure
         /// </summary>
-		public string Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets or Sets ordered list of elements in this structure
         /// </summary>
-		public IList<Element> Elements { get; set; }
+        public IList<Element> Elements { get; set; }
 
         /// <summary>
         /// Generator yields each line from ToString()
@@ -30,7 +31,7 @@
                 yield return str;
             }
         }
-
+        
         /// <summary>
         ///     Returns all properties as newline delimited string
         /// </summary>
@@ -47,6 +48,7 @@
                 {
                     sb.AppendFormat("\t\t{0}\n", str);
                 }
+
                 sb.AppendLine();
             }
 

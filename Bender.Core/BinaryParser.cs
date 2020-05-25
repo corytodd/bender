@@ -4,14 +4,21 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
 
     /// <summary>
     /// Reads a binary file and formats the data as specified in the SpecFile
     /// </summary>
-    public class BinaryParser
+    public class BinaryParser : IDisposable
+
     {
-        private readonly SpecFile _mSpec;
+        private readonly SpecFile _spec;
+        private BinaryReader _reader;
+        private DataFile _binary;
+
+        /// <summary>
+        /// Returns name of next section in layout
+        /// </summary>
+        private delegate string GetNextSection();
 
         /// <summary>
         /// Creates a new parser
@@ -19,7 +26,7 @@
         /// <param name="spec">Binary layout spec</param>
         public BinaryParser(SpecFile spec)
         {
-            _mSpec = spec;
+            _spec = spec;
         }
 
         /// <summary>
@@ -51,77 +58,111 @@
             }
         }
 
+        /// <summary>
+        /// Parse binary file into a Bender file using the
+        /// current SpecFile.
+        /// </summary>
+        /// <param name="binary">Source file</param>
+        /// <returns>Parsed Bender</returns>
         private Bender TryParse(DataFile binary)
         {
             var bender = new Bender();
 
-            using (var stream = new MemoryStream(binary.Data))
-            using (var reader = new BinaryReader(stream))
+            using var stream = new MemoryStream(binary.Data);
+            _reader = new BinaryReader(stream);
+            _binary = binary;
+
+            // Iterates over the order specified in 'layout'
+            var queue = new Queue<string>(_spec.Layout);
+
+            string SectionGetter()
             {
+                return queue.TryDequeue(out var result) ? result : string.Empty;
+            }
 
-                foreach (var str in _mSpec.Layout)
-                {
-                    var els = new List<Element>();
-                    var st = _mSpec.Structures.FirstOrDefault(o => o.Name.Equals(str));
-                    if (st != null)
-                    {
-                        els.AddRange(st.Elements);
-                    }
-                    else
-                    {
-                        var el = _mSpec.Elements.FirstOrDefault(o => o.Name.Equals(str));
-                        if (el != null)
-                        {
-                            els.Add(el);
-                        }
-                    }
+            while (queue.Count > 0)
+            {
+                var formatted = HandleSection(SectionGetter);
 
-                    if (els.Count == 0)
-                    {
-                        var formatted = new Bender.FormattedField
-                        {
-                            Name = str,
-                            Value = new List<string> { "Undefined object" }
-                        };
-                        bender.FormattedFields.Add(formatted);
-                    }
-                    else
-                    {
-                        foreach (var el in els)
-                        {
-                            var formatted = HandleElement(el, reader, binary);
-                            bender.FormattedFields.Add(formatted);
-                        }
-                    }
-                }
+                bender.FormattedFields.AddRange(formatted);
             }
 
             return bender;
         }
 
-        private Bender.FormattedField HandleElement(Element el, BinaryReader reader, DataFile binary)
+        /// <summary>
+        /// Process this section definition
+        /// </summary>
+        /// <param name="fnGetSection">Section name getter</param>
+        /// <returns>Formatted results from element</returns>
+        private IEnumerable<Bender.FormattedField> HandleSection(GetNextSection fnGetSection)
         {
-            var buff = reader.ReadBytes(el.Units);
-
-            // If byte order does not match, flip now
-            if (!(el.LittleEndian && BitConverter.IsLittleEndian))
+            var section = fnGetSection.Invoke();
+            if (string.IsNullOrEmpty(section))
             {
-                Array.Reverse(buff);
+                return Enumerable.Empty<Bender.FormattedField>();
             }
 
-            // If this is deferred read, collect the deferred data
-            if (string.IsNullOrEmpty(el.Deferred))
-            {
-                return FormatBuffer(el, buff);
-            }
-            buff = HandleDeferredRead(el, binary, buff);
+            var result = new List<Bender.FormattedField>();
 
-            if (buff == null)
+            // Find definition of the element
+            var element = _spec.Elements.FirstOrDefault(o => o.Name.Equals(section));
+            if (element is null)
+            {
+                result.Add(new Bender.FormattedField
+                {
+                    Name = section,
+                    Value = new List<string> {"Undefined object"}
+                });
+            }
+            else if (element.IsArrayCount)
+            {
+                var buff = ReadNextElement(element);
+                var count = Number.From(element, buff);
+                var repeatedSection = fnGetSection();
+
+                for (var i = 0; i < count; ++i)
+                {
+                    // Repeats the same section without requiring it to actually be defined in the layout
+                    var formattedSection = HandleSection(() => repeatedSection);
+
+                    result.AddRange(formattedSection);
+                }
+            }
+            else
+            {
+                var formattedElement = HandleElement(element);
+
+                result.Add(formattedElement);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Process the fields of this element to build a formatted field
+        /// </summary>
+        /// <param name="el">Data definition</param>
+        /// <returns>Formatted result from element</returns>
+        private Bender.FormattedField HandleElement(Element el)
+        {
+            var buff = ReadNextElement(el);
+            if (buff is null)
             {
                 return new Bender.FormattedField
                 {
                     Name = el.Name,
-                    Value = new List<string> { "Error: Invalid deferred object" }
+                    Value = new List<string> {"Error: Invalid deferred object"}
+                };
+            }
+
+            // This is declared as a deferral but the definition was marked as empty
+            if (el.IsDeferred && buff.Length == 0)
+            {
+                return new Bender.FormattedField
+                {
+                    Name = el.Name,
+                    Value = new List<string> {"Empty"}
                 };
             }
 
@@ -129,48 +170,14 @@
         }
 
         /// <summary>
-        /// Use buff data to locate a deferred record. If the record can be located,
-        /// it will be parsed according the element rules and the raw byte[] will be
-        /// returned for further processing.
-        /// </summary>
-        /// <param name="el">Element rules</param>
-        /// <param name="binary">Binary source file</param>
-        /// <param name="buff">Buffer record</param>
-        /// <returns>Deferred data block</returns>
-        private byte[] HandleDeferredRead(Element el, DataFile binary, byte[] buff)
-        {
-            if (_mSpec.Deferreds == null)
-            {
-                return null;
-            }
-
-            var def = _mSpec.Deferreds.FirstOrDefault(d => d.Name != null && d.Name.Equals(el.Deferred));
-            if (def == null)
-            {
-                return null;
-            }
-
-            var size = Number.From(def.SizeUnits, false, 0, buff);
-            var offset = Number.From(def.OffsetUnits, false, size.si, buff);
-
-            using (var stream = new MemoryStream(binary.Data))
-            using (var reader = new BinaryReader(stream))
-            {
-                el.Units = size.si;
-                reader.BaseStream.Position = offset.sl;
-                return reader.ReadBytes(size.si);
-            }
-        }
-
-        /// <summary>
         /// Formats data according to element rules
         /// </summary>
         /// <param name="el">Element rules</param>
-        /// <param name="data">Data to format</param>
+        /// <param name="buff">Data to format</param>
         /// <returns>Formatted string</returns>
         /// <exception cref="OutOfDataException">Raised if data from offset does not have enough bytes to make a
         /// number with width bytes</exception>
-        private Bender.FormattedField FormatBuffer(Element el, byte[] data)
+        private Bender.FormattedField FormatBuffer(Element el, byte[] buff)
         {
             if (el.Elide)
             {
@@ -178,52 +185,31 @@
                 {
                     Name = el.Name,
                     Value = new List<string>
-                    { string.Format("Elided {0} bytes", data.Length) }
+                    {
+                        $"Elided {buff.Length} bytes"
+                    }
                 };
             }
-        
+
             var value = new List<string>();
 
             if (!string.IsNullOrEmpty(el.Matrix))
             {
-                value.AddRange(FormatMatrix(el, data));
+                var formattedMatrix = FormatMatrix(el, buff);
+
+                value.AddRange(formattedMatrix);
+            }
+            else if (!string.IsNullOrEmpty(el.Structure))
+            {
+                var formattedStructure = FormatStructure(el, buff);
+
+                value.AddRange(formattedStructure);
             }
             else
             {
-                try
-                {
-                    var number = Number.From(el, data);
+                var formattedElement = el.TryFormat(el, buff, DefaultFormatter);
 
-                    switch (el.Format)
-                    {
-                        case ElementFormat.Binary:
-                            // Make sure every byte has 8 places, 0 filled if needed
-                            var binary = Convert.ToString(number.sl, 2).PadLeft(el.Units * 8, '0');
-                            value.Add(string.Format("b{0}", binary));
-                            break;
-                        case ElementFormat.Octal:
-                            value.Add(string.Format("O{0}", Convert.ToString(number.sl, 8)));
-                            break;
-                        case ElementFormat.Decimal:
-                            value.Add(number.sl.ToString());
-                            break;
-                        case ElementFormat.Hex:
-                            value.Add(string.Format("0x{0:X}", number.sl));
-                            break;
-                        case ElementFormat.ASCII:
-                            value.Add(Encoding.ASCII.GetString(data));
-                            break;
-                        case ElementFormat.UTF16:
-                            value.Add(Encoding.Unicode.GetString(data));
-                            break;
-                    }
-                }
-                catch (ArgumentException)
-                {
-                    throw new OutOfDataException(
-                        "Element {0}: Not enough data left to create a {1} byte number ({2} bytes left)",
-                        el.Name, el.Units, data.Length);
-                }
+                value.AddRange(formattedElement);
             }
 
             return new Bender.FormattedField
@@ -237,33 +223,134 @@
         /// Formats the nested payload type as a matrix
         /// </summary>
         /// <param name="el">Element descriptor</param>
-        /// <param name="data">Raw data</param>
+        /// <param name="buff">Raw data</param>
         /// <returns>List of formatted matrix rows</returns>
-        private IEnumerable<string> FormatMatrix(Element el, byte[] data)
-        {            
-            if (_mSpec.Matrices == null)
+        private IEnumerable<string> FormatMatrix(Element el, byte[] buff)
+        {
+            if (_spec.Matrices == null)
             {
-                return new List<string> { string.Format("No matrices specified but element {0} has referenced one", el.Name)};
+                return new List<string> {$"No matrices specified but element {el.Name} has referenced {el.Matrix}"};
             }
 
-            var payload = _mSpec.Matrices.FirstOrDefault(p => el.Matrix.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
-            if(payload == null)
+            var def = _spec.Matrices.FirstOrDefault(p =>
+                el.Matrix.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (def == null)
             {
-                return new List<string> { string.Format("Unknown matrix type {0} on element {1}", el.Matrix, el.Name) };
+                return new List<string> {$"Unknown matrix type {el.Matrix} on element {el.Name}"};
             }
 
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
             var elClone = el.Clone();
             elClone.Matrix = string.Empty;
-            elClone.Units = payload.Units;
+            elClone.Units = def.Units;
 
-            string Formatter(Element e, byte[] d)
+            return def.TryFormat(elClone, buff, DefaultFormatter);
+        }
+
+        private IEnumerable<string> FormatStructure(Element el, byte[] buff)
+        {
+            if (_spec.Structures == null)
             {
-                return FormatBuffer(e, d).Value.First();
+                return new List<string> {$"No structure specified but element {el.Name} has referenced {el.Structure}"};
             }
 
-            return payload.Format(elClone, data, Formatter);
+            var def = _spec.Structures.FirstOrDefault(p =>
+                el.Structure.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (def == null)
+            {
+                return new List<string> {$"Unknown structure type {el.Structure} on element {el.Name}"};
+            }
+
+            // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
+            var elClone = el.Clone();
+            elClone.Structure = string.Empty;
+
+            var result = new List<string>(def.Elements.Count);
+
+            using var stream = new MemoryStream(buff);
+            using var innerReader = new BinaryReader(stream);
+
+            if (el.IsDeferred)
+            {
+
+                var tempReader = _reader;
+                _reader = innerReader;
+                
+                foreach (var childEl in def.Elements)
+                {
+                    var formatted = HandleElement(childEl);
+                    var isFirst = true;
+                    foreach (var value in formatted.Value)
+                    {
+                        // Repeat name only once for each element, maintain padding
+                        var prefix = isFirst ? childEl.Name : new string(' ', childEl.Name.Length);
+                        result.Add($"[ {prefix}: {value} ]");
+                        isFirst = false;
+                    }
+                }
+
+                _reader = tempReader;
+            }
+            else
+            {
+                foreach (var childEl in def.Elements)
+                {
+                    var field = innerReader.ReadBytes(childEl.Units);
+                    result.Add($"[ {childEl.Name}: {DefaultFormatter(childEl, field)} ]");
+                }
+            }
+
+            return result;
         }
-       
+
+        private byte[] ReadNextElement(Element el)
+        {
+            byte[] buff;
+
+            if (el.IsDeferred)
+            {
+                // Deferred object is always 8 bytes (2 ints)
+                buff = _reader.ReadBytes(8);
+                const int intWidth = 4;
+                var size = Number.From(intWidth, false, 0, buff);
+                var offset = Number.From(intWidth, false, intWidth, buff);
+
+                if (size == 0 || offset == 0)
+                {
+                    return new byte[0];
+                }
+
+                // Create a new reader so we don't interfere with the current element
+                using var stream = new MemoryStream(_binary.Data);
+                using var reader = new BinaryReader(stream);
+
+                // Read the deferred object in its entirety
+                reader.BaseStream.Position = offset.sl;
+                buff = reader.ReadBytes(size.si);
+            }
+            else
+            {
+                buff = _reader.ReadBytes(el.Units);
+            }
+
+            // If byte order does not match, flip now
+            if (!(el.LittleEndian && BitConverter.IsLittleEndian))
+            {
+                Array.Reverse(buff);
+            }
+
+            return buff;
+        }
+
+        private string DefaultFormatter(Element e, byte[] d)
+        {
+            return FormatBuffer(e, d).Value.First();
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _reader?.Dispose();
+        }
     }
 }

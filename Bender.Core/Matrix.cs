@@ -7,16 +7,8 @@
     /// <summary>
     /// Represents a format type arranging data into rows and columns
     /// </summary>
-    public class Matrix
+    public class Matrix : IElement
     {
-        /// <summary>
-        /// Formats data into a string defined by the rules in element
-        /// </summary>
-        /// <param name="el">Element rules</param>
-        /// <param name="data">Data to format</param>
-        /// <returns>Formatted string</returns>
-        public delegate string Formatter(Element el, byte[] data);
-
         /// <summary>
         /// Gets or Sets matrix name 
         /// </summary>
@@ -41,7 +33,7 @@
         /// <param name="data">Data to format</param>
         /// <param name="formatter">Converts extracted data into a formatted string</param>
         /// <returns>List of rows, formatted as strings</returns>
-        public IEnumerable<string> Format(Element el, byte[] data, Formatter formatter)
+        public IEnumerable<string> TryFormat(Element el, byte[] data, IElement.Formatter formatter)
         {
             if (Units == 0)
             {
@@ -62,7 +54,10 @@
                 ++count;
 
                 sb.AppendFormat("{0} ", formatter.Invoke(el, unit));
-                if (++cols % Columns != 0) continue;
+                if (++cols % Columns != 0)
+                {
+                    continue;
+                }
 
                 sb.Append("]");
                 value.Add(sb.ToString());

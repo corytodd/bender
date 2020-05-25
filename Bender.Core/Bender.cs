@@ -37,6 +37,6 @@
         /// <summary>
         /// Returns list of formatted data extracted from binary
         /// </summary>
-        public IList<FormattedField> FormattedFields { get; }
+        public List<FormattedField> FormattedFields { get; }
     }
 }
