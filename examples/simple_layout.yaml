@@ -39,8 +39,8 @@ matrices:
 
 deferreds:
     - name: int_int
-      size_units: 4     # Bytes wide (1, 2, 4 etc.)
-      offset_units: 4   # Bytes wide (1, 2, 4 etc.)
+      size_bytes: 4
+      offset_bytes: 4
 
 structures:
     # A named, ordered list of elements

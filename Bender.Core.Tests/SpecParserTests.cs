@@ -56,8 +56,8 @@ namespace Bender.Core.Tests
 
             var def = spec.Deferreds.First();
             Assert.Equal("neat_blob", def.Name);
-            Assert.Equal(4, def.SizeUnits);
-            Assert.Equal(4, def.OffsetUnits);
+            Assert.Equal(4, def.SizeBytes);
+            Assert.Equal(4, def.OffsetBytes);
 
             // Make sure that the element in this file has the right deferred name
             var el = spec.Elements.FirstOrDefault(e => def.Name.Equals(e.Deferred));

@@ -43,8 +43,8 @@ matrices:
 
 deferreds:
     - name: int_int
-      size_units: 4     # Bytes wide (1, 2, 4 etc.)
-      offset_units: 4   # Bytes wide (1, 2, 4 etc.)
+      size_bytes: 4 
+      offset_bytes: 4
 
 structures:
     # A named, ordered list of elements
@@ -341,7 +341,7 @@ elements:
       
     - <<: *base_element
       name: Blob Test
-      # units should be the sum of size_units and offset_units in deferred
+      # deferred should always have a size of 8 bytes
       units: 8
       deferred: neat_blob
       format: hex
@@ -359,7 +359,7 @@ matrices:
 
 deferreds:
     - name: neat_blob
-      size_units: 4
-      offset_units: 4";
+      size_bytes: 4
+      offset_bytes: 4";
     }
 }

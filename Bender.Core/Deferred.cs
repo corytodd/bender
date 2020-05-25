@@ -15,21 +15,20 @@
         public string Name { get; set; }
 
         /// <summary>
-        /// Units of bytes of size field
+        /// Size of deferred object in bytes
         /// </summary>
-        [YamlMember(Alias = "size_units", ApplyNamingConventions = false)]
-        public int SizeUnits { get; set; }
+        [YamlMember(Alias = "size_bytes", ApplyNamingConventions = false)]
+        public int SizeBytes { get; set; }
 
         /// <summary>
-        /// Units in bytes of the offset field
+        /// Starting address of deferred object relative to start of file
         /// </summary>
-        [YamlMember(Alias = "offset_units", ApplyNamingConventions = false)]
-        public int OffsetUnits { get; set; }
+        [YamlMember(Alias = "offset_bytes", ApplyNamingConventions = false)]
+        public int OffsetBytes { get; set; }
 
         /// <summary>
         /// Generator yields each line from ToString()
         /// </summary>
-        /// <returns></returns>
         public IEnumerable<string> EnumerateLayout()
         {
             var content = ToString().Split('\n');
@@ -47,8 +46,8 @@
             var sb = new StringBuilder();
 
             sb.AppendFormat("Name: {0}\n", Name);
-            sb.AppendFormat("Size Units: {0}\n", SizeUnits);
-            sb.AppendFormat("Offset Units: {0}\n", OffsetUnits);
+            sb.AppendFormat("Size Bytes: {0}\n", SizeBytes);
+            sb.AppendFormat("Offset Bytes: {0}\n", OffsetBytes);
 
             return sb.ToString();
         }

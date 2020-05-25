@@ -147,8 +147,10 @@
                 return null;
             }
 
-            var size = Number.From(def.SizeUnits, false, 0, buff);
-            var offset = Number.From(def.OffsetUnits, false, size.si, buff);
+            const int intWidth = 4;    
+            var size = Number.From(intWidth, false, 0, buff);
+            var offset = Number.From(intWidth, false, intWidth, buff);
+
             if (size == 0 || offset == 0)
             {
                 return new byte[0];
