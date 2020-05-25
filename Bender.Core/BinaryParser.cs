@@ -260,10 +260,11 @@
 
             if (el.IsDeferred)
             {
-
+                // Temporary set reader source to this structure's data
                 var tempReader = _reader;
                 _reader = innerReader;
                 
+                // Recursively handle any nested elements, structures included
                 foreach (var childEl in def.Elements)
                 {
                     var formatted = HandleElement(childEl);
@@ -277,6 +278,7 @@
                     }
                 }
 
+                // Restore the previous reader
                 _reader = tempReader;
             }
             else
@@ -330,9 +332,13 @@
             return buff;
         }
 
-        private string DefaultFormatter(Element e, byte[] d)
+        /// <summary>
+        /// Applies internal formatting rules to render element data
+        /// </summary>
+        private string DefaultFormatter(Element el, byte[] buff)
         {
-            return FormatBuffer(e, d).Value.First();
+            var formatted = FormatBuffer(el, buff);
+            return formatted.Value.FirstOrDefault();
         }
 
         /// <inheritdoc />
