@@ -9,7 +9,7 @@ namespace Bender.Core.Tests
         {
             var el = new Element
             {
-                Format = ElementFormat.Decimal,
+                PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 1,
                 IsSigned = true,
             };
@@ -27,7 +27,7 @@ namespace Bender.Core.Tests
         {
             var el = new Element
             {
-                Format = ElementFormat.Decimal,
+                PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 1,
                 IsSigned = false,
             };
@@ -43,7 +43,7 @@ namespace Bender.Core.Tests
         {
             var el = new Element
             {
-                Format = ElementFormat.Decimal,
+                PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 2,
                 IsSigned = true,
             };
@@ -61,7 +61,7 @@ namespace Bender.Core.Tests
         {
             var el = new Element
             {
-                Format = ElementFormat.Decimal,
+                PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 2,
                 IsSigned = false,
             };
@@ -77,7 +77,7 @@ namespace Bender.Core.Tests
         {
             var el = new Element
             {
-                Format = ElementFormat.Decimal,
+                PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 4,
                 IsSigned = true,
             };
@@ -95,7 +95,7 @@ namespace Bender.Core.Tests
         {
             var el = new Element
             {
-                Format = ElementFormat.Decimal,
+                PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 4,
                 IsSigned = false,
             };
@@ -111,7 +111,7 @@ namespace Bender.Core.Tests
         {
             var el = new Element
             {
-                Format = ElementFormat.Decimal,
+                PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 8,
                 IsSigned = true,
             };
@@ -129,7 +129,7 @@ namespace Bender.Core.Tests
         {
             var el = new Element
             {
-                Format = ElementFormat.Decimal,
+                PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 8,
                 IsSigned = false,
             };

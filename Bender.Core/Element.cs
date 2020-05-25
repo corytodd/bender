@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
+    using System.Runtime.Serialization;
     using System.Text;
     using YamlDotNet.Serialization;
 
@@ -37,9 +39,10 @@
         public bool Elide { get; set; }
 
         /// <summary>
-        /// How the bytes should be assembled
+        /// How the bytes should be interpreted for rendering
         /// </summary>
-        public ElementFormat Format { get; set; }
+        [YamlMember(Alias = "format", ApplyNamingConventions = false)]
+        public Bender.PrintFormat PrintFormat { get; set; }
 
         /// <summary>
         /// Number of bytes in element
@@ -62,7 +65,7 @@
         /// </summary>
         [YamlMember(Alias = "is_array_count", ApplyNamingConventions = false)]
         public bool IsArrayCount { get; set; }
-        
+
         /// <summary>
         /// If this block is referencing a structure, Structure
         /// value should match a known structure definition
@@ -92,7 +95,7 @@
             sb.AppendFormat("Name: {0}\n", Name);
             sb.AppendFormat("Elide: {0}\n", Elide);
             sb.AppendFormat("Signed: {0}\n", IsSigned);
-            sb.AppendFormat("Format: {0}\n", Format);
+            sb.AppendFormat("Format: {0}\n", PrintFormat);
             sb.AppendFormat("Units: {0}\n", Units);
             sb.AppendFormat("Payload: {0}\n", Matrix);
             sb.AppendFormat("Little Endian: {0}\n", LittleEndian);
@@ -100,8 +103,15 @@
             return sb.ToString();
         }
 
-        /// <inheritdoc />
-        public IEnumerable<string> TryFormat(Element el, byte[] data, BenderFormat.Formatter formatter)
+        /// <summary>
+        /// Formats data into an ordered list of matrix rows. Each row is
+        /// formatted using the rules defined in element.
+        /// </summary>
+        /// <param name="el">Element rules</param>
+        /// <param name="data">Data to format</param>
+        /// <param name="elementFormatter">Converts extracted data into a formatted string</param>
+        /// <returns>List of rows, formatted as strings</returns>
+        public static IEnumerable<string> TryFormat(Element el, byte[] data, Bender.FormatElement elementFormatter)
         {
             var result = new List<string>();
 
@@ -109,39 +119,55 @@
             {
                 var number = Number.From(el, data);
 
-                switch (el.Format)
+                switch (el.PrintFormat)
                 {
-                    case ElementFormat.Binary:
+                    case Bender.PrintFormat.Binary:
                         // Make sure every byte has 8 places, 0 filled if needed
                         var binary = Convert.ToString(number.sl, 2).PadLeft(el.Units * 8, '0');
                         result.Add($"b{binary}");
                         break;
-                    case ElementFormat.Octal:
+                    case Bender.PrintFormat.Octal:
                         result.Add($"O{Convert.ToString(number.sl, 8)}");
                         break;
-                    case ElementFormat.Decimal:
+                    case Bender.PrintFormat.Decimal:
                         result.Add(number.sl.ToString());
                         break;
-                    case ElementFormat.Hex:
-                    case ElementFormat.HexString:
-                        var prefix = el.Format == ElementFormat.Hex ? "0x" : "";
+                    case Bender.PrintFormat.Hex:
+                    case Bender.PrintFormat.BigInt:
+                        var prefix = el.PrintFormat == Bender.PrintFormat.Hex ? "0x" : "";
                         var width = (el.Units * 2).NextPowerOf2();
                         var hex = Convert.ToString(number.sl, 16).PadLeft(width, '0').ToUpper();
                         result.Add($"{prefix}{hex}");
                         break;
-                    case ElementFormat.ASCII:
+                    case Bender.PrintFormat.Ascii:
                         result.Add(Encoding.ASCII.GetString(data));
                         break;
-                    case ElementFormat.UTF16:
+                    case Bender.PrintFormat.Utf16:
                         result.Add(Encoding.Unicode.GetString(data));
                         break;
-                    case ElementFormat.Single:
-                    case ElementFormat.Double:
-                        result.Add("Floating point formatting not implemented");
+                    case Bender.PrintFormat.Float:
+                        // Reinterpret data as floating point
+                        var stream = new MemoryStream(data);
+                        var reader = new BinaryReader(stream);
+                        if (el.Units == 4 && data.Length == 4)
+                        {
+                            var f = reader.ReadSingle();
+                            result.Add(f.ToString("F"));
+                        }
+                        else if (el.Units == 8 && data.Length == 8)
+                        {
+                            var d = reader.ReadDouble();
+                            result.Add(d.ToString("F")); 
+                        }
+                        else
+                        {
+                            result.Add("Malformed float. Width must be 4 or 8 bytes");
+                        }
+
                         break;
 
                     default:
-                        result.Add($"Unsupported format: {el.Format}");
+                        result.Add($"Unsupported format: {el.PrintFormat}");
                         break;
                 }
             }
@@ -167,7 +193,7 @@
                 LittleEndian = LittleEndian,
                 IsSigned = IsSigned,
                 Elide = Elide,
-                Format = Format,
+                PrintFormat = PrintFormat,
                 Units = Units,
                 Matrix = Matrix,
             };
@@ -181,7 +207,7 @@
                    LittleEndian == element.LittleEndian &&
                    IsSigned == element.IsSigned &&
                    Elide == element.Elide &&
-                   Format == element.Format &&
+                   PrintFormat == element.PrintFormat &&
                    Units == element.Units &&
                    Matrix == element.Matrix;
         }

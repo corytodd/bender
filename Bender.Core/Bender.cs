@@ -38,5 +38,63 @@
         /// Returns list of formatted data extracted from binary
         /// </summary>
         public List<FormattedField> FormattedFields { get; }
+
+        /// <summary>
+        /// Formats data into a string defined by the rules in element
+        /// </summary>
+        /// <param name="el">Element rules</param>
+        /// <param name="data">Data to format</param>
+        /// <returns>Formatted string</returns>
+        public delegate string FormatElement(Element el, byte[] data);
+
+        /// <summary>
+        /// Supported element formats
+        /// </summary>
+        public enum PrintFormat
+        {
+            /// <summary>
+            /// Format value as binary with 'b' prefix and
+            /// 8 characters per byte (left zero padded). LSB
+            /// is on the right end of the string.
+            /// e.g. b011100101
+            /// </summary>
+            Binary,
+
+            /// <summary>
+            /// Format value as octal with 'o' prefix
+            /// </summary>
+            Octal,
+
+            /// <summary>
+            /// Format as decimal
+            /// </summary>
+            Decimal,
+
+            /// <summary>
+            /// Format value as hex with '0x' prefix
+            /// </summary>
+            Hex,
+
+            /// <summary>
+            /// Parse as ASCII text
+            /// </summary>
+            Ascii,
+
+            /// <summary>
+            /// Format value as a UTF-16 string
+            /// </summary>
+            Utf16,
+
+            /// <summary>
+            /// Number with arbitrary count of digits
+            /// </summary>
+            BigInt,
+        
+            /// <summary>
+            /// Format as single or double floating point precision
+            /// Element width must be 4 or 8 bytes, respectively 
+            /// </summary>
+            Float
+        }
     }
 }

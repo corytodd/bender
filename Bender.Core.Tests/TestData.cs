@@ -21,7 +21,7 @@ base_element: &base_element
     elide: no
     units: 4            # Bytes wide (1, 2, 4 etc.)
     signed: no          # Is integer signed
-    format: ascii       # binary, decimal, octal, hex, ascii, utf16, hexstring, single, double
+    format: ascii       # binary, decimal, octal, hex, ascii, utf16, bigint, float
     little_endian: yes  # byte storage order
     matrix:             # Matrix definition, optional
     is_deferred: false  # Is this pointing to more data

@@ -33,7 +33,7 @@ namespace Bender.Core.Tests
             {
                 LittleEndian = true,
                 Elide = false,
-                Format = ElementFormat.ASCII,
+                PrintFormat = Bender.PrintFormat.Ascii,
                 Units = 4,
                 Name = "Undefined",
                 Matrix = null,

@@ -207,7 +207,7 @@
             }
             else
             {
-                var formattedElement = el.TryFormat(el, buff, DefaultFormatter);
+                var formattedElement = Element.TryFormat(el, buff, DefaultFormatter);
 
                 value.AddRange(formattedElement);
             }

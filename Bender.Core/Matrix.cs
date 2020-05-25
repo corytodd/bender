@@ -26,9 +26,9 @@
         /// </summary>
         /// <param name="el">Element rules</param>
         /// <param name="data">Data to format</param>
-        /// <param name="formatter">Converts extracted data into a formatted string</param>
+        /// <param name="elementFormatter">Converts extracted data into a formatted string</param>
         /// <returns>List of rows, formatted as strings</returns>
-        public IEnumerable<string> TryFormat(Element el, byte[] data, BenderFormat.Formatter formatter)
+        public IEnumerable<string> TryFormat(Element el, byte[] data, Bender.FormatElement elementFormatter)
         {
             if (Units == 0)
             {
@@ -48,7 +48,7 @@
             {
                 ++count;
 
-                sb.AppendFormat("{0} ", formatter.Invoke(el, unit));
+                sb.AppendFormat("{0} ", elementFormatter.Invoke(el, unit));
                 if (++cols % Columns != 0)
                 {
                     continue;

@@ -34,7 +34,7 @@ You may take advantage of YAML merge keys to generate base objects from which yo
 | elide | Hide this element from display | YAML bool |
 | units | How many bytes are in this element | A positive integer |
 | signed | Represent bytes as a signed value | YAML bool |
-| format | How the bytes should be interpreted | binary, octal, decimal, hex, ascii, utf16, hexstr, single, double |
+| format | How the bytes should be interpreted | binary, octal, decimal, hex, ascii, utf16, hexstr, float |
 | little_endian | What order the bytes are stored in the file | YAML bool |
 | is_deferred | True if this object is a deferral | Optionally specify that this element is a pointer to more data |
 | is_array_count| True if this value is a count of the next object | Optionally hint that the next object is repeated N times |
@@ -72,9 +72,43 @@ Sometimes your data is more than just a number or a matrix. Use structures to de
 complicated data types. Each element may also contain structures, matrices, and can be a mix of deferred and immediate 
 objects.
 
+There are no checks in place to detect circular references so be careful. Also, the only limit on structure depth is 
+your stack size. 
+
 | Field | Description | Legal Values |
 |:------|:------------|:-------------|
 | name  | Name referenced by and element | strings |
 | elements | A list of elements contained in this structure | Any valid Element listed under structure_elements |
 
+## Arrays
+Any numeric element can be marked as an array to indicate that the next element should be repeated a number of times. 
+This supports a structure similar to the following:
+
+```
+typedef def_array_t {
+	uint32_t aCount;
+	struct some_struct_t a[SOME_CONSTANT_A];
+	uint32_t bCount;
+	int b[SOME_CONSTANT_B]
+};
+```
+
+This allows you to support immediate data with arbitrary length. The count and the element being repeated are separate 
+objects so you can name and format them separately. Any type of element can be repeated.
+
+## Format 
+An element may be formatted as any of the following:
+
+- binary Uses 0b prefix, e.g. 0b00000010 == 2
+- octal Uses O prefix, e.g. O11 == 9
+- decimal No prefix
+- hex Uses 0x prefix
+- ascii Interprets string as 7-bits per character. Length is == Units of elements. 
+- utf16 Interprets string as 16-bits per character. Length is == Units of elements.
+- bigint Interprets arbitrary count of bytes as a hex formatted string without a prefix.
+- float Units must be 4 bytes for single precision or 8 bytes for double precision.
+
+For string types, the units field of element is the count of letters in the string. For ASCII, that happens to 
+be equal to the count of bytes. For UTF-16, since each character is 2-bytes the units are 2 but the character length 
+is half the byte length.
 
