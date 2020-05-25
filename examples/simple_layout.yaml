@@ -25,7 +25,7 @@ base_element: &base_element
 
 structures:
     # A named, ordered list of elements
-    - name: Range
+    - name: StructRange
       elements:
         - <<: *base_element
           name: Pair Count
@@ -88,6 +88,13 @@ elements:
       matrix:
         columns: 2
         units: 2
+        
+    - <<: *base_element
+      format: decimal
+      structure: StructRange
+      units: 16
+      name: Range
+        
 
 layout:
     # References any structure or element defined above
