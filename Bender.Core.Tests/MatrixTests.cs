@@ -12,7 +12,7 @@ namespace Bender.Core.Tests
                 Name = "Test",
                 Units = 8,
                 Format = ElementFormat.ASCII,
-                Matrix = string.Empty,
+                Matrix = null,
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
@@ -20,7 +20,6 @@ namespace Bender.Core.Tests
 
             var mat = new Matrix
             {
-                Name = "Test",
                 Columns = 4,
                 Units = 1,
             };
@@ -47,7 +46,7 @@ namespace Bender.Core.Tests
                 Name = "Test",
                 Units = 8,
                 Format = ElementFormat.ASCII,
-                Matrix = string.Empty,
+                Matrix = null,
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
@@ -55,7 +54,6 @@ namespace Bender.Core.Tests
 
             var mat = new Matrix
             {
-                Name = "Test",
                 Columns = 1,
                 Units = 4,
             };
@@ -72,9 +70,6 @@ namespace Bender.Core.Tests
             {
                 Assert.Equal("[ 0x42424242 ]", row);
             }
-
-            // make sure nothing stepped on the matrix name
-            Assert.False(string.IsNullOrEmpty(mat.Name));
         }
 
         [Fact]
@@ -85,7 +80,7 @@ namespace Bender.Core.Tests
                 Name = "Test",
                 Units = 8,
                 Format = ElementFormat.ASCII,
-                Matrix = string.Empty,
+                Matrix = null,
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
@@ -93,7 +88,6 @@ namespace Bender.Core.Tests
 
             var mat = new Matrix
             {
-                Name = "Test",
                 Columns = 2,
                 Units = 0,
             };
@@ -109,7 +103,7 @@ namespace Bender.Core.Tests
                 Name = "Test",
                 Units = 8,
                 Format = ElementFormat.ASCII,
-                Matrix = string.Empty,
+                Matrix = null,
                 LittleEndian = true,
                 IsSigned = true,
                 Elide = false,
@@ -117,7 +111,6 @@ namespace Bender.Core.Tests
 
             var mat = new Matrix
             {
-                Name = "Test",
                 Columns = 2,
                 Units = 2,
             };
@@ -134,9 +127,6 @@ namespace Bender.Core.Tests
             {
                 Assert.Equal("[ 0x4242 ]", row);
             }
-
-            // make sure nothing stepped on the matrix name
-            Assert.False(string.IsNullOrEmpty(mat.Name));
         }
     }
 }

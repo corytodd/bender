@@ -7,13 +7,8 @@
     /// <summary>
     /// Represents a format type arranging data into rows and columns
     /// </summary>
-    public class Matrix : IElement
+    public class Matrix
     {
-        /// <summary>
-        /// Gets or Sets matrix name 
-        /// </summary>
-        public string Name { get; set; }
-
         /// <summary>
         /// Gets or Sets count of columns in this matrix
         /// </summary>
@@ -33,7 +28,7 @@
         /// <param name="data">Data to format</param>
         /// <param name="formatter">Converts extracted data into a formatted string</param>
         /// <returns>List of rows, formatted as strings</returns>
-        public IEnumerable<string> TryFormat(Element el, byte[] data, IElement.Formatter formatter)
+        public IEnumerable<string> TryFormat(Element el, byte[] data, BenderFormat.Formatter formatter)
         {
             if (Units == 0)
             {
@@ -92,7 +87,6 @@
         {
             var sb = new StringBuilder();
 
-            sb.AppendFormat("Name: {0}\n", Name);
             sb.AppendFormat("Columns: {0}\n", Columns);
             sb.AppendFormat("Units: {0}\n", Units);
 

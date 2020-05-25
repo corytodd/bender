@@ -11,7 +11,7 @@
     /// of an element must be unique to the specification file
     /// </summary>
     [DebuggerDisplay("Name = {Name}, Units = {Units}")]
-    public class Element : IElement
+    public class Element
     {
         /// <summary>
         /// Human friendly name of this element
@@ -47,10 +47,9 @@
         public int Units { get; set; }
 
         /// <summary>
-        /// If this block contains a payload, Matrix value should match a known
-        /// Matrix definition in the spec file
+        /// Matrix definition, if any
         /// </summary>
-        public string Matrix { get; set; }
+        public Matrix Matrix { get; set; }
 
         /// <summary>
         /// True if this block is pointing to more data
@@ -102,7 +101,7 @@
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> TryFormat(Element el, byte[] data, IElement.Formatter formatter)
+        public IEnumerable<string> TryFormat(Element el, byte[] data, BenderFormat.Formatter formatter)
         {
             var result = new List<string>();
 

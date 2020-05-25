@@ -23,23 +23,8 @@ base_element: &base_element
     signed: no          # Is integer signed
     format: ascii       # binary, decimal, octal, hex, ascii, utf16, hexstring, single, double
     little_endian: yes  # byte storage order
-    matrix:             # References a matrix by name
+    matrix:             # Matrix definition, optional
     is_deferred: false  # Is this pointing to more data
-    
-base_matrix: &base_matrix
-    name: Undefined
-    columns: 2          # Number of values per row
-    units: 2            # Bytes wide (1, 2, 4 etc.)
-
-matrices:
-    - <<: *base_matrix
-      name: 4x1
-      columns: 4
-      units: 1
-    - <<: *base_matrix
-      name: 2x2
-      columns: 2
-      units: 2      
 
 structures:
     # A named, ordered list of elements
@@ -95,13 +80,17 @@ elements:
       format: decimal
       units: 16
       name: Transform A    
-      matrix: 4x1
+      matrix:
+        columns: 4
+        units: 1
       
     - <<: *base_element     
       format: decimal
       units: 16
       name: Transform B   
-      matrix: 2x2    
+      matrix:
+        columns: 2
+        units: 2     
       
 layout:
     # References any structure or element defined above
@@ -211,9 +200,7 @@ elements:
     - <<: *base
       units: 8
       little_endian: no         
-      name: Unsigned Long
-
-matrices:";
+      name: Unsigned Long";
 
         public static readonly string StringTest = @"---
 format: bender.v1
@@ -250,9 +237,7 @@ elements:
     - <<: *base
       format: UTF16
       units: 8      
-      little_endian: no
-      
-matrices:";
+      little_endian: no";
 
         public static readonly string TestInvalidYAML = @"---
 format: bender.v1
@@ -297,16 +282,10 @@ base_element: &base_element
 elements:
     - <<: *base_element
       # Should not halt the program
-      name: References unknown matrix
-      matrix: missing
+      name: No matrix defined
       
     - <<: *base_element
-      name: No matrix tag
-
-matrices:
-    - name: unused
-      columns: 2
-      units: 1";
+      name: No matrix tag";
 
         public static readonly string TestDeferred = @"---
 format: bender.v1
@@ -340,16 +319,13 @@ elements:
       format: hex
       # There is a 2x1 matrix at this location
       # Size and offset are implied 
-      matrix: 2x1
+      matrix:
+        columns: 2
+        units: 1
      
     - <<: *base_element
       name: Meaning of Life
       units: 4
-      format: decimal
-
-matrices:
-    - name: 2x1
-      columns: 2
-      units: 1";
+      format: decimal";
     }
 }
