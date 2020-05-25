@@ -45,23 +45,5 @@ namespace Bender.Core.Tests
             Assert.False(string.IsNullOrEmpty(el.ToString()));
             Assert.Equal(el.GetHashCode(), result.BaseElement.GetHashCode());
         }
-
-        [Fact]
-        public void TestParseDeferred()
-        {
-            var df = DataFile.FromASCII(TestData.TestDeferred);
-            var spec = new SpecParser().Parse(df);
-            Assert.NotNull(spec.Deferreds);
-            Assert.Equal(1, spec.Deferreds.Count);
-
-            var def = spec.Deferreds.First();
-            Assert.Equal("neat_blob", def.Name);
-            Assert.Equal(4, def.SizeBytes);
-            Assert.Equal(4, def.OffsetBytes);
-
-            // Make sure that the element in this file has the right deferred name
-            var el = spec.Elements.FirstOrDefault(e => def.Name.Equals(e.Deferred));
-            Assert.NotNull(el);
-        }
     }
 }

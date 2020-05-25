@@ -98,10 +98,10 @@ namespace Bender.Core
         public string Matrix { get; set; }
 
         /// <summary>
-        /// If this block is referencing future data, the deferred
-        /// field must match an object in the deferreds list.
+        /// True if this block is pointing to more data
         /// </summary>
-        public string Deferred { get; set; }
+        [YamlMember(Alias = "is_deferred", ApplyNamingConventions = false)]
+        public bool IsDeferred { get; set; }
 
         /// <summary>
         /// If this block is referencing a structure, Structure

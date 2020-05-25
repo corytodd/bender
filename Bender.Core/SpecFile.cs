@@ -48,13 +48,7 @@
         /// </summary>
         /// <value>The matrices.</value>
         public IList<Matrix> Matrices { get; set; } = new List<Matrix>();
-
-        /// <summary>
-        /// List of named deferred objects
-        /// </summary>
-        /// <value>The deferreds.</value>
-        public IList<Deferred> Deferreds { get; set; } = new List<Deferred>();
-
+        
         /// <summary>
         /// List of named structures
         /// </summary>
@@ -119,16 +113,6 @@
 
             sb.AppendLine("Matrices:");
             foreach (var m in Matrices)
-            {
-                foreach (var str in m.EnumerateLayout())
-                {
-                    sb.AppendFormat("\t{0}\n", str);
-                }
-                sb.AppendLine();
-            }
-
-            sb.AppendLine("Deferreds:");
-            foreach (var m in Deferreds)
             {
                 foreach (var str in m.EnumerateLayout())
                 {

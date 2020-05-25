@@ -24,7 +24,7 @@ base_element: &base_element
     format: ascii       # binary, decimal, octal, hex, ascii, utf16
     little_endian: yes  # byte storage order
     matrix:             # References a matrix by name
-    deferred:           # References a deferred by name
+    is_deferred: false  # Is this pointing to more data
     
 base_matrix: &base_matrix
     name: Undefined
@@ -40,11 +40,6 @@ matrices:
       name: 2x2
       columns: 2
       units: 2      
-
-deferreds:
-    - name: int_int
-      size_bytes: 4 
-      offset_bytes: 4
 
 structures:
     # A named, ordered list of elements
@@ -341,10 +336,10 @@ elements:
       
     - <<: *base_element
       name: Blob Test
-      # deferred should always have a size of 8 bytes
-      units: 8
-      deferred: neat_blob
+      is_deferred: true
       format: hex
+      # There is a 2x1 matrix at this location
+      # Size and offset are implied 
       matrix: 2x1
      
     - <<: *base_element
@@ -355,11 +350,6 @@ elements:
 matrices:
     - name: 2x1
       columns: 2
-      units: 1
-
-deferreds:
-    - name: neat_blob
-      size_bytes: 4
-      offset_bytes: 4";
+      units: 1";
     }
 }

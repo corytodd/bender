@@ -104,20 +104,19 @@
             }
 
             // If this is deferred read, collect the deferred data
-            if (string.IsNullOrEmpty(el.Deferred))
+            if (el.IsDeferred)
             {
-                return FormatBuffer(el, buff);
-            }
-
-            buff = HandleDeferredRead(el, binary, buff);
-            if (buff == null || buff.Length == 0)
-            {
-                var message = buff is null ? "Error: Invalid deferred object" : "Empty";
-                return new Bender.FormattedField
+                buff = HandleDeferredRead(el, binary, buff);
+                if (buff == null || buff.Length == 0)
                 {
-                    Name = el.Name,
-                    Value = new List<string> {message}
-                };
+                    var message = buff is null ? "Error: Invalid deferred object" : "Empty";
+                
+                    return new Bender.FormattedField
+                    {
+                        Name = el.Name,
+                        Value = new List<string> {message}
+                    };
+                }
             }
 
             return FormatBuffer(el, buff);
@@ -136,17 +135,6 @@
         /// <returns>Deferred data block</returns>
         private byte[] HandleDeferredRead(Element el, DataFile binary, byte[] buff)
         {
-            if (_spec.Deferreds == null)
-            {
-                return null;
-            }
-
-            var def = _spec.Deferreds.FirstOrDefault(d => d.Name != null && d.Name.Equals(el.Deferred));
-            if (def == null)
-            {
-                return null;
-            }
-
             const int intWidth = 4;    
             var size = Number.From(intWidth, false, 0, buff);
             var offset = Number.From(intWidth, false, intWidth, buff);
@@ -159,7 +147,6 @@
             using var stream = new MemoryStream(binary.Data);
             using var reader = new BinaryReader(stream);
 
-            el.Units = size.si;
             reader.BaseStream.Position = offset.sl;
 
             return reader.ReadBytes(size.si);

@@ -55,6 +55,9 @@
             return !left.Equals(right);
         }
         
+        /// <summary>
+        /// Returns true if values are not equal
+        /// </summary>
         public static bool operator !=(int left, Number right)
         {
             return !right.Equals(left);

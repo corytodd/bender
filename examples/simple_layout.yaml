@@ -20,7 +20,7 @@ base_element: &base_element
     format: ascii       # binary, decimal, octal, hex, ascii, utf16
     little_endian: yes  # byte storage order
     matrix:             # References a matrix by name
-    deferred:           # References a deferred by name
+    is_deferred: false  # Is this pointing to more data
     
 base_matrix: &base_matrix
     name: Undefined
@@ -36,11 +36,6 @@ matrices:
       name: 2x2
       columns: 2
       units: 2      
-
-deferreds:
-    - name: int_int
-      size_bytes: 4
-      offset_bytes: 4
 
 structures:
     # A named, ordered list of elements

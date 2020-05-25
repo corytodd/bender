@@ -18,7 +18,6 @@ This program reads in a binary file specification written in YAML and emits neat
 | base_element | Default Values for each type in Element | The default element for your spec |
 | base_matrix | Default Value for each type in Matrix | The default matrix for your spec |
 | matrices | _empty_ | A primitive type for arranging bytes in Row by Column format |
-| deferreds | _empty_ | Dynamic data with size defined in one location but data in another location |
 | structures | _empty_ | Complex data types, e.g. structs |
 | elements | _empty_ | Named types of any of your custom types (matrices, deferreds, structures) |
 | layout | _empty_ | Ordered list of elements as they are expected to be found in a binary. |
@@ -72,5 +71,5 @@ Before the definition of the elements list, there is defined a single element na
 | format | How the bytes should be interpreted | binary, octal, decimal, hex, ascii, utf16, hexstr, float |
 | little_endian | What order the bytes are stored in the file | YAML bool |
 | matrix | Name of matrix formatter to use | Must be defined in your matrices list (see next section) |
-| deferred | Name of deferred object | Optionally specify that this element is really a pointer to more data |
+| is_deferred | True if this object is a deferral | Optionally specify that this element is a pointer to more data |
 
