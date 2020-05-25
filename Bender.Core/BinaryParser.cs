@@ -207,7 +207,7 @@
             }
             else
             {
-                var formattedElement = el.TryFormat(el, buff, DefaultFormatter);
+                var formattedElement = Element.TryFormat(el, buff, DefaultFormatter);
 
                 value.AddRange(formattedElement);
             }
@@ -260,10 +260,11 @@
 
             if (el.IsDeferred)
             {
-
+                // Temporary set reader source to this structure's data
                 var tempReader = _reader;
                 _reader = innerReader;
                 
+                // Recursively handle any nested elements, structures included
                 foreach (var childEl in def.Elements)
                 {
                     var formatted = HandleElement(childEl);
@@ -277,6 +278,7 @@
                     }
                 }
 
+                // Restore the previous reader
                 _reader = tempReader;
             }
             else
@@ -298,10 +300,16 @@
             if (el.IsDeferred)
             {
                 // Deferred object is always 8 bytes (2 ints)
-                buff = _reader.ReadBytes(8);
+                buff = _reader.ReadBytes(4);
                 const int intWidth = 4;
-                var size = Number.From(intWidth, false, 0, buff);
-                var offset = Number.From(intWidth, false, intWidth, buff);
+
+                var sizeEl = new Element {Units = intWidth, Name = "size_bytes"};
+                buff = ReadNextElement(sizeEl);
+                var size = Number.From(sizeEl,  buff);
+                
+                var offsetEl = new Element {Units = intWidth, Name = "offset_bytes"};
+                buff = ReadNextElement(offsetEl);
+                var offset = Number.From(offsetEl,  buff);
 
                 if (size == 0 || offset == 0)
                 {
@@ -330,9 +338,13 @@
             return buff;
         }
 
-        private string DefaultFormatter(Element e, byte[] d)
+        /// <summary>
+        /// Applies internal formatting rules to render element data
+        /// </summary>
+        private string DefaultFormatter(Element el, byte[] buff)
         {
-            return FormatBuffer(e, d).Value.First();
+            var formatted = FormatBuffer(el, buff);
+            return formatted.Value.FirstOrDefault();
         }
 
         /// <inheritdoc />

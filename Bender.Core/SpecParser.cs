@@ -1,7 +1,6 @@
-﻿using System.Text;
-
-namespace Bender.Core
+﻿namespace Bender.Core
 {
+    using System.Text;
     using System.Collections.Generic;
     using YamlDotNet.Serialization;
     using YamlDotNet.Core;
@@ -34,7 +33,7 @@ namespace Bender.Core
             {
                 var sb = new StringBuilder(ex.Message);
                 var inner = ex.InnerException;
-                while(inner != null)
+                while (inner != null)
                 {
                     sb.AppendLine(inner.Message);
                     inner = inner.InnerException;

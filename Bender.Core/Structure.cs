@@ -1,6 +1,5 @@
 ﻿namespace Bender.Core
 {
-    using System.IO;
     using System.Collections.Generic;
     using System.Text;
 

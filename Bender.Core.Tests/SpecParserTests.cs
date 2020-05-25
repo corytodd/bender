@@ -27,13 +27,13 @@ namespace Bender.Core.Tests
             Assert.Equal("simple_layout", result.Name);
             Assert.Equal("A simple sample binary layout descriptor that can span multiple lines\n", result.Description);
             Assert.Equal(new List<string> { "test", "simple"}, result.Extensions);
-            Assert.Equal(8, result.Elements.Count);
+            Assert.Equal(9, result.Elements.Count);
 
             var el = new Element
             {
                 LittleEndian = true,
                 Elide = false,
-                Format = ElementFormat.ASCII,
+                PrintFormat = Bender.PrintFormat.Ascii,
                 Units = 4,
                 Name = "Undefined",
                 Matrix = null,

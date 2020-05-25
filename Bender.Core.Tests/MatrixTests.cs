@@ -11,7 +11,7 @@ namespace Bender.Core.Tests
             {
                 Name = "Test",
                 Units = 8,
-                Format = ElementFormat.ASCII,
+                PrintFormat = Bender.PrintFormat.Ascii,
                 Matrix = null,
                 LittleEndian = true,
                 IsSigned = true,
@@ -45,7 +45,7 @@ namespace Bender.Core.Tests
             {
                 Name = "Test",
                 Units = 8,
-                Format = ElementFormat.ASCII,
+                PrintFormat = Bender.PrintFormat.Ascii,
                 Matrix = null,
                 LittleEndian = true,
                 IsSigned = true,
@@ -79,7 +79,7 @@ namespace Bender.Core.Tests
             {
                 Name = "Test",
                 Units = 8,
-                Format = ElementFormat.ASCII,
+                PrintFormat = Bender.PrintFormat.Ascii,
                 Matrix = null,
                 LittleEndian = true,
                 IsSigned = true,
@@ -102,7 +102,7 @@ namespace Bender.Core.Tests
             {
                 Name = "Test",
                 Units = 8,
-                Format = ElementFormat.ASCII,
+                PrintFormat = Bender.PrintFormat.Ascii,
                 Matrix = null,
                 LittleEndian = true,
                 IsSigned = true,

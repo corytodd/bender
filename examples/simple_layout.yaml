@@ -15,9 +15,9 @@ extensions:
 base_element: &base_element
     name: Undefined
     elide: no
-    units: 4              # Bytes wide (1, 2, 4 etc.)
+    units: 4              # Bytes wide (1, 2, 4, and 8 for numbers, any positive integer otherwise)
     signed: no            # Is integer signed
-    format: ascii         # binary, decimal, octal, hex, ascii, utf16, hexstring, single, double
+    format: ascii         # binary, decimal, octal, hex, ascii, unicode, bigint, float
     little_endian: yes    # byte storage order
     matrix:               # Matrix definition, optional
     is_deferred: false    # Is this pointing to more data
@@ -25,7 +25,7 @@ base_element: &base_element
 
 structures:
     # A named, ordered list of elements
-    - name: Range
+    - name: StructRange
       elements:
         - <<: *base_element
           name: Pair Count
@@ -88,6 +88,13 @@ elements:
       matrix:
         columns: 2
         units: 2
+        
+    - <<: *base_element
+      format: decimal
+      structure: StructRange
+      units: 16
+      name: Range
+        
 
 layout:
     # References any structure or element defined above
