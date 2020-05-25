@@ -24,7 +24,7 @@
         /// True if bytes are in little Endian order
         /// </summary>
         [YamlMember(Alias = "little_endian", ApplyNamingConventions = false)]
-        public bool LittleEndian { get; set; }
+        public bool IsLittleEndian { get; set; }
 
         /// <summary>
         /// True if value should be a signed type
@@ -98,7 +98,7 @@
             sb.AppendFormat("Format: {0}\n", PrintFormat);
             sb.AppendFormat("Units: {0}\n", Units);
             sb.AppendFormat("Payload: {0}\n", Matrix);
-            sb.AppendFormat("Little Endian: {0}\n", LittleEndian);
+            sb.AppendFormat("Little Endian: {0}\n", IsLittleEndian);
 
             return sb.ToString();
         }
@@ -184,7 +184,7 @@
             return new Element
             {
                 Name = Name,
-                LittleEndian = LittleEndian,
+                IsLittleEndian = IsLittleEndian,
                 IsSigned = IsSigned,
                 Elide = Elide,
                 PrintFormat = PrintFormat,
@@ -198,7 +198,7 @@
         {
             return obj is Element element &&
                    Name == element.Name &&
-                   LittleEndian == element.LittleEndian &&
+                   IsLittleEndian == element.IsLittleEndian &&
                    IsSigned == element.IsSigned &&
                    Elide == element.Elide &&
                    PrintFormat == element.PrintFormat &&

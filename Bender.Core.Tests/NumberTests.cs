@@ -46,6 +46,7 @@ namespace Bender.Core.Tests
                 PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 2,
                 IsSigned = true,
+                IsLittleEndian = true
             };
 
 
@@ -64,6 +65,7 @@ namespace Bender.Core.Tests
                 PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 2,
                 IsSigned = false,
+                IsLittleEndian = true
             };
 
             Assert.True(0 == Number.From(el, new byte[] {0, 0}).ul);
@@ -80,6 +82,7 @@ namespace Bender.Core.Tests
                 PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 4,
                 IsSigned = true,
+                IsLittleEndian = true
             };
 
 
@@ -98,6 +101,7 @@ namespace Bender.Core.Tests
                 PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 4,
                 IsSigned = false,
+                IsLittleEndian = true
             };
 
             Assert.True(0 == Number.From(el, new byte[] {0, 0, 0, 0}).ul);
@@ -114,6 +118,7 @@ namespace Bender.Core.Tests
                 PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 8,
                 IsSigned = true,
+                IsLittleEndian = true
             };
 
 
@@ -134,6 +139,7 @@ namespace Bender.Core.Tests
                 PrintFormat = Bender.PrintFormat.Decimal,
                 Units = 8,
                 IsSigned = false,
+                IsLittleEndian = true
             };
 
             Assert.True(0 == Number.From(el, new byte[] {0, 0, 0, 0, 0, 0, 0, 0}).ul);
@@ -149,7 +155,7 @@ namespace Bender.Core.Tests
         public void TestEqualityOperatorOrder()
         {
             var element = new Element {Units = 4};
-            var number = Number.From(element, new byte[] {1, 0, 0, 0});
+            var number = Number.From(element, new byte[] {0, 0, 0, 1});
 
             // Operator order matters, both must be implemented
             Assert.True(number == 1);
@@ -159,7 +165,7 @@ namespace Bender.Core.Tests
         [Fact]
         public void TestInequalityOperatorOrder()
         {
-            var element = new Element {Units = 4};
+            var element = new Element {Units = 4, IsLittleEndian = true};
             var number = Number.From(element, new byte[] {0, 0, 0, 1});
 
             // Operator order matters, both must be implemented
@@ -171,7 +177,7 @@ namespace Bender.Core.Tests
         public void TestFloatSingle()
         {
             // Setup
-            var element = new Element {Units = 4, PrintFormat = Bender.PrintFormat.Float};
+            var element = new Element {Units = 4, IsLittleEndian = true, PrintFormat = Bender.PrintFormat.Float};
             var bytes = new byte[] {0x4D, 0x93, 0x49, 0x41};
 
             // Execute
@@ -186,7 +192,7 @@ namespace Bender.Core.Tests
         public void TestFloatDouble()
         {
             // Setup
-            var element = new Element {Units = 8, PrintFormat = Bender.PrintFormat.Float};
+            var element = new Element {Units = 8, IsLittleEndian = true, PrintFormat = Bender.PrintFormat.Float};
             var bytes = new byte[] {0xd0, 0x5f, 0xc5, 0xb7, 0x53, 0x07, 0xf8, 0x40};
 
             // Execute
