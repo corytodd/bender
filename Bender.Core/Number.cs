@@ -64,6 +64,39 @@
         }
 
         /// <summary>
+        /// Performs a signed compare
+        /// </summary>
+        public static bool operator <(Number left, int right)
+        {
+            return left.si < right;
+        }
+        
+        /// <summary>
+        /// Performs a signed compare
+        /// </summary>
+        public static bool operator >(Number left, int right)
+        {
+            return left.si > right;
+        }
+        
+        
+        /// <summary>
+        /// Performs a signed compare
+        /// </summary>
+        public static bool operator <(int left, Number right)
+        {
+            return left < right.si;
+        }
+        
+        /// <summary>
+        /// Performs a signed compare
+        /// </summary>
+        public static bool operator >(int left, Number right)
+        {
+            return left > right.si;
+        }
+
+        /// <summary>
         /// Unsigned byte
         /// </summary>
         [FieldOffset(0)] public byte ub;
