@@ -42,12 +42,6 @@
         /// </summary>
         [YamlMember(Alias = "base_matrix", ApplyNamingConventions = false)]
         public Matrix BaseMatrix { get; set; } = new Matrix();
-
-        /// <summary>
-        /// List of matrix formatters
-        /// </summary>
-        /// <value>The matrices.</value>
-        public IList<Matrix> Matrices { get; set; } = new List<Matrix>();
         
         /// <summary>
         /// List of named structures
@@ -110,17 +104,7 @@
                 sb.AppendFormat("\t{0}\n", str);
             }
             sb.AppendLine();
-
-            sb.AppendLine("Matrices:");
-            foreach (var m in Matrices)
-            {
-                foreach (var str in m.EnumerateLayout())
-                {
-                    sb.AppendFormat("\t{0}\n", str);
-                }
-                sb.AppendLine();
-            }
-
+            
             sb.AppendLine("Structures:");
             foreach (var m in Structures)
             {

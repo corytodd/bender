@@ -193,7 +193,7 @@
 
             var value = new List<string>();
 
-            if (!string.IsNullOrEmpty(el.Matrix))
+            if (!(el.Matrix is null))
             {
                 var formattedMatrix = FormatMatrix(el, buff);
 
@@ -227,24 +227,12 @@
         /// <returns>List of formatted matrix rows</returns>
         private IEnumerable<string> FormatMatrix(Element el, byte[] buff)
         {
-            if (_spec.Matrices == null)
-            {
-                return new List<string> {$"No matrices specified but element {el.Name} has referenced {el.Matrix}"};
-            }
-
-            var def = _spec.Matrices.FirstOrDefault(p =>
-                el.Matrix.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (def == null)
-            {
-                return new List<string> {$"Unknown matrix type {el.Matrix} on element {el.Name}"};
-            }
-
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
             var elClone = el.Clone();
-            elClone.Matrix = string.Empty;
-            elClone.Units = def.Units;
+            elClone.Units = el.Clone().Matrix.Units;
+            elClone.Matrix = null;
 
-            return def.TryFormat(elClone, buff, DefaultFormatter);
+            return el.Matrix.TryFormat(elClone, buff, DefaultFormatter);
         }
 
         private IEnumerable<string> FormatStructure(Element el, byte[] buff)
