@@ -8,9 +8,12 @@
     /// <summary>
     /// Reads a binary file and formats the data as specified in the SpecFile
     /// </summary>
-    public class BinaryParser
+    public class BinaryParser : IDisposable
+
     {
         private readonly SpecFile _spec;
+        private BinaryReader _reader;
+        private DataFile _binary;
 
         /// <summary>
         /// Returns name of next section in layout
@@ -66,7 +69,8 @@
             var bender = new Bender();
 
             using var stream = new MemoryStream(binary.Data);
-            using var reader = new BinaryReader(stream);
+            _reader = new BinaryReader(stream);
+            _binary = binary;
 
             // Iterates over the order specified in 'layout'
             var queue = new Queue<string>(_spec.Layout);
@@ -78,7 +82,7 @@
 
             while (queue.Count > 0)
             {
-                var formatted = HandleSection(SectionGetter, reader, binary);
+                var formatted = HandleSection(SectionGetter);
 
                 bender.FormattedFields.AddRange(formatted);
             }
@@ -90,11 +94,8 @@
         /// Process this section definition
         /// </summary>
         /// <param name="fnGetSection">Section name getter</param>
-        /// <param name="reader">Reader state</param>
-        /// <param name="binary">Data source</param>
         /// <returns>Formatted results from element</returns>
-        private IEnumerable<Bender.FormattedField> HandleSection(GetNextSection fnGetSection, BinaryReader reader,
-            DataFile binary)
+        private IEnumerable<Bender.FormattedField> HandleSection(GetNextSection fnGetSection)
         {
             var section = fnGetSection.Invoke();
             if (string.IsNullOrEmpty(section))
@@ -116,22 +117,22 @@
             }
             else if (element.IsArrayCount)
             {
-                var buff = reader.ReadBytes(element.Units);
+                var buff = ReadNextElement(element);
                 var count = Number.From(element, buff);
                 var repeatedSection = fnGetSection();
-                
+
                 for (var i = 0; i < count; ++i)
                 {
                     // Repeats the same section without requiring it to actually be defined in the layout
-                    var formattedSection = HandleSection(()=> repeatedSection, reader, binary);
+                    var formattedSection = HandleSection(() => repeatedSection);
 
                     result.AddRange(formattedSection);
                 }
             }
             else
             {
-                var formattedElement = HandleElement(element, reader, binary);
-                
+                var formattedElement = HandleElement(element);
+
                 result.Add(formattedElement);
             }
 
@@ -142,74 +143,30 @@
         /// Process the fields of this element to build a formatted field
         /// </summary>
         /// <param name="el">Data definition</param>
-        /// <param name="reader">Reader state</param>
-        /// <param name="binary">Data source</param>
         /// <returns>Formatted result from element</returns>
-        private Bender.FormattedField HandleElement(Element el, BinaryReader reader, DataFile binary)
+        private Bender.FormattedField HandleElement(Element el)
         {
-            var buff = reader.ReadBytes(el.Units);
-
-            // If byte order does not match, flip now
-            if (!(el.LittleEndian && BitConverter.IsLittleEndian))
+            var buff = ReadNextElement(el);
+            if (buff is null)
             {
-                Array.Reverse(buff);
+                return new Bender.FormattedField
+                {
+                    Name = el.Name,
+                    Value = new List<string> {"Error: Invalid deferred object"}
+                };
             }
 
-            // If this is deferred read, collect the deferred data
-            if (el.IsDeferred)
+            // This is declared as a deferral but the definition was marked as empty
+            if (el.IsDeferred && buff.Length == 0)
             {
-                // Back up and read-read the buffer as a deferred type (8 bytes)
-                reader.BaseStream.Seek(-1 * el.Units, SeekOrigin.Current);
-
-                buff = reader.ReadBytes(8);
-                
-                buff = HandleDeferredRead(el, binary, buff);
-                if (buff == null || buff.Length == 0)
+                return new Bender.FormattedField
                 {
-                    var message = buff is null ? "Error: Invalid deferred object" : "Empty";
-
-                    return new Bender.FormattedField
-                    {
-                        Name = el.Name,
-                        Value = new List<string> {message}
-                    };
-                }
+                    Name = el.Name,
+                    Value = new List<string> {"Empty"}
+                };
             }
 
             return FormatBuffer(el, buff);
-        }
-
-        /// <summary>
-        /// Use buff data to locate a deferred record. If the record can be located,
-        /// it will be parsed according the element rules and the raw byte[] will be
-        /// returned for further processing. If the object is empty, an empty
-        /// buffer will be returned. If the deferred is not found or malformed,
-        /// a null buffer will be returned.
-        /// </summary>
-        /// <param name="el">Element rules</param>
-        /// <param name="binary">Binary source file</param>
-        /// <param name="buff">Buffer record</param>
-        /// <returns>Deferred data block</returns>
-        private byte[] HandleDeferredRead(Element el, DataFile binary, byte[] buff)
-        {
-            const int intWidth = 4;
-            var size = Number.From(intWidth, false, 0, buff);
-            var offset = Number.From(intWidth, false, intWidth, buff);
-
-            if (size == 0 || offset == 0)
-            {
-                return new byte[0];
-            }
-
-            // Create a new reader so we don't interfere with the current element
-            using var stream = new MemoryStream(binary.Data);
-            using var reader = new BinaryReader(stream);
-            
-            // Read the deferred object in its entirety
-            reader.BaseStream.Position = offset.sl;
-            var deferred = reader.ReadBytes(size.si);
-
-            return deferred;
         }
 
         /// <summary>
@@ -239,19 +196,19 @@
             if (!string.IsNullOrEmpty(el.Matrix))
             {
                 var formattedMatrix = FormatMatrix(el, buff);
-                
+
                 value.AddRange(formattedMatrix);
             }
             else if (!string.IsNullOrEmpty(el.Structure))
             {
                 var formattedStructure = FormatStructure(el, buff);
-                
+
                 value.AddRange(formattedStructure);
             }
             else
             {
                 var formattedElement = el.TryFormat(el, buff, DefaultFormatter);
-                
+
                 value.AddRange(formattedElement);
             }
 
@@ -308,12 +265,92 @@
             var elClone = el.Clone();
             elClone.Structure = string.Empty;
 
-            return def.TryFormat(elClone, buff, DefaultFormatter);
+            var result = new List<string>(def.Elements.Count);
+
+            using var stream = new MemoryStream(buff);
+            using var innerReader = new BinaryReader(stream);
+
+            if (el.IsDeferred)
+            {
+
+                var tempReader = _reader;
+                _reader = innerReader;
+                
+                foreach (var childEl in def.Elements)
+                {
+                    var formatted = HandleElement(childEl);
+                    var isFirst = true;
+                    foreach (var value in formatted.Value)
+                    {
+                        // Repeat name only once for each element, maintain padding
+                        var prefix = isFirst ? childEl.Name : new string(' ', childEl.Name.Length);
+                        result.Add($"[ {prefix}: {value} ]");
+                        isFirst = false;
+                    }
+                }
+
+                _reader = tempReader;
+            }
+            else
+            {
+                foreach (var childEl in def.Elements)
+                {
+                    var field = innerReader.ReadBytes(childEl.Units);
+                    result.Add($"[ {childEl.Name}: {DefaultFormatter(childEl, field)} ]");
+                }
+            }
+
+            return result;
+        }
+
+        private byte[] ReadNextElement(Element el)
+        {
+            byte[] buff;
+
+            if (el.IsDeferred)
+            {
+                // Deferred object is always 8 bytes (2 ints)
+                buff = _reader.ReadBytes(8);
+                const int intWidth = 4;
+                var size = Number.From(intWidth, false, 0, buff);
+                var offset = Number.From(intWidth, false, intWidth, buff);
+
+                if (size == 0 || offset == 0)
+                {
+                    return new byte[0];
+                }
+
+                // Create a new reader so we don't interfere with the current element
+                using var stream = new MemoryStream(_binary.Data);
+                using var reader = new BinaryReader(stream);
+
+                // Read the deferred object in its entirety
+                reader.BaseStream.Position = offset.sl;
+                buff = reader.ReadBytes(size.si);
+            }
+            else
+            {
+                buff = _reader.ReadBytes(el.Units);
+            }
+
+            // If byte order does not match, flip now
+            if (!(el.LittleEndian && BitConverter.IsLittleEndian))
+            {
+                Array.Reverse(buff);
+            }
+
+            return buff;
         }
 
         private string DefaultFormatter(Element e, byte[] d)
         {
             return FormatBuffer(e, d).Value.First();
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _reader?.Dispose();
         }
     }
 }
