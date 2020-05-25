@@ -68,7 +68,7 @@ Before the definition of the elements list, there is defined a single element na
 | elide | Hide this element from display | YAML bool |
 | units | How many bytes are in this element | A positive integer |
 | signed | Represent bytes as a signed value | YAML bool |
-| format | How the bytes should be interpreted | binary, octal, decimal, hex, ascii, utf16, hexstr, float |
+| format | How the bytes should be interpreted | binary, octal, decimal, hex, ascii, utf16, hexstr, single, double |
 | little_endian | What order the bytes are stored in the file | YAML bool |
 | matrix | Name of matrix formatter to use | Must be defined in your matrices list (see next section) |
 | is_deferred | True if this object is a deferral | Optionally specify that this element is a pointer to more data |

@@ -1,55 +1,10 @@
-﻿using System;
-
-namespace Bender.Core
+﻿namespace Bender.Core
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
     using YamlDotNet.Serialization;
-
-    /// <summary>
-    /// Supported element formats
-    /// </summary>
-    public enum ElementFormat
-    {
-        /// <summary>
-        /// Format value as binary with 'b' prefix and
-        /// 8 characters per byte (left zero padded). LSB
-        /// is on the right end of the string.
-        /// e.g. b011100101
-        /// </summary>
-        Binary,
-
-        /// <summary>
-        /// Format value as octal with 'o' prefix
-        /// </summary>
-        Octal,
-
-        /// <summary>
-        /// Format as decimal
-        /// </summary>
-        Decimal,
-
-        /// <summary>
-        /// Format value as hex with '0x' prefix
-        /// </summary>
-        Hex,
-
-        /// <summary>
-        /// Parse as ASCII text
-        /// </summary>
-        ASCII,
-
-        /// <summary>
-        /// Format value as a UTF-16 string
-        /// </summary>
-        UTF16,
-
-        /// <summary>
-        /// Format as hex string, no prefix
-        /// </summary>
-        HexString
-    }
 
     /// <summary>
     /// Element defines rules for a sequence of bytes. The name
@@ -174,6 +129,10 @@ namespace Bender.Core
                         break;
                     case ElementFormat.UTF16:
                         result.Add(Encoding.Unicode.GetString(data));
+                        break;
+                    case ElementFormat.Single:
+                    case ElementFormat.Double:
+                        result.Add("Floating point formatting not implemented");
                         break;
 
                     default:
