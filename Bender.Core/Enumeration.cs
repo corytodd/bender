@@ -21,7 +21,7 @@ namespace Bender.Core
         /// <inheritdoc />
         public IEnumerable<string> EnumerateLayout()
         {
-            var content = ToString().Split('\n');
+            var content = ToTabbedString().Split('\n');
             foreach (var str in content)
             {
                 yield return str;
@@ -31,7 +31,7 @@ namespace Bender.Core
         /// <summary>
         ///     Returns all properties as newline delimited string
         /// </summary>
-        public override string ToString()
+        public string ToTabbedString()
         {
             var sb = new StringBuilder();
 
@@ -47,6 +47,12 @@ namespace Bender.Core
             }
 
             return sb.ToString();
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{Name}";
         }
     }
 }

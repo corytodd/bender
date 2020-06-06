@@ -118,7 +118,7 @@
         {
             var section = fnGetSection.Invoke();
             
-            Log.Debug("Handling {0}", section);
+            Log.Debug("Handling '{0}'", section);
             
             if (string.IsNullOrEmpty(section))
             {
@@ -131,7 +131,7 @@
             var element = _spec.Elements.FirstOrDefault(o => o.Name.Equals(section));
             if (element is null)
             {
-                Log.Warn("{0} is undefined", section);
+                Log.Warn("Section '{0}' is undefined", section);
                 
                 result.Add(new Bender.FormattedField
                 {
@@ -145,7 +145,7 @@
                 var count = Number.From(element, buff);
                 var repeatedSection = fnGetSection();
                 
-                Log.Debug("{0} is an array with {1} elements", repeatedSection, count);
+                Log.Debug("'{0}' is an array with {1} elements", repeatedSection, count);
 
                 for (var i = 0; i < count; ++i)
                 {
@@ -177,7 +177,7 @@
             var buff = ReadNextElement(el);
             if (buff is null)
             {
-                Log.Warn("{0} is an invalid deferred object", el.Name);
+                Log.Warn("'{0}' is an invalid deferred object", el.Name);
                 
                 return new Bender.FormattedField
                 {
@@ -189,7 +189,7 @@
             // This is declared as a deferral but the definition was marked as empty
             if (el.IsDeferred && buff.Length == 0)
             {
-                Log.Info("{0} was declared deferred but is defined as empty", el.Name);
+                Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
                     
                 return new Bender.FormattedField
                 {
@@ -221,7 +221,7 @@
             }
             else if (el.Elide)
             {
-                Log.Debug("{0} is elided", el.Name);
+                Log.Debug("'{0}' is elided", el.Name);
                 
                 value.Add($"Elided {buff.Length} bytes");
             }
@@ -278,7 +278,7 @@
         /// number with width bytes</exception>
         private IEnumerable<string> FormatMatrix(Element el, byte[] buff)
         {
-            Log.Debug("Formatting {0} as matrix '{1}'", el.Name, el.Matrix);
+            Log.Debug("Formatting '{0}' as matrix '{1}'", el.Name, el.Matrix);
             
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
             var elClone = el.Clone();
@@ -309,11 +309,11 @@
         /// <returns>Structure formatted using this element's rules</returns>
         private IEnumerable<string> FormatStructure(Element el, byte[] buff)
         {
-            Log.Debug("Formatting {0} as structure '{1}'", el.Name, el.Structure);
+            Log.Debug("Formatting '{0}' as structure '{1}'", el.Name, el.Structure);
             
             if (_spec.Structures == null)
             {
-                Log.Warn("{0} references a structure but no structures are defined");
+                Log.Warn("'{0}' references a structure but no structures are defined");
                 
                 return new List<string> {$"No structure specified but element {el.Name} has referenced {el.Structure}"};
             }
@@ -322,12 +322,12 @@
                 el.Structure.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
             if (def == null)
             {
-                Log.Warn("{0} references an undefined structure '{1}'", el.Name, el.Structure);
+                Log.Warn("'{0}' references an undefined structure '{1}'", el.Name, el.Structure);
                 
                 return new List<string> {$"Unknown structure type {el.Structure} on element {el.Name}"};
             }
             
-            Log.Debug("Using structure definition for {0}", def.Name);
+            Log.Debug("Using structure definition for '{0}'", def.Name);
 
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
             var elClone = el.Clone();
@@ -387,11 +387,11 @@
         /// <returns>Enumeration string for the value in buff</returns>
         private string FormatEnumeration(Element el, byte[] buff)
         {
-            Log.Debug("Formatting {0} as enumeration '{1}'", el.Name, el.Enumeration);
+            Log.Debug("Formatting '{0}' as enumeration '{1}'", el.Name, el.Enumeration);
             
             if (_spec.Enumerations == null)
             {
-                Log.Warn("{0} references an enumeration but no enumerations are defined");
+                Log.Warn("'{0}' references an enumeration but no enumerations are defined");
                 
                 return $"No enumerations specified but element {el.Name} has referenced {el.Enumeration}";
             }
@@ -400,7 +400,7 @@
                 el.Enumeration.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
             if (def == null)
             {
-                Log.Warn("{0} references an undefined enumeration '{1}'", el.Name, el.Enumeration);
+                Log.Warn("'{0}' references an undefined enumeration '{1}'", el.Name, el.Enumeration);
                 
                 return $"Unknown enumeration type {el.Enumeration} on element {el.Name}";
             }
