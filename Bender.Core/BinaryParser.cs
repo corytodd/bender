@@ -11,7 +11,8 @@
     /// </summary>
     public class BinaryParser : IDisposable
     {
-        private static readonly ILog Log = LogProvider.For<BinaryParser>();
+        private static readonly ILog Log = LogProvider.GetCurrentClassLogger();
+        private static readonly ILog ReaderLog = LogProvider.GetLogger("ReaderLog");
 
         private readonly SpecFile _spec;
         private BinaryReader _reader;
@@ -75,7 +76,7 @@
                 };
 
                 var next = ex.InnerException;
-                while(!(next is null))
+                while (!(next is null))
                 {
                     errorField.Value.Add(next.Message);
 
@@ -83,7 +84,7 @@
 
                     next = ex.InnerException;
                 }
-                
+
                 _shadowCopy.FormattedFields.Add(errorField);
 
                 return _shadowCopy;
@@ -105,6 +106,8 @@
             using var stream = new MemoryStream(binary.Data);
             _reader = new BinaryReader(stream);
             _binary = binary;
+
+            LogReadEvent("New reader created. Total size == {0}", _reader.BaseStream.Length);
 
             // Iterates over the order specified in 'layout'
             var queue = new Queue<string>(_spec.Layout);
@@ -368,6 +371,8 @@
                 var tempReader = _reader;
                 _reader = innerReader;
 
+                LogReadEvent("Switching to temporary reader. Total size == {0}", _reader.BaseStream.Length);
+
                 // Recursively handle any nested elements, structures included
                 foreach (var childEl in def.Elements)
                 {
@@ -384,6 +389,9 @@
 
                 // Restore the previous reader
                 _reader = tempReader;
+                LogReadEvent("Releasing temporary reader");
+                LogReadEvent("Continuing at offset {0} with {1} bytes remaining", _reader.BaseStream.Position,
+                    _reader.BaseStream.Length - _reader.BaseStream.Position);
 
                 --_nestedStructDepth;
             }
@@ -461,7 +469,7 @@
                     return new byte[0];
                 }
 
-                Log.Debug("Performing deferred read of {0} bytes from offset {1}", size.si, offset.sl);
+                LogReadEvent("Performing deferred read of {0} bytes from offset {1}", size.si, offset.sl);
 
                 // Create a new reader so we don't interfere with the current element
                 using var stream = new MemoryStream(_binary.Data);
@@ -473,6 +481,8 @@
             }
             else
             {
+                LogReadEvent("Reading {0} bytes from offset {1}", el.Units, _reader.BaseStream.Position);
+
                 buff = _reader.ReadBytes(el.Units);
 
                 // If byte order does not match, flip now
@@ -492,6 +502,12 @@
         {
             var formatted = FormatBuffer(el, buff);
             return formatted.Value.FirstOrDefault();
+        }
+
+        private void LogReadEvent(string format, params object[] args)
+        {
+            var message = string.Format(format, args);
+            ReaderLog.Info("{0} {1}", new string('\t', _nestedStructDepth), message);
         }
 
         /// <inheritdoc />
