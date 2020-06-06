@@ -1,6 +1,7 @@
 ﻿namespace Bender.Core
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Text;
     using YamlDotNet.Serialization;
 
@@ -40,8 +41,12 @@
         /// <summary>
         /// List of named structures
         /// </summary>
-        /// <value>The structures.</value>
 		public IList<Structure> Structures { get; set; } = new List<Structure>();
+        
+        /// <summary>
+        /// List of defined enumeration mappings
+        /// </summary>
+        public IList<Enumeration> Enumerations { get; set; } = new List<Enumeration>();
 
         /// <summary>
         /// Ordered list of elements in this file
