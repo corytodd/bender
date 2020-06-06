@@ -66,20 +66,24 @@
             {
                 var errorField = new Bender.FormattedField
                 {
-                    Name = $"{ex.Message} at depth {_nestedStructDepth}",
-                    Value = new List<string>()
+                    Name = $"Parse Failure",
+                    Value = new List<string>
+                    {
+                        new string('*', ex.Message.Length),
+                        ex.Message
+                    }
                 };
 
-                var next = ex;
-                do
+                var next = ex.InnerException;
+                while(!(next is null))
                 {
                     errorField.Value.Add(next.Message);
 
                     Log.Error(next, "Parser error");
 
                     next = ex.InnerException;
-                } while (!(next is null));
-
+                }
+                
                 _shadowCopy.FormattedFields.Add(errorField);
 
                 return _shadowCopy;
