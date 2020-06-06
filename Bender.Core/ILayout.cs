@@ -14,5 +14,12 @@ namespace Bender.Core
         /// </summary>
         /// <returns>Formatted content</returns>
         IEnumerable<string> EnumerateLayout();
+
+        /// <summary>
+        /// Returns contents as a formatted, tabbed, new-lined string
+        /// suitable for printing on the console.
+        /// </summary>
+        /// <returns>string</returns>
+        string ToTabbedString();
     }
 }

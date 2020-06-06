@@ -90,7 +90,7 @@
         /// <inheritdoc />
         public IEnumerable<string> EnumerateLayout()
         {
-            var content = ToString().Split('\n');
+            var content = ToTabbedString().Split('\n');
             foreach (var str in content)
             {
                 yield return str;
@@ -100,7 +100,7 @@
         /// <summary>
         ///     Returns all properties as newline delimited string
         /// </summary>
-        public override string ToString()
+        public string ToTabbedString()
         {
             var sb = new StringBuilder();
 
@@ -108,6 +108,12 @@
             sb.AppendFormat("Units: {0}\n", Units);
 
             return sb.ToString();
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"Units: {Units}, Columns: {Columns}";
         }
     }
 }
