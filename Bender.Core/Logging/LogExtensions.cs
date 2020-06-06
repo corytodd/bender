@@ -1,3 +1,4 @@
+#pragma warning disable 1591
 namespace Bender.Core.Logging
 {
     using System;
