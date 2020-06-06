@@ -264,7 +264,7 @@
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{Name}, Units: {Units}, Format: {PrintFormat}";
+            return $"{Name}, Units: {Units}, Format: {PrintFormat}, LE: {IsLittleEndian}, Elide: {Elide}";
         }
 
         /// <inheritdoc />
