@@ -168,7 +168,9 @@
         public static Number From(Element el, byte[] data)
         {
             // If byte order does not match, flip now
-            if (!(el.IsLittleEndian && BitConverter.IsLittleEndian))
+            // Or if this is a bigint and the source is little endian, flip now
+            if (!(el.IsLittleEndian && BitConverter.IsLittleEndian) ||
+                (el.PrintFormat == Bender.PrintFormat.BigInt && el.IsLittleEndian))
             {
                 Array.Reverse(data);
             }
