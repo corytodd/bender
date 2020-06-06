@@ -43,6 +43,12 @@ structures:
           units: 4
           format: decimal
 
+enumerations:
+    - name: enum1
+      values:
+        0: Zero
+        1: One
+
 elements:
     # A name descriptor for a sequence of bytes
     - <<: *base_element
@@ -91,7 +97,12 @@ elements:
       matrix:
         columns: 2
         units: 2     
-      
+    
+    - <<: *base_element
+      enumeration: enum1
+      name: Some Enumeration
+      units: 1  
+    
 layout:
     # References any structure or element defined above
     - Magic Number
@@ -102,7 +113,8 @@ layout:
     - Payload
     - Transform A  
     - Transform B 
-    - Range";
+    - Range
+    - Some Enumeration";
 
         public static readonly string SignedTest = @"---
 format: bender.v1

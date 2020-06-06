@@ -48,14 +48,7 @@
                 throw new ArgumentException("{0} cannot be empty", nameof(binary));
             }
 
-            try
-            {
-                return TryParse(binary);
-            }
-            catch (OutOfDataException ex)
-            {
-                throw ex as ParseException;
-            }
+            return TryParse(binary);
         }
 
         /// <summary>
@@ -64,6 +57,8 @@
         /// </summary>
         /// <param name="binary">Source file</param>
         /// <returns>Parsed Bender</returns>
+        /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
+        /// number with width bytes</exception> 
         private Bender TryParse(DataFile binary)
         {
             var bender = new Bender();
@@ -95,6 +90,8 @@
         /// </summary>
         /// <param name="fnGetSection">Section name getter</param>
         /// <returns>Formatted results from element</returns>
+        /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
+        /// number with width bytes</exception>
         private IEnumerable<Bender.FormattedField> HandleSection(GetNextSection fnGetSection)
         {
             var section = fnGetSection.Invoke();
@@ -144,6 +141,8 @@
         /// </summary>
         /// <param name="el">Data definition</param>
         /// <returns>Formatted result from element</returns>
+        /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
+        /// number with width bytes</exception>
         private Bender.FormattedField HandleElement(Element el)
         {
             var buff = ReadNextElement(el);
@@ -191,8 +190,11 @@
                 };
             }
 
+            // An element may span multiple lines. Each element 
+            // of 'value' is a line in the string formatting of this element.
             var value = new List<string>();
 
+            // Handle nestable types first
             if (!(el.Matrix is null))
             {
                 var formattedMatrix = FormatMatrix(el, buff);
@@ -205,9 +207,15 @@
 
                 value.AddRange(formattedStructure);
             }
+            else if (!string.IsNullOrEmpty(el.Enumeration))
+            {
+                var formattedEnumeration = FormatEnumeration(el, buff);
+
+                value.Add(formattedEnumeration);
+            }
             else
             {
-                var formattedElement = Element.TryFormat(el, buff, DefaultFormatter);
+                var formattedElement = el.TryFormat(buff);
 
                 value.AddRange(formattedElement);
             }
@@ -220,11 +228,18 @@
         }
 
         /// <summary>
-        /// Formats the nested payload type as a matrix
+        /// Formats the nested payload type as a matrix.
+        /// 
+        /// <remarks>If the matrix is not defined, a string describing
+        /// error will instead be returned.
+        /// </remarks>
+        /// 
         /// </summary>
         /// <param name="el">Element descriptor</param>
         /// <param name="buff">Raw data</param>
         /// <returns>List of formatted matrix rows</returns>
+        /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
+        /// number with width bytes</exception>
         private IEnumerable<string> FormatMatrix(Element el, byte[] buff)
         {
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
@@ -235,6 +250,25 @@
             return el.Matrix.TryFormat(elClone, buff, DefaultFormatter);
         }
 
+        /// <summary>
+        /// Formats the buffer as a structure. If the structure is
+        /// not defined, a string describing the error will be returned.
+        /// If there is an parser issue such as missing or malformed
+        /// data, an exception will be thrown.
+        /// 
+        /// <remarks>
+        /// If the structure is not defined, a string describing
+        /// error will instead be returned.
+        /// </remarks>
+        /// 
+        /// <remarks>
+        /// This supports up to two nested structures. After two levels of nesting, the parser will break and
+        /// we do not have a mechanism to test this yet.
+        /// </remarks>
+        /// </summary>
+        /// <param name="el">Element definition</param>
+        /// <param name="buff">Raw data</param>
+        /// <returns>Structure formatted using this element's rules</returns>
         private IEnumerable<string> FormatStructure(Element el, byte[] buff)
         {
             if (_spec.Structures == null)
@@ -263,7 +297,7 @@
                 // Temporary set reader source to this structure's data
                 var tempReader = _reader;
                 _reader = innerReader;
-                
+
                 // Recursively handle any nested elements, structures included
                 foreach (var childEl in def.Elements)
                 {
@@ -293,6 +327,40 @@
             return result;
         }
 
+        /// <summary>
+        /// Formats the buffer as an enumeration.
+        ///
+        /// <remarks>
+        /// If the matrix is not defined, a string describing
+        /// error will instead be returned.
+        /// </remarks>
+        /// 
+        /// </summary>
+        /// <param name="el">Element definition</param>
+        /// <param name="buff">Raw data</param>
+        /// <returns>Enumeration string for the value in buff</returns>
+        private string FormatEnumeration(Element el, byte[] buff)
+        {
+            if (_spec.Enumerations == null)
+            {
+                return $"No enumerations specified but element {el.Name} has referenced {el.Enumeration}";
+            }
+
+            var def = _spec.Enumerations.FirstOrDefault(p =>
+                el.Enumeration.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (def == null)
+            {
+                return $"Unknown enumeration type {el.Enumeration} on element {el.Name}";
+            }
+
+            return el.TryFormatEnumeration(def, buff);
+        }
+
+        /// <summary>
+        /// Reads next element from current reader position
+        /// </summary>
+        /// <param name="el">Definition of what to read</param>
+        /// <returns>Raw data the spec file says belongs to this element</returns>
         private byte[] ReadNextElement(Element el)
         {
             byte[] buff;
@@ -304,11 +372,11 @@
 
                 var sizeEl = new Element {Units = intWidth, Name = "size_bytes"};
                 buff = ReadNextElement(sizeEl);
-                var size = Number.From(sizeEl,  buff);
-                
+                var size = Number.From(sizeEl, buff);
+
                 var offsetEl = new Element {Units = intWidth, Name = "offset_bytes"};
                 buff = ReadNextElement(offsetEl);
-                var offset = Number.From(offsetEl,  buff);
+                var offset = Number.From(offsetEl, buff);
 
                 if (size == 0 || offset == 0)
                 {
@@ -326,7 +394,7 @@
             else
             {
                 buff = _reader.ReadBytes(el.Units);
-                
+
                 // If byte order does not match, flip now
                 if (!(el.IsLittleEndian && BitConverter.IsLittleEndian))
                 {
