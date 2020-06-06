@@ -6,7 +6,7 @@
     /// <summary>
     /// Structure represents a struct in binary form
     /// </summary>
-    public class Structure
+    public class Structure : ILayout
     {
         /// <summary>
         /// Gets or Sets name of this structure
@@ -16,12 +16,9 @@
         /// <summary>
         /// Gets or Sets ordered list of elements in this structure
         /// </summary>
-        public IList<Element> Elements { get; set; }
+        public IList<Element> Elements { get; set; } = new List<Element>();
 
-        /// <summary>
-        /// Generator yields each line from ToString()
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc />
         public IEnumerable<string> EnumerateLayout()
         {
             var content = ToString().Split('\n');
@@ -30,7 +27,7 @@
                 yield return str;
             }
         }
-        
+
         /// <summary>
         ///     Returns all properties as newline delimited string
         /// </summary>
@@ -41,14 +38,17 @@
             sb.AppendFormat("Name: {0}\n", Name);
 
             sb.AppendLine("\tElements:");
-            foreach (var el in Elements)
+            if (!(Elements is null))
             {
-                foreach (var str in el.EnumerateLayout())
+                foreach (var el in Elements)
                 {
-                    sb.AppendFormat("\t\t{0}\n", str);
-                }
+                    foreach (var str in el.EnumerateLayout())
+                    {
+                        sb.AppendFormat("\t\t{0}\n", str);
+                    }
 
-                sb.AppendLine();
+                    sb.AppendLine();
+                }
             }
 
             return sb.ToString();

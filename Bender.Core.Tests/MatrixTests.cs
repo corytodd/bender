@@ -92,7 +92,7 @@ namespace Bender.Core.Tests
                 Units = 0,
             };
 
-            Assert.Empty(mat.TryFormat(el, new byte[0], null));
+            Assert.Empty(mat.TryFormat(el, new byte[0], (element, buff) => string.Empty));
         }
 
         [Fact]

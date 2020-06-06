@@ -9,11 +9,11 @@
     [DebuggerDisplay("Size = {" + nameof(Size) + "}")]
     public class DataFile
     {
-        private readonly byte[] _mData;
+        private readonly byte[] _data;
 
         private DataFile(byte[] data)
         {
-            _mData = data;
+            _data = data;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@
         /// <returns>Datafile</returns>
         public static DataFile From(string filePath)
         {
-            return !File.Exists(filePath) ? DataFile.From(new byte[0]) : new DataFile(File.ReadAllBytes(filePath));
+            return !File.Exists(filePath) ? From(new byte[0]) : new DataFile(File.ReadAllBytes(filePath));
         }
 
         /// <summary>
@@ -52,7 +52,7 @@
         /// Returns raw data as a UTF8 string
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => System.Text.Encoding.UTF8.GetString(_mData);
+        public override string ToString() => System.Text.Encoding.UTF8.GetString(_data);
 
         /// <summary>
         /// Wraps raw data in a string reader
@@ -66,17 +66,17 @@
         /// <summary>
         /// Returns a copy of underlying data
         /// </summary>
-        public byte[] Data => (byte[])_mData.Clone();
+        public byte[] Data => (byte[])_data.Clone();
 
         /// <summary>
         /// Returns true if this DataFile is empty
         /// </summary>
-        public bool Empty => _mData.Length == 0;
+        public bool Empty => _data.Length == 0;
 
         /// <summary>
         /// Returns length of data in bytes
         /// </summary>
         /// <returns></returns>
-        public int Size => _mData.Length;
+        public int Size => _data.Length;
     }
 }

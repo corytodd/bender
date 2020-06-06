@@ -1,5 +1,6 @@
 ﻿namespace Bender.Core
 {
+    using System;
     using System.Collections.Generic;
     using System.Text;
     using System.Linq;
@@ -7,7 +8,7 @@
     /// <summary>
     /// Represents a format type arranging data into rows and columns
     /// </summary>
-    public class Matrix
+    public class Matrix : ILayout
     {
         /// <summary>
         /// Gets or Sets count of columns in this matrix
@@ -30,7 +31,22 @@
         /// <returns>List of rows, formatted as strings</returns>
         public IEnumerable<string> TryFormat(Element el, byte[] data, Bender.FormatElement elementFormatter)
         {
-            if (Units == 0)
+            if (el is null)
+            {
+                throw new ArgumentNullException(nameof(el));
+            }
+
+            if (data is null)
+            {
+                throw new ArgumentException(nameof(el));
+            }
+
+            if (elementFormatter is null)
+            {
+                throw new ArgumentNullException(nameof(elementFormatter));
+            }
+            
+            if (Units == 0 || data.Length == 0)
             {
                 return Enumerable.Empty<string>();
             }
@@ -41,7 +57,11 @@
 
             var totalVars = data.Length / Units;
 
-            // Chop data into payload.unit bytes
+            // Chop data into payload.unit bytes to produce an output similar to
+            //
+            // [ ... numbers ... ]
+            // [ ... numbers ... ]
+            //
             var cols = 0;
             var count = 0;
             foreach (var unit in data.AsChunks(Units))
@@ -67,10 +87,7 @@
             return value;
         }
 
-        /// <summary>
-        /// Generator yields each line from ToString()
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc />
         public IEnumerable<string> EnumerateLayout()
         {
             var content = ToString().Split('\n');

@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
-    using System.Runtime.Serialization;
     using System.Text;
     using YamlDotNet.Serialization;
 
@@ -13,7 +11,7 @@
     /// of an element must be unique to the specification file
     /// </summary>
     [DebuggerDisplay("Name = {Name}, Units = {Units}")]
-    public class Element
+    public class Element : ILayout
     {
         /// <summary>
         /// Human friendly name of this element
@@ -79,10 +77,7 @@
         /// </summary>
         public string Enumeration { get; set; }
 
-        /// <summary>
-        /// Generator yields each line from ToString()
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc />
         public IEnumerable<string> EnumerateLayout()
         {
             var content = ToString().Split('\n');
@@ -128,6 +123,11 @@
         /// <returns>List of rows, formatted as strings</returns>
         public IEnumerable<string> TryFormat(byte[] data)
         {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+            
             var result = new List<string>();
 
             try
