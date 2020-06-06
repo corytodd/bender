@@ -73,6 +73,13 @@
         public string Structure { get; set; }
 
         /// <summary>
+        /// If this block's value should be interpreted as
+        /// an enumeration string, this name will map to
+        /// a predefined Enumeration element in the SpecFil.
+        /// </summary>
+        public string Enumeration { get; set; }
+
+        /// <summary>
         /// Generator yields each line from ToString()
         /// </summary>
         /// <returns></returns>
@@ -100,6 +107,16 @@
             sb.AppendFormat("Payload: {0}\n", Matrix);
             sb.AppendFormat("Little Endian: {0}\n", IsLittleEndian);
 
+            if (!string.IsNullOrEmpty(Structure))
+            {
+                sb.AppendFormat("Structure: {0}\n", Structure);
+            }
+
+            if (!string.IsNullOrEmpty(Enumeration))
+            {
+                sb.AppendFormat("Enumeration: {0}\n", Enumeration);
+            }
+
             return sb.ToString();
         }
 
@@ -107,61 +124,28 @@
         /// Formats data into an ordered list of matrix rows. Each row is
         /// formatted using the rules defined in element.
         /// </summary>
-        /// <param name="el">Element rules</param>
         /// <param name="data">Data to format</param>
-        /// <param name="elementFormatter">Converts extracted data into a formatted string</param>
         /// <returns>List of rows, formatted as strings</returns>
-        public static IEnumerable<string> TryFormat(Element el, byte[] data, Bender.FormatElement elementFormatter)
+        public IEnumerable<string> TryFormat(byte[] data)
         {
             var result = new List<string>();
 
             try
             {
-                var number = Number.From(el, data);
-
-                switch (el.PrintFormat)
+                switch (PrintFormat)
                 {
-                    case Bender.PrintFormat.Binary:
-                        // Make sure every byte has 8 places, 0 filled if needed
-                        var binary = Convert.ToString(number.sl, 2).PadLeft(el.Units * 8, '0');
-                        result.Add($"b{binary}");
-                        break;
-                    case Bender.PrintFormat.Octal:
-                        result.Add($"O{Convert.ToString(number.sl, 8)}");
-                        break;
-                    case Bender.PrintFormat.Decimal:
-                        result.Add(number.sl.ToString());
-                        break;
-                    case Bender.PrintFormat.Hex:
-                    case Bender.PrintFormat.BigInt:
-                        var prefix = el.PrintFormat == Bender.PrintFormat.Hex ? "0x" : "";
-                        var width = (el.Units * 2).NextPowerOf2();
-                        var hex = Convert.ToString(number.sl, 16).PadLeft(width, '0').ToUpper();
-                        result.Add($"{prefix}{hex}");
-                        break;
                     case Bender.PrintFormat.Ascii:
                         result.Add(Encoding.ASCII.GetString(data));
                         break;
+
                     case Bender.PrintFormat.Unicode:
                         result.Add(Encoding.Unicode.GetString(data));
                         break;
-                    case Bender.PrintFormat.Float:
-                        // Reinterpret data as floating point
-                        var stream = new MemoryStream(data);
-                        var reader = new BinaryReader(stream);
-                        if ((el.Units == 4 && data.Length == 4) || (el.Units == 8 && data.Length == 8))
-                        {
-                            result.Add(number.fd.ToString("F"));
-                        }
-                        else
-                        {
-                            result.Add("Malformed float. Width must be 4 or 8 bytes");
-                        }
-
-                        break;
 
                     default:
-                        result.Add($"Unsupported format: {el.PrintFormat}");
+                        var number = Number.From(this, data);
+                        var formatted = FormatNumber(number);
+                        result.Add(formatted);
                         break;
                 }
             }
@@ -169,7 +153,91 @@
             {
                 throw new OutOfDataException(
                     "Element {0}: Not enough data left to create a {1} byte number ({2} bytes left)",
-                    el.Name, el.Units, data.Length);
+                    Name, Units, data.Length);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Interpret data as a number according to this element's definition
+        /// and uses the specified enumeration to use as a string value.
+        /// </summary>
+        /// <param name="def">Enumeration to use</param>
+        /// <param name="data">Raw data</param>
+        /// <returns></returns>
+        /// <exception cref="OutOfDataException">Thrown is data does not allow for interpreting
+        /// in the specified Units or Width</exception>
+        public string TryFormatEnumeration(Enumeration def, byte[] data)
+        {
+            try
+            {
+                var number = Number.From(this, data);
+                return def.Values.TryGetValue(number.si, out var name)
+                    ? name
+                    : $"{number.si} is not defined in {def.Name}";
+            }
+            catch (ArgumentException)
+            {
+                throw new OutOfDataException(
+                    "Element {0}: Not enough data left to create a {1} byte number ({2} bytes left)",
+                    Name, Units, data.Length);
+            }
+        }
+
+        /// <summary>
+        /// Format number using the current PrintFormat
+        /// </summary>
+        /// <param name="number">Number to format</param>
+        /// <returns>Formatted string</returns>
+        private string FormatNumber(Number number)
+        {
+            string result;
+
+            switch (PrintFormat)
+            {
+                case Bender.PrintFormat.Binary:
+                    // Make sure every byte has 8 places, 0 filled if needed
+                    var binary = Convert.ToString(number.sl, 2).PadLeft(Units * 8, '0');
+                    result = $"b{binary}";
+                    break;
+
+                case Bender.PrintFormat.Octal:
+                    result = $"O{Convert.ToString(number.sl, 8)}";
+                    break;
+
+                case Bender.PrintFormat.Decimal:
+                    result = number.sl.ToString();
+                    break;
+
+                case Bender.PrintFormat.Hex:
+                case Bender.PrintFormat.BigInt:
+                    var prefix = PrintFormat == Bender.PrintFormat.Hex ? "0x" : "";
+                    var width = (Units * 2).NextPowerOf2();
+                    var hex = Convert.ToString(number.sl, 16).PadLeft(width, '0').ToUpper();
+                    result = $"{prefix}{hex}";
+                    break;
+
+                case Bender.PrintFormat.Float:
+                    // Reinterpret data as floating point
+                    if (Units == 4 || (Units == 8))
+                    {
+                        result = number.fd.ToString("F");
+                    }
+                    else
+                    {
+                        result = "Malformed float. Width must be 4 or 8 bytes";
+                    }
+
+                    break;
+
+                case Bender.PrintFormat.Ascii:
+                case Bender.PrintFormat.Unicode:
+                    throw new ParseException("Cannot format numbers as a string type. This is bug");
+
+                default:
+                    result = $"Unsupported format: {PrintFormat}";
+                    break;
             }
 
             return result;
