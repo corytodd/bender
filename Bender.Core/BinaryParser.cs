@@ -19,7 +19,10 @@
 
         // Counts the current parser depth for nested structures
         private int _nestedStructDepth;
-        private const int NestedStructLimit = 2;
+        private const int NestedStructLimit = 200;
+
+        // Keeps track of progress in the even of an exception
+        private readonly Bender _shadowCopy;
 
         /// <summary>
         /// Returns name of next section in layout
@@ -33,6 +36,7 @@
         public BinaryParser(SpecFile spec)
         {
             _spec = spec;
+            _shadowCopy = new Bender();
         }
 
         /// <summary>
@@ -60,16 +64,25 @@
             }
             catch (Exception ex)
             {
-                Log.ErrorException("Exception (depth == {0})", ex, _nestedStructDepth);
+                var errorField = new Bender.FormattedField
+                {
+                    Name = $"{ex.Message} at depth {_nestedStructDepth}",
+                    Value = new List<string>()
+                };
 
-                var inner = ex;
+                var next = ex;
                 do
                 {
-                    Log.ErrorException("Inner Exception", inner);
-                    inner = ex.InnerException;
-                } while (!(inner is null));
+                    errorField.Value.Add(next.Message);
 
-                throw;
+                    Log.Error(next, "Parser error");
+
+                    next = ex.InnerException;
+                } while (!(next is null));
+
+                _shadowCopy.FormattedFields.Add(errorField);
+
+                return _shadowCopy;
             }
         }
 
@@ -101,7 +114,12 @@
             {
                 var formatted = HandleSection(SectionGetter);
 
-                bender.FormattedFields.AddRange(formatted);
+                foreach (var f in formatted)
+                {
+                    bender.FormattedFields.Add(f);
+
+                    _shadowCopy.FormattedFields.Add(f);
+                }
             }
 
             return bender;
@@ -305,7 +323,7 @@
         private IEnumerable<string> FormatStructure(Element el, byte[] buff)
         {
             Log.Debug("Formatting '{0}' as structure '{1}'", el.Name, el.Structure);
-            
+
             if (_nestedStructDepth >= NestedStructLimit)
             {
                 return new[] {$"**Exceeded nested structure limit ({NestedStructLimit})**"};
@@ -341,7 +359,7 @@
             if (el.IsDeferred)
             {
                 ++_nestedStructDepth;
-                
+
                 // Temporary set reader source to this structure's data
                 var tempReader = _reader;
                 _reader = innerReader;
