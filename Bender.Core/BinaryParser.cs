@@ -18,9 +18,9 @@
         private BinaryReader _reader;
         private DataFile _binary;
 
-        // Counts the current parser depth for nested structures
-        private int _nestedStructDepth;
-        private const int NestedStructLimit = 200;
+        // Limits the recursion deptch
+        private const int NestedStructLimit = 64;
+        private int _nestedDepth;
 
         // Keeps track of progress in the even of an exception
         private readonly Bender _shadowCopy;
@@ -71,7 +71,8 @@
                     Value = new List<string>
                     {
                         new string('*', ex.Message.Length),
-                        ex.Message
+                        ex.Message,
+                        ex.StackTrace
                     }
                 };
 
@@ -79,6 +80,7 @@
                 while (!(next is null))
                 {
                     errorField.Value.Add(next.Message);
+                    errorField.Value.Add(next.StackTrace);
 
                     Log.Error(next, "Parser error");
 
@@ -107,7 +109,7 @@
             _reader = new BinaryReader(stream);
             _binary = binary;
 
-            LogReadEvent("New reader created. Total size == {0}", _reader.BaseStream.Length);
+            ReaderLog.Debug("New reader created. Total size == {0}", _reader.BaseStream.Length);
 
             // Iterates over the order specified in 'layout'
             var queue = new Queue<string>(_spec.Layout);
@@ -331,7 +333,7 @@
         {
             Log.Debug("Formatting '{0}' as structure '{1}'", el.Name, el.Structure);
 
-            if (_nestedStructDepth >= NestedStructLimit)
+            if (_nestedDepth >= NestedStructLimit)
             {
                 return new[] {$"**Exceeded nested structure limit ({NestedStructLimit})**"};
             }
@@ -363,16 +365,18 @@
             using var stream = new MemoryStream(buff);
             using var innerReader = new BinaryReader(stream);
 
+            // Temporary set reader source to this structure's data
+            var tempReader = _reader;
+            _reader = innerReader;
+
+            ReaderLog.Debug("Switching to temporary reader for {0} (Size == {1})", el.Name,
+                _reader.BaseStream.Length);
+            
+            ++_nestedDepth;
+            
             if (el.IsDeferred)
             {
-                ++_nestedStructDepth;
-
-                // Temporary set reader source to this structure's data
-                var tempReader = _reader;
-                _reader = innerReader;
-
-                LogReadEvent("Switching to temporary reader. Total size == {0}", _reader.BaseStream.Length);
-
+                
                 // Recursively handle any nested elements, structures included
                 foreach (var childEl in def.Elements)
                 {
@@ -386,23 +390,23 @@
                         isFirst = false;
                     }
                 }
-
-                // Restore the previous reader
-                _reader = tempReader;
-                LogReadEvent("Releasing temporary reader");
-                LogReadEvent("Continuing at offset {0} with {1} bytes remaining", _reader.BaseStream.Position,
-                    _reader.BaseStream.Length - _reader.BaseStream.Position);
-
-                --_nestedStructDepth;
+                
             }
             else
             {
                 foreach (var childEl in def.Elements)
                 {
-                    var field = innerReader.ReadBytes(childEl.Units);
+                    var field = ReadNextElement(childEl);
                     result.Add($"[ {childEl.Name}: {DefaultFormatter(childEl, field)} ]");
                 }
             }
+            
+            --_nestedDepth;
+            
+            // Restore the previous reader
+            _reader = tempReader;
+            ReaderLog.Debug("Continuing at offset {0}/{1}", _reader.BaseStream.Position,
+                _reader.BaseStream.Length);
 
             return result;
         }
@@ -466,10 +470,12 @@
 
                 if (size == 0 || offset == 0)
                 {
+                    ReaderLog.Debug("{0} is empty", el.Name);
                     return new byte[0];
                 }
 
-                LogReadEvent("Performing deferred read of {0} bytes from offset {1}", size.si, offset.sl);
+                ReaderLog.Debug("[deferred.abs]0x{0:X4}b@0x{1:X4}/0x{2:X4} ({3})", size.si, offset.sl,
+                    _binary.Data.Length, el.Name);
 
                 // Create a new reader so we don't interfere with the current element
                 using var stream = new MemoryStream(_binary.Data);
@@ -481,9 +487,7 @@
             }
             else
             {
-                LogReadEvent("Reading {0} bytes from offset {1}", el.Units, _reader.BaseStream.Position);
-
-                buff = _reader.ReadBytes(el.Units);
+                buff = ReadBytes(el.Units, el.Name);
 
                 // If byte order does not match, flip now
                 if (!(el.IsLittleEndian && BitConverter.IsLittleEndian))
@@ -498,16 +502,24 @@
         /// <summary>
         /// Applies internal formatting rules to render element data
         /// </summary>
-        private string DefaultFormatter(Element el, byte[] buff)
+        private Bender.FormattedField DefaultFormatter(Element el, byte[] buff)
         {
             var formatted = FormatBuffer(el, buff);
-            return formatted.Value.FirstOrDefault();
+            return formatted;
         }
 
-        private void LogReadEvent(string format, params object[] args)
+        /// <summary>
+        /// Reads count bytes from current reader
+        /// </summary>
+        /// <param name="count">Number of bytes to read</param>
+        /// <param name="section">Name of section being read</param>
+        /// <returns></returns>
+        private byte[] ReadBytes(int count, string section)
         {
-            var message = string.Format(format, args);
-            ReaderLog.Info("{0} {1}", new string('\t', _nestedStructDepth), message);
+            ReaderLog.Info("0x{0:X4}b@0x{1:X4}/0x{2:X4} ({3})", count, _reader.BaseStream.Position,
+                _reader.BaseStream.Length, section);
+
+            return _reader.ReadBytes(count);
         }
 
         /// <inheritdoc />

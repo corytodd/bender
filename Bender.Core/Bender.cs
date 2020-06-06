@@ -45,7 +45,7 @@
         /// <param name="el">Element rules</param>
         /// <param name="buff">Data to format</param>
         /// <returns>Formatted string</returns>
-        public delegate string FormatElement(Element el, byte[] buff);
+        public delegate FormattedField FormatElement(Element el, byte[] buff);
 
         /// <summary>
         /// Supported element formats

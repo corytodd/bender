@@ -219,15 +219,13 @@
                     break;
 
                 case Bender.PrintFormat.Float:
-                    // Reinterpret data as floating point
-                    if (Units == 4 || (Units == 8))
+                    result = Units switch
                     {
-                        result = number.fd.ToString("F");
-                    }
-                    else
-                    {
-                        result = "Malformed float. Width must be 4 or 8 bytes";
-                    }
+                        // Reinterpret data as floating point
+                        4 => number.fs.ToString("F6"),
+                        8 => number.fd.ToString("F6"),
+                        _ => "Malformed float. Width must be 4 or 8 bytes"
+                    };
 
                     break;
 
