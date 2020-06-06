@@ -106,6 +106,16 @@
                 }
                 sb.AppendLine();
             }
+            
+            sb.AppendLine("Enumerations:");
+            foreach (var m in Enumerations)
+            {
+                foreach (var str in m.EnumerateLayout())
+                {
+                    sb.AppendFormat("\t{0}\n", str);
+                }
+                sb.AppendLine();
+            }
 
             sb.AppendLine("Elements:");
             foreach(var el in Elements)

@@ -27,6 +27,7 @@ tool really shines when you have non-trivial data structures with dynamic layout
 | extensions | _empty_ | List of extensions associated with the file you are describing |
 | base_element | Default Values for each type in Element | The default element for your spec |
 | structures | _empty_ | Complex data types, e.g. structs |
+| enumerations | _empty_ | List of enumeration definitions |
 | elements | _empty_ | Named definition of data in your binary |
 | layout | _empty_ | Ordered list of elements as they are expected to be found in a binary. |
 
@@ -49,6 +50,7 @@ You may take advantage of YAML merge keys to generate base objects from which yo
 | is_deferred | True if this object is a deferral | Optionally specify that this element is a pointer to more data |
 | is_array_count| True if this value is a count of the next object | Optionally hint that the next object is repeated N times |
 | matrix | Optional matrix definition | Defines the shape of the data as a matrix type |
+| enumeration | Optional enumeration definition | Defines this type as an enumeration |
 
 ### Deferred Object
 Sometimes your binary has dynamic data. We can still parse it by using a deferred definition. Using this approach, you 
@@ -89,6 +91,27 @@ your stack size.
 |:------|:------------|:-------------|
 | name  | Name referenced by and element | strings |
 | elements | A list of elements contained in this structure | Any valid Element listed under structure_elements |
+
+### Enumeration Object 
+For numeric types, you can define an enumeration to map the number to a string. For example, 
+
+```
+typedef enum {
+   my_enum_foo = 0,
+   my_enum_bar,
+   my_enum_baz
+} my_enum_t;
+```
+
+could have a definition of
+
+| Value | Name |
+|:------|:-----|
+| 0     | Foo  |
+| 1     | Bar  |
+| 2     | Baz  |
+
+which will allow Bender to replace the integer with its string representation automatically.
 
 ## Arrays
 Any numeric element can be marked as an array to indicate that the next element should be repeated a number of times. 
