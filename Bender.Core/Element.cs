@@ -1,4 +1,5 @@
-﻿namespace Bender.Core
+﻿// ReSharper disable UnusedAutoPropertyAccessor.Global - This is a serialized type, all setters be global
+namespace Bender.Core
 {
     using System;
     using System.Collections.Generic;
@@ -263,27 +264,6 @@
         public override string ToString()
         {
             return $"{Name}, Units: {Units}, Format: {PrintFormat}, LE: {IsLittleEndian}, Elide: {Elide}";
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object obj)
-        {
-            return obj is Element element &&
-                   Name == element.Name &&
-                   IsLittleEndian == element.IsLittleEndian &&
-                   IsSigned == element.IsSigned &&
-                   Elide == element.Elide &&
-                   PrintFormat == element.PrintFormat &&
-                   Units == element.Units &&
-                   Matrix == element.Matrix;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            var hashCode = 170416633;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
-            return hashCode;
         }
     }
 }

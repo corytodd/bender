@@ -69,7 +69,7 @@
                 // and stacktrace leading to this problem.
                 var errorField = new Bender.FormattedField
                 {
-                    Name = $"Parse Failure",
+                    Name = "Parse Failure",
                     Value = new List<string>
                     {
                         new string('*', ex.Message.Length),
@@ -437,7 +437,7 @@
                     return new byte[0];
                 }
 
-                ReaderLog.Debug("[deferred.abs]0x{0:X4}b@0x{1:X4}/0x{2:X4} ({3})", size.si, offset.sl,
+                ReaderLog.Debug("[deferred.abs]{0,4}@0x{1:X4}/0x{2:X4} ({3})", size.si, offset.sl,
                     _binary.Data.Length, el.Name);
 
                 // Create a new reader so we don't interfere with the current element
@@ -479,7 +479,7 @@
         /// <returns></returns>
         private byte[] ReadBytes(int count, string section)
         {
-            ReaderLog.Info("0x{0:X4}b@0x{1:X4}/0x{2:X4} ({3})", count, _reader.BaseStream.Position,
+            ReaderLog.Info("{0,4}@0x{1:X4}/0x{2:X4} ({3})", count, _reader.BaseStream.Position,
                 _reader.BaseStream.Length, section);
 
             return _reader.ReadBytes(count);
