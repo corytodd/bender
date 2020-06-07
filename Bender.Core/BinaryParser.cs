@@ -169,7 +169,7 @@
             else if (element.IsArrayCount)
             {
                 var buff = ReadNextElement(element);
-                var count = Number.From(element, buff);
+                var count = new Number(element, buff);
                 var repeatedSection = fnGetSection();
 
                 Log.Debug("'{0}' is an array with {1} elements", repeatedSection, count);
@@ -425,11 +425,11 @@
 
                 var sizeEl = new Element {Units = intWidth, Name = "size_bytes"};
                 buff = ReadNextElement(sizeEl);
-                var size = Number.From(sizeEl, buff);
+                var size = new Number(sizeEl, buff);
 
                 var offsetEl = new Element {Units = intWidth, Name = "offset_bytes"};
                 buff = ReadNextElement(offsetEl);
-                var offset = Number.From(offsetEl, buff);
+                var offset = new Number(offsetEl, buff);
 
                 if (size == 0 || offset == 0)
                 {

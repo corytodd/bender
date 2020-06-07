@@ -143,7 +143,7 @@
                         break;
 
                     default:
-                        var number = Number.From(this, data);
+                        var number = new Number(this, data);
                         var formatted = FormatNumber(number);
                         result.Add(formatted);
                         break;
@@ -172,7 +172,7 @@
         {
             try
             {
-                var number = Number.From(this, data);
+                var number = new Number(this, data);
                 return def.Values.TryGetValue(number.si, out var name)
                     ? name
                     : $"{number.si} is not defined in {def.Name}";
