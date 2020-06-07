@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using Logging;
 
     /// <summary>
@@ -153,9 +154,9 @@
             {
                 return Enumerable.Empty<Bender.FormattedField>();
             }
-            
+
             Log.Debug("Handling '{0}'", section);
-            
+
             var result = new List<Bender.FormattedField>();
 
             // Find definition of the element
@@ -299,7 +300,53 @@
             elClone.Units = el.Clone().Matrix.Units;
             elClone.Matrix = null;
 
-            return el.Matrix.TryFormat(elClone, buff, DefaultFormatter);
+            if (elClone.Units == 0 || buff.Length == 0 || el.Matrix is null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            var value = new List<string>();
+            var sb = new StringBuilder();
+            sb.Append("[ ");
+
+            var totalVars = buff.Length / elClone.Units;
+            var mat = el.Matrix;
+
+            // Use a default column count
+            var colWidth = mat.Columns == 0 ? 8 : mat.Columns;
+
+            // Chop data into payload.unit bytes to produce an output similar to
+            //
+            // [ ... numbers ... ]
+            // [ ... numbers ... ]
+            //
+            var cols = 0;
+            var count = 0;
+            foreach (var unit in buff.AsChunks(elClone.Units))
+            {
+                ++count;
+
+                foreach (var f in FormatBuffer(elClone, unit).Value)
+                {
+                    sb.AppendFormat("{0} ", f);
+                }
+
+                if (++cols % colWidth != 0)
+                {
+                    continue;
+                }
+
+                sb.Append("]");
+                value.Add(sb.ToString());
+                sb.Clear();
+
+                if (count != totalVars)
+                {
+                    sb.Append("[ ");
+                }
+            }
+
+            return value;
         }
 
         /// <summary>
@@ -357,20 +404,27 @@
 
             ++_nestedDepth;
 
-            // Recursively handle any nested elements
-            foreach (var childEl in def.Elements)
+            var bytesRead = 0;
+            do
             {
-                var formatted = HandleElement(childEl);
-                var isFirst = true;
-                
-                foreach (var value in formatted.Value)
+                // Recursively handle any nested elements
+                foreach (var childEl in def.Elements)
                 {
-                    // Repeat name only once for each element, maintain padding
-                    var prefix = isFirst ? childEl.Name : new string(' ', childEl.Name.Length);
-                    result.Add($"[ {prefix}: {value} ]");
-                    isFirst = false;
+                    var formatted = HandleElement(childEl);
+
+                    bytesRead += GetElementSize(childEl);
+
+                    var isFirst = true;
+
+                    foreach (var value in formatted.Value)
+                    {
+                        // Repeat name only once for each element, maintain padding
+                        var prefix = isFirst ? childEl.Name : new string(' ', childEl.Name.Length);
+                        result.Add($"[ {prefix}: {value} ]");
+                        isFirst = false;
+                    }
                 }
-            }
+            } while (el.IsArray && bytesRead < buff.Length);
 
             --_nestedDepth;
 
@@ -405,7 +459,7 @@
             }
 
             Log.Debug("Using enumeration definition for '{0}'", def.Name);
-            
+
             return el.TryFormatEnumeration(def, buff);
         }
 
@@ -463,15 +517,6 @@
         }
 
         /// <summary>
-        /// Applies internal formatting rules to render element data
-        /// </summary>
-        private string DefaultFormatter(Element el, byte[] buff)
-        {
-            var formatted = FormatBuffer(el, buff);
-            return formatted.Value.FirstOrDefault();
-        }
-
-        /// <summary>
         /// Reads count bytes from current reader
         /// </summary>
         /// <param name="count">Number of bytes to read</param>
@@ -492,6 +537,11 @@
         /// <returns>Structure or null if no match is found</returns>
         private Structure GetStructure(Element el)
         {
+            if (el.Structure is null)
+            {
+                return null;
+            }
+            
             if (_spec.Structures == null)
             {
                 Log.Warn("'{0}' references a structure but no structures are defined");
@@ -515,6 +565,11 @@
         /// <returns>Enumeration of null if no match is found</returns>
         private Enumeration GetEnumeration(Element el)
         {
+            if (el.Enumeration is null)
+            {
+                return null;
+            }
+            
             if (_spec.Enumerations == null)
             {
                 Log.Warn("'{0}' references an enumeration but no enumerations are defined");
@@ -529,6 +584,17 @@
             }
 
             return def;
+        }
+
+        /// <summary>
+        /// Returns the size in bytes of this element
+        /// </summary>
+        /// <param name="el">Element to measure</param>
+        /// <returns>Size in bytes</returns>
+        private int GetElementSize(Element el)
+        {
+            var childStruct = GetStructure(el);
+            return childStruct?.Size ?? el.Size;
         }
 
         /// <inheritdoc />

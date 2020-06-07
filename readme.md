@@ -49,6 +49,7 @@ You may take advantage of YAML merge keys to generate base objects from which yo
 | little_endian | What order the bytes are stored in the file | YAML bool |
 | is_deferred | True if this object is a deferral | Optionally specify that this element is a pointer to more data |
 | is_array_count| True if this value is a count of the next object | Optionally hint that the next object is repeated N times |
+| is_array | True if this value is an implicit array | Optionally hint that the section may contain an array of the specified type |
 | matrix | Optional matrix definition | Defines the shape of the data as a matrix type |
 | enumeration | Optional enumeration definition | Defines this type as an enumeration |
 
@@ -114,8 +115,9 @@ could have a definition of
 which will allow Bender to replace the integer with its string representation automatically.
 
 ## Arrays
-Any numeric element can be marked as an array to indicate that the next element should be repeated a number of times. 
-This supports a structure similar to the following:
+An array and either be implicit or explicit. Explicit arrays use the `is_array_count` property to indicate that a value 
+represents the count of elements to follow. Any numeric element can be marked as an array to indicate that the next 
+element should be repeated a number of times. This supports a structure similar to the following:
 
 ```
 typedef def_array_t {
@@ -128,6 +130,10 @@ typedef def_array_t {
 
 This allows you to support immediate data with arbitrary length. The count and the element being repeated are separate 
 objects so you can name and format them separately. Any type of element can be repeated.
+
+An implicit array uses the `is_array` property to hint that the current container may container more than one of the 
+specified element. In this case, all elements must have the same size. Each block equal to the expected element's size 
+is parsed as an element until all blocks are exhausted.
 
 ## Format 
 An element may be formatted as any of the following:

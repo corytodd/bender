@@ -35,7 +35,7 @@
             {
                 return From(el.Name, message);
             }
-            
+
             /// <summary>
             /// Helper to generate a new formatted field for this name
             /// </summary>
@@ -64,14 +64,6 @@
         /// Returns list of formatted data extracted from binary
         /// </summary>
         public List<FormattedField> FormattedFields { get; }
-
-        /// <summary>
-        /// Formats data into a string defined by the rules in element
-        /// </summary>
-        /// <param name="el">Element rules</param>
-        /// <param name="buff">Data to format</param>
-        /// <returns>Formatted string</returns>
-        public delegate string FormatElement(Element el, byte[] buff);
 
         /// <summary>
         /// Supported element formats
@@ -115,7 +107,7 @@
             /// Number with arbitrary count of digits
             /// </summary>
             BigInt,
-        
+
             /// <summary>
             /// Format as single or double floating point precision
             /// Element width must be 4 or 8 bytes, respectively 

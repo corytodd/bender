@@ -83,6 +83,10 @@ namespace Bender.Core
                     }
                     else
                     {
+                        if (data.Length != 4 || offset < 0 || offset > data.Length)
+                        {
+                            var dbg = 0;
+                        }
                         ul = BitConverter.ToUInt32(data, offset);
                     }
 

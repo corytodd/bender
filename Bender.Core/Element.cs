@@ -60,10 +60,22 @@ namespace Bender.Core
         public bool IsDeferred { get; set; }
 
         /// <summary>
-        /// True if this value represents the count of an array
+        /// True if this value represents the count of an array. This
+        /// is considered an explicit array because it specifies that
+        /// N more of the next Element are to follow.
         /// </summary>
         [YamlMember(Alias = "is_array_count", ApplyNamingConventions = false)]
         public bool IsArrayCount { get; set; }
+
+        /// <summary>
+        /// True if this value is an implicit array.
+        /// An implicit array means that the length is not encoded in the data
+        /// and that the outter container defines the size of each element. This
+        /// means that each element can be read implicitly by parsing until
+        /// the buffer is fully processed.
+        /// </summary>
+        [YamlMember(Alias = "is_array", ApplyNamingConventions = false)]
+        public bool IsArray { get; set; }
 
         /// <summary>
         /// If this block is referencing a structure, Structure
@@ -77,6 +89,13 @@ namespace Bender.Core
         /// a predefined Enumeration element in the SpecFil.
         /// </summary>
         public string Enumeration { get; set; }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Size of this element will either be a constant 8 if a deferred
+        /// otherwise report the Units property.
+        /// </summary>
+        public int Size => IsDeferred ? 8 : Units;
 
         /// <inheritdoc />
         public IEnumerable<string> EnumerateLayout()
@@ -102,7 +121,7 @@ namespace Bender.Core
             sb.AppendFormat("Units: {0}\n", Units);
             sb.AppendFormat("Payload: {0}\n", Matrix);
             sb.AppendFormat("Little Endian: {0}\n", IsLittleEndian);
-
+            
             if (!string.IsNullOrEmpty(Structure))
             {
                 sb.AppendFormat("Structure: {0}\n", Structure);
@@ -111,6 +130,21 @@ namespace Bender.Core
             if (!string.IsNullOrEmpty(Enumeration))
             {
                 sb.AppendFormat("Enumeration: {0}\n", Enumeration);
+            }
+
+            if (IsArray)
+            {
+                sb.AppendFormat("IsArray\n");
+            }
+
+            if (IsArrayCount)
+            {
+                sb.AppendFormat("IsArrayCount\n");                
+            }
+
+            if (IsDeferred)
+            {
+                sb.AppendFormat("IsDeferred\n");
             }
 
             return sb.ToString();
@@ -257,6 +291,11 @@ namespace Bender.Core
                 PrintFormat = PrintFormat,
                 Units = Units,
                 Matrix = Matrix,
+                IsArray = IsArray,
+                IsArrayCount = IsArrayCount,
+                Enumeration = Enumeration,
+                Structure = Structure,
+                IsDeferred = IsDeferred
             };
         }
 

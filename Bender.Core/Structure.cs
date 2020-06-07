@@ -3,6 +3,7 @@
 namespace Bender.Core
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
 
     /// <summary>
@@ -20,6 +21,11 @@ namespace Bender.Core
         /// Gets or Sets ordered list of elements in this structure
         /// </summary>
         public IList<Element> Elements { get; set; } = new List<Element>();
+
+        /// <summary>
+        /// Returns the size in bytes of this structure
+        /// </summary>
+        public int Size => Elements.Select(x => x.Size).Sum();
 
         /// <inheritdoc />
         public IEnumerable<string> EnumerateLayout()
