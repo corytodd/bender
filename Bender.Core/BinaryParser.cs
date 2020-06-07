@@ -528,7 +528,7 @@
                 Log.Warn("'{0}' references an undefined enumeration '{1}'", el.Name, el.Enumeration);
             }
 
-            return null;
+            return def;
         }
 
         /// <inheritdoc />
