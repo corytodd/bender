@@ -1,4 +1,6 @@
-﻿namespace Bender.Core
+﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global - This is a library class, consumers may use all properties
+// ReSharper disable UnusedAutoPropertyAccessor.Global - This is a library class, consumers may use all properties
+namespace Bender.Core
 {
     using System.Collections.Generic;
     using System.Text;
@@ -6,6 +8,7 @@
     /// <summary>
     /// Structure represents a struct in binary form
     /// </summary>
+    // ReSharper disable once ClassNeverInstantiated.Global - This is a library class, consumers may instantiate this
     public class Structure : ILayout
     {
         /// <summary>

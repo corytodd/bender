@@ -24,6 +24,32 @@
             ///     Field values
             /// </summary>
             public IList<string> Value { get; set; }
+
+            /// <summary>
+            /// Helper to generate a new formatted field for this element
+            /// </summary>
+            /// <param name="el">Element instance</param>
+            /// <param name="message">Message to assign as value</param>
+            /// <returns>New formatted field</returns>
+            public static FormattedField From(Element el, string message)
+            {
+                return From(el.Name, message);
+            }
+            
+            /// <summary>
+            /// Helper to generate a new formatted field for this name
+            /// </summary>
+            /// <param name="name">Field name</param>
+            /// <param name="message">Message to assign as value</param>
+            /// <returns>New formatted field</returns>
+            public static FormattedField From(string name, string message)
+            {
+                return new FormattedField
+                {
+                    Name = name,
+                    Value = new[] {message}
+                };
+            }
         }
 
         /// <summary>

@@ -57,6 +57,9 @@
 
             var totalVars = data.Length / Units;
 
+            // Use a default column count
+            var colWidth = Columns == 0 ? 8 : Columns;
+
             // Chop data into payload.unit bytes to produce an output similar to
             //
             // [ ... numbers ... ]
@@ -69,7 +72,7 @@
                 ++count;
 
                 sb.AppendFormat("{0} ", elementFormatter.Invoke(el, unit));
-                if (++cols % Columns != 0)
+                if (++cols % colWidth != 0)
                 {
                     continue;
                 }

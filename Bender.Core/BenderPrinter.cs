@@ -1,4 +1,5 @@
-﻿namespace Bender.Core
+﻿// ReSharper disable MemberCanBePrivate.Global - This is a library class, consumers may instantiate it
+namespace Bender.Core
 {
     using System;
     using System.IO;

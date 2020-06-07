@@ -1,13 +1,14 @@
-﻿namespace Bender.Core
+﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global - This is a library class, consumers may use all properties
+namespace Bender.Core
 {
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Text;
     using YamlDotNet.Serialization;
 
     /// <summary>
     /// Represents YAML specification for Bender files
     /// </summary>
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class SpecFile
     {
         /// <summary>

@@ -1,4 +1,5 @@
-﻿namespace Bender.Core
+﻿// ReSharper disable UnusedAutoPropertyAccessor.Global - This is a serialized type, all setters be global
+namespace Bender.Core
 {
     using System;
     using System.Collections.Generic;
@@ -143,7 +144,7 @@
                         break;
 
                     default:
-                        var number = Number.From(this, data);
+                        var number = new Number(this, data);
                         var formatted = FormatNumber(number);
                         result.Add(formatted);
                         break;
@@ -172,7 +173,7 @@
         {
             try
             {
-                var number = Number.From(this, data);
+                var number = new Number(this, data);
                 return def.Values.TryGetValue(number.si, out var name)
                     ? name
                     : $"{number.si} is not defined in {def.Name}";
@@ -219,15 +220,13 @@
                     break;
 
                 case Bender.PrintFormat.Float:
-                    // Reinterpret data as floating point
-                    if (Units == 4 || (Units == 8))
+                    result = Units switch
                     {
-                        result = number.fd.ToString("F");
-                    }
-                    else
-                    {
-                        result = "Malformed float. Width must be 4 or 8 bytes";
-                    }
+                        // Reinterpret data as floating point
+                        4 => number.fs.ToString("F6"),
+                        8 => number.fd.ToString("F6"),
+                        _ => "Malformed float. Width must be 4 or 8 bytes"
+                    };
 
                     break;
 
@@ -264,28 +263,7 @@
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{Name}, Units: {Units}, Format: {PrintFormat}";
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object obj)
-        {
-            return obj is Element element &&
-                   Name == element.Name &&
-                   IsLittleEndian == element.IsLittleEndian &&
-                   IsSigned == element.IsSigned &&
-                   Elide == element.Elide &&
-                   PrintFormat == element.PrintFormat &&
-                   Units == element.Units &&
-                   Matrix == element.Matrix;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            var hashCode = 170416633;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
-            return hashCode;
+            return $"{Name}, Units: {Units}, Format: {PrintFormat}, LE: {IsLittleEndian}, Elide: {Elide}";
         }
     }
 }
