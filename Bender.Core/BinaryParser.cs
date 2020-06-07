@@ -404,6 +404,7 @@
 
             ++_nestedDepth;
 
+            // If this is an implicit array we must track total bytes read
             var bytesRead = 0;
             do
             {
