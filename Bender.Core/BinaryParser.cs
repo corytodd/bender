@@ -164,11 +164,7 @@
             {
                 Log.Warn("Section '{0}' is undefined", section);
 
-                result.Add(new Bender.FormattedField
-                {
-                    Name = section,
-                    Value = new List<string> {"Undefined object"}
-                });
+                result.Add(Bender.FormattedField.From(section, "Undefined object"));
             }
             else if (element.IsArrayCount)
             {
