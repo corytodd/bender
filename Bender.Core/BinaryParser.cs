@@ -371,38 +371,26 @@
 
             ReaderLog.Debug("Switching to temporary reader for {0} (Size == {1})", el.Name,
                 _reader.BaseStream.Length);
-            
+
             ++_nestedDepth;
-            
-            if (el.IsDeferred)
+
+
+            // Recursively handle any nested elements, structures included
+            foreach (var childEl in def.Elements)
             {
-                
-                // Recursively handle any nested elements, structures included
-                foreach (var childEl in def.Elements)
+                var formatted = HandleElement(childEl);
+                var isFirst = true;
+                foreach (var value in formatted.Value)
                 {
-                    var formatted = HandleElement(childEl);
-                    var isFirst = true;
-                    foreach (var value in formatted.Value)
-                    {
-                        // Repeat name only once for each element, maintain padding
-                        var prefix = isFirst ? childEl.Name : new string(' ', childEl.Name.Length);
-                        result.Add($"[ {prefix}: {value} ]");
-                        isFirst = false;
-                    }
-                }
-                
-            }
-            else
-            {
-                foreach (var childEl in def.Elements)
-                {
-                    var field = ReadNextElement(childEl);
-                    result.Add($"[ {childEl.Name}: {DefaultFormatter(childEl, field)} ]");
+                    // Repeat name only once for each element, maintain padding
+                    var prefix = isFirst ? childEl.Name : new string(' ', childEl.Name.Length);
+                    result.Add($"[ {prefix}: {value} ]");
+                    isFirst = false;
                 }
             }
-            
+
             --_nestedDepth;
-            
+
             // Restore the previous reader
             _reader = tempReader;
             ReaderLog.Debug("Continuing at offset {0}/{1}", _reader.BaseStream.Position,
@@ -502,10 +490,10 @@
         /// <summary>
         /// Applies internal formatting rules to render element data
         /// </summary>
-        private Bender.FormattedField DefaultFormatter(Element el, byte[] buff)
+        private string DefaultFormatter(Element el, byte[] buff)
         {
             var formatted = FormatBuffer(el, buff);
-            return formatted;
+            return formatted.Value.FirstOrDefault();
         }
 
         /// <summary>
