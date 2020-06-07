@@ -42,7 +42,7 @@
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        public static DataFile FromASCII(string content)
+        public static DataFile FromAscii(string content)
         {
             var buff = System.Text.Encoding.ASCII.GetBytes(content);
             return new DataFile(buff);

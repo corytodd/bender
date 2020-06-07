@@ -10,7 +10,7 @@ namespace Bender.Core.Tests
         [Fact]
         public void TestInvalidFile()
         {
-            var df = DataFile.FromASCII(TestData.TestInvalidYAML);
+            var df = DataFile.FromAscii(TestData.TestInvalidYAML);
             var parser = new SpecParser();
             Assert.Throws<ParseException>(() => parser.Parse(df));
         }
