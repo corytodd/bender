@@ -18,7 +18,7 @@
         private BinaryReader _reader;
         private DataFile _binary;
 
-        // Limits the recursion deptch
+        // Limits the recursion depth
         private const int NestedStructLimit = 64;
         private int _nestedDepth;
 
@@ -65,6 +65,8 @@
             }
             catch (Exception ex)
             {
+                // Generated a neatly formatted field explaining the exceptions
+                // and stacktrace leading to this problem.
                 var errorField = new Bender.FormattedField
                 {
                     Name = $"Parse Failure",
@@ -112,17 +114,20 @@
             ReaderLog.Debug("New reader created. Total size == {0}", _reader.BaseStream.Length);
 
             // Iterates over the order specified in 'layout'
-            var queue = new Queue<string>(_spec.Layout);
+            var layoutQ = new Queue<string>(_spec.Layout);
 
+            // Reads sections in order from spec file
             string SectionGetter()
             {
-                return queue.TryDequeue(out var result) ? result : string.Empty;
+                return layoutQ.TryDequeue(out var result) ? result : string.Empty;
             }
 
-            while (queue.Count > 0)
+            // Recursive calls may alter layoutQ so actively check the count
+            while (layoutQ.Count > 0)
             {
                 var formatted = HandleSection(SectionGetter);
 
+                // Result may be one or more format fields
                 foreach (var f in formatted)
                 {
                     bender.FormattedFields.Add(f);
@@ -144,14 +149,13 @@
         private IEnumerable<Bender.FormattedField> HandleSection(GetNextSection fnGetSection)
         {
             var section = fnGetSection.Invoke();
-
-            Log.Debug("Handling '{0}'", section);
-
             if (string.IsNullOrEmpty(section))
             {
                 return Enumerable.Empty<Bender.FormattedField>();
             }
-
+            
+            Log.Debug("Handling '{0}'", section);
+            
             var result = new List<Bender.FormattedField>();
 
             // Find definition of the element
@@ -206,11 +210,7 @@
             {
                 Log.Warn("'{0}' is an invalid deferred object", el.Name);
 
-                return new Bender.FormattedField
-                {
-                    Name = el.Name,
-                    Value = new List<string> {"Error: Invalid deferred object"}
-                };
+                return Bender.FormattedField.From(el, "Error: Invalid deferred object");
             }
 
             // This is declared as a deferral but the definition was marked as empty
@@ -218,11 +218,7 @@
             {
                 Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
 
-                return new Bender.FormattedField
-                {
-                    Name = el.Name,
-                    Value = new List<string> {"Empty"}
-                };
+                return Bender.FormattedField.From(el, "Empty");
             }
 
             return FormatBuffer(el, buff);
@@ -338,19 +334,9 @@
                 return new[] {$"**Exceeded nested structure limit ({NestedStructLimit})**"};
             }
 
-            if (_spec.Structures == null)
+            var def = GetStructure(el);
+            if (def is null)
             {
-                Log.Warn("'{0}' references a structure but no structures are defined");
-
-                return new List<string> {$"No structure specified but element {el.Name} has referenced {el.Structure}"};
-            }
-
-            var def = _spec.Structures.FirstOrDefault(p =>
-                el.Structure.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (def == null)
-            {
-                Log.Warn("'{0}' references an undefined structure '{1}'", el.Name, el.Structure);
-
                 return new List<string> {$"Unknown structure type {el.Structure} on element {el.Name}"};
             }
 
@@ -362,24 +348,25 @@
 
             var result = new List<string>(def.Elements.Count);
 
+            // Buff is the binary representation of this structure definition
+            // so reads must be relative to this buffer.
             using var stream = new MemoryStream(buff);
             using var innerReader = new BinaryReader(stream);
 
-            // Temporary set reader source to this structure's data
+            // Temporarily set reader source to this structure's data
             var tempReader = _reader;
             _reader = innerReader;
-
             ReaderLog.Debug("Switching to temporary reader for {0} (Size == {1})", el.Name,
                 _reader.BaseStream.Length);
 
             ++_nestedDepth;
 
-
-            // Recursively handle any nested elements, structures included
+            // Recursively handle any nested elements
             foreach (var childEl in def.Elements)
             {
                 var formatted = HandleElement(childEl);
                 var isFirst = true;
+                
                 foreach (var value in formatted.Value)
                 {
                     // Repeat name only once for each element, maintain padding
@@ -415,22 +402,14 @@
         {
             Log.Debug("Formatting '{0}' as enumeration '{1}'", el.Name, el.Enumeration);
 
-            if (_spec.Enumerations == null)
+            var def = GetEnumeration(el);
+            if (def is null)
             {
-                Log.Warn("'{0}' references an enumeration but no enumerations are defined");
-
-                return $"No enumerations specified but element {el.Name} has referenced {el.Enumeration}";
-            }
-
-            var def = _spec.Enumerations.FirstOrDefault(p =>
-                el.Enumeration.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (def == null)
-            {
-                Log.Warn("'{0}' references an undefined enumeration '{1}'", el.Name, el.Enumeration);
-
                 return $"Unknown enumeration type {el.Enumeration} on element {el.Name}";
             }
 
+            Log.Debug("Using enumeration definition for '{0}'", def.Name);
+            
             return el.TryFormatEnumeration(def, buff);
         }
 
@@ -508,6 +487,52 @@
                 _reader.BaseStream.Length, section);
 
             return _reader.ReadBytes(count);
+        }
+
+        /// <summary>
+        /// Locate structure by structure name on this element
+        /// </summary>
+        /// <param name="el">Element with structure definition</param>
+        /// <returns>Structure or null if no match is found</returns>
+        private Structure GetStructure(Element el)
+        {
+            if (_spec.Structures == null)
+            {
+                Log.Warn("'{0}' references a structure but no structures are defined");
+                return null;
+            }
+
+            var def = _spec.Structures.FirstOrDefault(p =>
+                el.Structure.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (def == null)
+            {
+                Log.Warn("'{0}' references an undefined structure '{1}'", el.Name, el.Structure);
+            }
+
+            return def;
+        }
+
+        /// <summary>
+        /// Locate enumeration by enumeration name on this element
+        /// </summary>
+        /// <param name="el">Element with enumeration definition</param>
+        /// <returns>Enumeration of null if no match is found</returns>
+        private Enumeration GetEnumeration(Element el)
+        {
+            if (_spec.Enumerations == null)
+            {
+                Log.Warn("'{0}' references an enumeration but no enumerations are defined");
+                return null;
+            }
+
+            var def = _spec.Enumerations.FirstOrDefault(p =>
+                el.Enumeration.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (def == null)
+            {
+                Log.Warn("'{0}' references an undefined enumeration '{1}'", el.Name, el.Enumeration);
+            }
+
+            return null;
         }
 
         /// <inheritdoc />
