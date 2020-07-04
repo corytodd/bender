@@ -46,7 +46,7 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v2
         with:
-          name: nuget-package
+          name: bender-win64
           path: ./build_win/*.*exe          
 
   publish-nuget:
