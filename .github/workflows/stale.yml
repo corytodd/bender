@@ -22,3 +22,14 @@ jobs:
           then it will be assumed that the question has been resolved and
           the issue will be automatically closed.
         stale-issue-label: 'stale'
+        
+  remove-old-artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Remove old artifacts
+        uses: c-hive/gha-remove-artifacts@v1
+        with:
+          age: '1 month'
+          skip-recent: 5

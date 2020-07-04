@@ -15,10 +15,10 @@
     <Authors>Cory Todd</Authors>
     <Company>Ardonyx LLC</Company>
     <Description>Arbitrary binary file viewer library</Description>
-    <Copyright>$(Year) Cory Todd</Copyright>
+    <Copyright>$(Year) Ardonyx LLC</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(SemVer)$(Suffix)</Version>
-    <RepositoryUrl>https://github.com/corytodd/Bender</RepositoryUrl>      
+    <RepositoryUrl>https://github.com/ardonyx/Bender</RepositoryUrl>      
     <RepositoryType>git</RepositoryType>
     <AssemblyVersion>$(SemVer)</AssemblyVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

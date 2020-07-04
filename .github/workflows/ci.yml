@@ -7,7 +7,9 @@ on:
 jobs:
   # Build test ensures debug and release builds compile and pass testing
   build-and-test:
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
+    if: (github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id)
+      && (contains(toJson(github.event.commits), '[ci skip]') == false 
+      && contains(toJson(github.event.commits), '[skip ci]') == false)
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -16,49 +18,64 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+         
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 3.1.300
-      # Make sure debug build will compile without warnings (or errors, obviously)    
+        uses: actions/setup-dotnet@v1         
+
+      # Make sure debug build will compile without warnings    
       - name: Debug Build
         run: dotnet build --configuration=Debug -p:TreatWarningsAsErrors=true Bender.Core
-      # Make sure release build will compile without warnings (or errors, obviously)        
+        
+      # Make sure release build will compile without warnings      
       - name: Release Build
         run: dotnet build --configuration=Release -p:TreatWarningsAsErrors=true Bender.Core
+        
       - name: Tests
-        run: dotnet test --configuration=Release ./Bender.Core.Tests
-  # Creates artifacts on GPR           
-  upload-stuff:
-    if: contains('
-          refs/heads/master
-          refs/tags/v
-          ', github.ref) &&
-      github.event_name == 'push'
-    needs: build-and-test
-    runs-on: windows-latest
-    steps:
-      - name: Set up NuGet
-        if: runner.os == 'Windows'
-        uses: nuget/setup-nuget@v1
-        with:
-          nuget-version: '5.x'
+        run: dotnet test --configuration=Release ./Bender.Core.Tests      
+
       - name: Create NuGet package
-        if: runner.os == 'Windows'
-        run: dotnet pack --configuration=Release Bender.Core -o build_win
+        if: startsWith(github.ref, 'refs/tags/v') && runner.os == 'Linux'
+        run: dotnet pack --configuration=Release --no-build Bender.Core -o build
+        
       - name: Create Bender Windows CLI
-        if: runner.os == 'Windows'
+        if: startsWith(github.ref, 'refs/tags/v') && runner.os == 'Linux'
         run: dotnet publish --runtime win-x64 /p:PublishSingleFile=true --configuration=Release Bender -o build_win
-  # Publishes nuget on GPR
-  publish-nuget:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: upload-stuff
-    runs-on: windows-latest
+        
+      - name: Upload NuGet package artifact
+        if: startsWith(github.ref, 'refs/tags/v') && runner.os == 'Linux'
+        uses: actions/upload-artifact@v2
+        with:
+          name: nuget-package
+          path: ./build/*.*nupkg
+          
+      - name: Upload CLI package artifact
+        if: startsWith(github.ref, 'refs/tags/v') && runner.os == 'Linux'
+        uses: actions/upload-artifact@v2
+        with:
+          name: bender-win64
+          path: ./build_win/*.*exe           
+            
+  make-release:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') 
     steps:
       - name: Download NuGet package artifact
         uses: actions/download-artifact@v2
         with:
           name: nuget-package
+          
+      # Must use nuget as well to workaround API key non-sense with dotnet tool    
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.2
+        with:
+          nuget-version: latest
+
+      - name: Set NuGet Source
+        run: nuget sources Add -Name "GPR" -Source "https://nuget.pkg.github.com/ardonyx/index.json" -UserName ${{ secrets.USER }} -Password ${{ secrets.GHPAT }}
+
+      - name: Set API key
+        run: nuget setapikey ${{ secrets.GHPAT }} -Source "https://nuget.pkg.github.com/ardonyx/index.json"   
+        
       - name: Publish to GPR
-        shell: bash
-        run: dotnet nuget push *.*nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/corytodd/index.json
+        run: nuget push *.nupkg -Source "GPR"
