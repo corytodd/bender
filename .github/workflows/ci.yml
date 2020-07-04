@@ -35,7 +35,7 @@ jobs:
         run: dotnet pack --configuration=Release Bender.Core
       - name: Create Bender Windows CLI
         if: runner.os == 'Windows'
-        run: dotnet publish --runtime win-x65 /p:PublishSingleFile=true --configuration=Release Bender -o build_win        
+        run: dotnet publish --runtime win-x64 /p:PublishSingleFile=true --configuration=Release Bender -o build_win        
       - name: Upload NuGet package artifact
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v2
