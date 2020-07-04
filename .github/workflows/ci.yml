@@ -5,6 +5,7 @@ on:
   pull_request:
 
 jobs:
+  # Build test ensures debug and release builds compile and pass testing
   build-and-test:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.id != github.event.pull_request.base.repo.id
     strategy:
@@ -19,12 +20,24 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.300
+      # Make sure debug build will compile without warnings (or errors, obviously)    
       - name: Debug Build
         run: dotnet build --configuration=Debug -p:TreatWarningsAsErrors=true Bender.Core
+      # Make sure release build will compile without warnings (or errors, obviously)        
       - name: Release Build
         run: dotnet build --configuration=Release -p:TreatWarningsAsErrors=true Bender.Core
       - name: Tests
         run: dotnet test --configuration=Release ./Bender.Core.Tests
+  # Creates artifacts on GPR           
+  upload-stuff:
+    if: contains('
+          refs/heads/master
+          refs/tags/v
+          ', github.ref) &&
+      github.event_name == 'push'
+    needs: build-and-test
+    runs-on: windows-latest
+    steps:
       - name: Set up NuGet
         if: runner.os == 'Windows'
         uses: nuget/setup-nuget@v1
@@ -35,23 +48,11 @@ jobs:
         run: dotnet pack --configuration=Release Bender.Core -o build_win
       - name: Create Bender Windows CLI
         if: runner.os == 'Windows'
-        run: dotnet publish --runtime win-x64 /p:PublishSingleFile=true --configuration=Release Bender -o build_win        
-      - name: Upload NuGet package artifact
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v2
-        with:
-          name: nuget-package
-          path: ./build_win/*.*nupkg
-      - name: Upload CLI package artifact
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v2
-        with:
-          name: bender-win64
-          path: ./build_win/*.*exe          
-
+        run: dotnet publish --runtime win-x64 /p:PublishSingleFile=true --configuration=Release Bender -o build_win
+  # Publishes nuget on GPR
   publish-nuget:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build-and-test
+    needs: upload-stuff
     runs-on: windows-latest
     steps:
       - name: Download NuGet package artifact
@@ -60,4 +61,4 @@ jobs:
           name: nuget-package
       - name: Publish to GPR
         shell: bash
-        run: dotnet nuget push *.*nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/corytodd/index.json
+        run: dotnet nuget push *.*nupkg --api-key ${{ secrets.SECRET }} --source https://nuget.pkg.github.com/corytodd/index.json
