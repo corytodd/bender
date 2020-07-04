@@ -41,13 +41,13 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nuget-package
-          path: ./Bender/build_win/*.*nupkg
+          path: ./build_win/*.*nupkg
       - name: Upload CLI package artifact
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v2
         with:
           name: nuget-package
-          path: ./Bender/build_win/*.*exe          
+          path: ./build_win/*.*exe          
 
   publish-nuget:
     if: startsWith(github.ref, 'refs/tags/v')
