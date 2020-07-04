@@ -10,7 +10,7 @@ namespace Bender.Core.Tests
         [Fact]
         public void TestInvalidFile()
         {
-            var df = DataFile.FromASCII(TestData.TestInvalidYAML);
+            var df = DataFile.FromAscii(TestData.TestInvalidYAML);
             var parser = new SpecParser();
             Assert.Throws<ParseException>(() => parser.Parse(df));
         }
@@ -39,10 +39,15 @@ namespace Bender.Core.Tests
                 Matrix = null,
                 IsSigned = false
             };
-            Assert.Equal(el, result.BaseElement);
+            Assert.Equal(el.IsLittleEndian, result.BaseElement.IsLittleEndian);
+            Assert.Equal(el.Elide, result.BaseElement.Elide);
+            Assert.Equal(el.PrintFormat, result.BaseElement.PrintFormat);
+            Assert.Equal(el.Units, result.BaseElement.Units);
+            Assert.Equal(el.Name, result.BaseElement.Name);
+            Assert.Equal(el.Matrix, result.BaseElement.Matrix);
+            Assert.Equal(el.IsSigned, result.BaseElement.IsSigned);
 
             Assert.False(string.IsNullOrEmpty(el.ToString()));
-            Assert.Equal(el.GetHashCode(), result.BaseElement.GetHashCode());
         }
     }
 }

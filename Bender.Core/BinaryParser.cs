@@ -4,16 +4,27 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
+    using Logging;
 
     /// <summary>
     /// Reads a binary file and formats the data as specified in the SpecFile
     /// </summary>
     public class BinaryParser : IDisposable
-
     {
+        private static readonly ILog Log = LogProvider.GetCurrentClassLogger();
+        private static readonly ILog ReaderLog = LogProvider.GetLogger("ReaderLog");
+
         private readonly SpecFile _spec;
         private BinaryReader _reader;
         private DataFile _binary;
+
+        // Limits the recursion depth
+        private const int NestedStructLimit = 64;
+        private int _nestedDepth;
+
+        // Keeps track of progress in the even of an exception
+        private readonly Bender _shadowCopy;
 
         /// <summary>
         /// Returns name of next section in layout
@@ -27,6 +38,7 @@
         public BinaryParser(SpecFile spec)
         {
             _spec = spec;
+            _shadowCopy = new Bender();
         }
 
         /// <summary>
@@ -48,7 +60,40 @@
                 throw new ArgumentException("{0} cannot be empty", nameof(binary));
             }
 
-            return TryParse(binary);
+            try
+            {
+                return TryParse(binary);
+            }
+            catch (Exception ex)
+            {
+                // Generated a neatly formatted field explaining the exceptions
+                // and stacktrace leading to this problem.
+                var errorField = new Bender.FormattedField
+                {
+                    Name = "Parse Failure",
+                    Value = new List<string>
+                    {
+                        new string('*', ex.Message.Length),
+                        ex.Message,
+                        ex.StackTrace
+                    }
+                };
+
+                var next = ex.InnerException;
+                while (!(next is null))
+                {
+                    errorField.Value.Add(next.Message);
+                    errorField.Value.Add(next.StackTrace);
+
+                    Log.Error(next, "Parser error");
+
+                    next = ex.InnerException;
+                }
+
+                _shadowCopy.FormattedFields.Add(errorField);
+
+                return _shadowCopy;
+            }
         }
 
         /// <summary>
@@ -67,19 +112,29 @@
             _reader = new BinaryReader(stream);
             _binary = binary;
 
-            // Iterates over the order specified in 'layout'
-            var queue = new Queue<string>(_spec.Layout);
+            ReaderLog.Debug("New reader created. Total size == {0}", _reader.BaseStream.Length);
 
+            // Iterates over the order specified in 'layout'
+            var layoutQ = new Queue<string>(_spec.Layout);
+
+            // Reads sections in order from spec file
             string SectionGetter()
             {
-                return queue.TryDequeue(out var result) ? result : string.Empty;
+                return layoutQ.TryDequeue(out var result) ? result : string.Empty;
             }
 
-            while (queue.Count > 0)
+            // Recursive calls may alter layoutQ so actively check the count
+            while (layoutQ.Count > 0)
             {
                 var formatted = HandleSection(SectionGetter);
 
-                bender.FormattedFields.AddRange(formatted);
+                // Result may be one or more format fields
+                foreach (var f in formatted)
+                {
+                    bender.FormattedFields.Add(f);
+
+                    _shadowCopy.FormattedFields.Add(f);
+                }
             }
 
             return bender;
@@ -100,23 +155,25 @@
                 return Enumerable.Empty<Bender.FormattedField>();
             }
 
+            Log.Debug("Handling '{0}'", section);
+
             var result = new List<Bender.FormattedField>();
 
             // Find definition of the element
             var element = _spec.Elements.FirstOrDefault(o => o.Name.Equals(section));
             if (element is null)
             {
-                result.Add(new Bender.FormattedField
-                {
-                    Name = section,
-                    Value = new List<string> {"Undefined object"}
-                });
+                Log.Warn("Section '{0}' is undefined", section);
+
+                result.Add(Bender.FormattedField.From(section, "Undefined object"));
             }
             else if (element.IsArrayCount)
             {
                 var buff = ReadNextElement(element);
-                var count = Number.From(element, buff);
+                var count = new Number(element, buff);
                 var repeatedSection = fnGetSection();
+
+                Log.Debug("'{0}' is an array with {1} elements", repeatedSection, count);
 
                 for (var i = 0; i < count; ++i)
                 {
@@ -148,21 +205,17 @@
             var buff = ReadNextElement(el);
             if (buff is null)
             {
-                return new Bender.FormattedField
-                {
-                    Name = el.Name,
-                    Value = new List<string> {"Error: Invalid deferred object"}
-                };
+                Log.Warn("'{0}' is an invalid deferred object", el.Name);
+
+                return Bender.FormattedField.From(el, "Error: Invalid deferred object");
             }
 
             // This is declared as a deferral but the definition was marked as empty
             if (el.IsDeferred && buff.Length == 0)
             {
-                return new Bender.FormattedField
-                {
-                    Name = el.Name,
-                    Value = new List<string> {"Empty"}
-                };
+                Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
+
+                return Bender.FormattedField.From(el, "Empty");
             }
 
             return FormatBuffer(el, buff);
@@ -178,46 +231,44 @@
         /// number with width bytes</exception>
         private Bender.FormattedField FormatBuffer(Element el, byte[] buff)
         {
-            if (el.Elide)
-            {
-                return new Bender.FormattedField
-                {
-                    Name = el.Name,
-                    Value = new List<string>
-                    {
-                        $"Elided {buff.Length} bytes"
-                    }
-                };
-            }
-
             // An element may span multiple lines. Each element 
             // of 'value' is a line in the string formatting of this element.
             var value = new List<string>();
 
-            // Handle nestable types first
-            if (!(el.Matrix is null))
-            {
-                var formattedMatrix = FormatMatrix(el, buff);
 
-                value.AddRange(formattedMatrix);
-            }
-            else if (!string.IsNullOrEmpty(el.Structure))
+            if (el.Elide)
             {
-                var formattedStructure = FormatStructure(el, buff);
+                Log.Debug("'{0}' is elided", el.Name);
 
-                value.AddRange(formattedStructure);
-            }
-            else if (!string.IsNullOrEmpty(el.Enumeration))
-            {
-                var formattedEnumeration = FormatEnumeration(el, buff);
-
-                value.Add(formattedEnumeration);
+                value.Add($"Elided {buff.Length} bytes");
             }
             else
             {
-                var formattedElement = el.TryFormat(buff);
+                // Handle nestable types first
+                if (!(el.Matrix is null))
+                {
+                    var formattedMatrix = FormatMatrix(el, buff);
 
-                value.AddRange(formattedElement);
+                    value.AddRange(formattedMatrix);
+                }
+                else if (!string.IsNullOrEmpty(el.Structure))
+                {
+                    var formattedStructure = FormatStructure(el, buff);
+
+                    value.AddRange(formattedStructure);
+                }
+                else if (!string.IsNullOrEmpty(el.Enumeration))
+                {
+                    var formattedEnumeration = FormatEnumeration(el, buff);
+
+                    value.Add(formattedEnumeration);
+                }
+                else
+                {
+                    var formattedElement = el.TryFormat(buff);
+
+                    value.AddRange(formattedElement);
+                }
             }
 
             return new Bender.FormattedField
@@ -242,12 +293,60 @@
         /// number with width bytes</exception>
         private IEnumerable<string> FormatMatrix(Element el, byte[] buff)
         {
+            Log.Debug("Formatting '{0}' as matrix '{1}'", el.Name, el.Matrix);
+
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
             var elClone = el.Clone();
             elClone.Units = el.Clone().Matrix.Units;
             elClone.Matrix = null;
 
-            return el.Matrix.TryFormat(elClone, buff, DefaultFormatter);
+            if (elClone.Units == 0 || buff.Length == 0 || el.Matrix is null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            var value = new List<string>();
+            var sb = new StringBuilder();
+            sb.Append("[ ");
+
+            var totalVars = buff.Length / elClone.Units;
+            var mat = el.Matrix;
+
+            // Use a default column count
+            var colWidth = mat.Columns == 0 ? 8 : mat.Columns;
+
+            // Chop data into payload.unit bytes to produce an output similar to
+            //
+            // [ ... numbers ... ]
+            // [ ... numbers ... ]
+            //
+            var cols = 0;
+            var count = 0;
+            foreach (var unit in buff.AsChunks(elClone.Units))
+            {
+                ++count;
+
+                foreach (var f in FormatBuffer(elClone, unit).Value)
+                {
+                    sb.AppendFormat("{0} ", f);
+                }
+
+                if (++cols % colWidth != 0)
+                {
+                    continue;
+                }
+
+                sb.Append("]");
+                value.Add(sb.ToString());
+                sb.Clear();
+
+                if (count != totalVars)
+                {
+                    sb.Append("[ ");
+                }
+            }
+
+            return value;
         }
 
         /// <summary>
@@ -271,17 +370,20 @@
         /// <returns>Structure formatted using this element's rules</returns>
         private IEnumerable<string> FormatStructure(Element el, byte[] buff)
         {
-            if (_spec.Structures == null)
+            Log.Debug("Formatting '{0}' as structure '{1}'", el.Name, el.Structure);
+
+            if (_nestedDepth >= NestedStructLimit)
             {
-                return new List<string> {$"No structure specified but element {el.Name} has referenced {el.Structure}"};
+                return new[] {$"**Exceeded nested structure limit ({NestedStructLimit})**"};
             }
 
-            var def = _spec.Structures.FirstOrDefault(p =>
-                el.Structure.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (def == null)
+            var def = GetStructure(el);
+            if (def is null)
             {
                 return new List<string> {$"Unknown structure type {el.Structure} on element {el.Name}"};
             }
+
+            Log.Debug("Using structure definition for '{0}'", def.Name);
 
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
             var elClone = el.Clone();
@@ -289,20 +391,32 @@
 
             var result = new List<string>(def.Elements.Count);
 
+            // Buff is the binary representation of this structure definition
+            // so reads must be relative to this buffer.
             using var stream = new MemoryStream(buff);
             using var innerReader = new BinaryReader(stream);
 
-            if (el.IsDeferred)
-            {
-                // Temporary set reader source to this structure's data
-                var tempReader = _reader;
-                _reader = innerReader;
+            // Temporarily set reader source to this structure's data
+            var tempReader = _reader;
+            _reader = innerReader;
+            ReaderLog.Debug("Switching to temporary reader for {0} (Size == {1})", el.Name,
+                _reader.BaseStream.Length);
 
-                // Recursively handle any nested elements, structures included
+            ++_nestedDepth;
+
+            // If this is an implicit array we must track total bytes read
+            var bytesRead = 0;
+            do
+            {
+                // Recursively handle any nested elements
                 foreach (var childEl in def.Elements)
                 {
                     var formatted = HandleElement(childEl);
+
+                    bytesRead += GetElementSize(childEl);
+
                     var isFirst = true;
+
                     foreach (var value in formatted.Value)
                     {
                         // Repeat name only once for each element, maintain padding
@@ -311,18 +425,14 @@
                         isFirst = false;
                     }
                 }
+            } while (el.IsArray && bytesRead < buff.Length);
 
-                // Restore the previous reader
-                _reader = tempReader;
-            }
-            else
-            {
-                foreach (var childEl in def.Elements)
-                {
-                    var field = innerReader.ReadBytes(childEl.Units);
-                    result.Add($"[ {childEl.Name}: {DefaultFormatter(childEl, field)} ]");
-                }
-            }
+            --_nestedDepth;
+
+            // Restore the previous reader
+            _reader = tempReader;
+            ReaderLog.Debug("Continuing at offset {0}/{1}", _reader.BaseStream.Position,
+                _reader.BaseStream.Length);
 
             return result;
         }
@@ -341,17 +451,15 @@
         /// <returns>Enumeration string for the value in buff</returns>
         private string FormatEnumeration(Element el, byte[] buff)
         {
-            if (_spec.Enumerations == null)
-            {
-                return $"No enumerations specified but element {el.Name} has referenced {el.Enumeration}";
-            }
+            Log.Debug("Formatting '{0}' as enumeration '{1}'", el.Name, el.Enumeration);
 
-            var def = _spec.Enumerations.FirstOrDefault(p =>
-                el.Enumeration.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (def == null)
+            var def = GetEnumeration(el);
+            if (def is null)
             {
                 return $"Unknown enumeration type {el.Enumeration} on element {el.Name}";
             }
+
+            Log.Debug("Using enumeration definition for '{0}'", def.Name);
 
             return el.TryFormatEnumeration(def, buff);
         }
@@ -372,16 +480,20 @@
 
                 var sizeEl = new Element {Units = intWidth, Name = "size_bytes"};
                 buff = ReadNextElement(sizeEl);
-                var size = Number.From(sizeEl, buff);
+                var size = new Number(sizeEl, buff);
 
                 var offsetEl = new Element {Units = intWidth, Name = "offset_bytes"};
                 buff = ReadNextElement(offsetEl);
-                var offset = Number.From(offsetEl, buff);
+                var offset = new Number(offsetEl, buff);
 
                 if (size == 0 || offset == 0)
                 {
+                    ReaderLog.Debug("{0} is empty", el.Name);
                     return new byte[0];
                 }
+
+                ReaderLog.Debug("[deferred.abs]{0,4}@0x{1:X4}/0x{2:X4} ({3})", size.si, offset.sl,
+                    _binary.Data.Length, el.Name);
 
                 // Create a new reader so we don't interfere with the current element
                 using var stream = new MemoryStream(_binary.Data);
@@ -393,7 +505,7 @@
             }
             else
             {
-                buff = _reader.ReadBytes(el.Units);
+                buff = ReadBytes(el.Units, el.Name);
 
                 // If byte order does not match, flip now
                 if (!(el.IsLittleEndian && BitConverter.IsLittleEndian))
@@ -406,12 +518,84 @@
         }
 
         /// <summary>
-        /// Applies internal formatting rules to render element data
+        /// Reads count bytes from current reader
         /// </summary>
-        private string DefaultFormatter(Element el, byte[] buff)
+        /// <param name="count">Number of bytes to read</param>
+        /// <param name="section">Name of section being read</param>
+        /// <returns></returns>
+        private byte[] ReadBytes(int count, string section)
         {
-            var formatted = FormatBuffer(el, buff);
-            return formatted.Value.FirstOrDefault();
+            ReaderLog.Info("{0,4}@0x{1:X4}/0x{2:X4} ({3})", count, _reader.BaseStream.Position,
+                _reader.BaseStream.Length, section);
+
+            return _reader.ReadBytes(count);
+        }
+
+        /// <summary>
+        /// Locate structure by structure name on this element
+        /// </summary>
+        /// <param name="el">Element with structure definition</param>
+        /// <returns>Structure or null if no match is found</returns>
+        private Structure GetStructure(Element el)
+        {
+            if (el.Structure is null)
+            {
+                return null;
+            }
+            
+            if (_spec.Structures == null)
+            {
+                Log.Warn("'{0}' references a structure but no structures are defined");
+                return null;
+            }
+
+            var def = _spec.Structures.FirstOrDefault(p =>
+                el.Structure.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (def == null)
+            {
+                Log.Warn("'{0}' references an undefined structure '{1}'", el.Name, el.Structure);
+            }
+
+            return def;
+        }
+
+        /// <summary>
+        /// Locate enumeration by enumeration name on this element
+        /// </summary>
+        /// <param name="el">Element with enumeration definition</param>
+        /// <returns>Enumeration of null if no match is found</returns>
+        private Enumeration GetEnumeration(Element el)
+        {
+            if (el.Enumeration is null)
+            {
+                return null;
+            }
+            
+            if (_spec.Enumerations == null)
+            {
+                Log.Warn("'{0}' references an enumeration but no enumerations are defined");
+                return null;
+            }
+
+            var def = _spec.Enumerations.FirstOrDefault(p =>
+                el.Enumeration.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (def == null)
+            {
+                Log.Warn("'{0}' references an undefined enumeration '{1}'", el.Name, el.Enumeration);
+            }
+
+            return def;
+        }
+
+        /// <summary>
+        /// Returns the size in bytes of this element
+        /// </summary>
+        /// <param name="el">Element to measure</param>
+        /// <returns>Size in bytes</returns>
+        private int GetElementSize(Element el)
+        {
+            var childStruct = GetStructure(el);
+            return childStruct?.Size ?? el.Size;
         }
 
         /// <inheritdoc />

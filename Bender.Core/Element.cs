@@ -1,10 +1,9 @@
-﻿namespace Bender.Core
+﻿// ReSharper disable UnusedAutoPropertyAccessor.Global - This is a serialized type, all setters be global
+namespace Bender.Core
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
-    using System.Runtime.Serialization;
     using System.Text;
     using YamlDotNet.Serialization;
 
@@ -13,7 +12,7 @@
     /// of an element must be unique to the specification file
     /// </summary>
     [DebuggerDisplay("Name = {Name}, Units = {Units}")]
-    public class Element
+    public class Element : ILayout
     {
         /// <summary>
         /// Human friendly name of this element
@@ -61,10 +60,22 @@
         public bool IsDeferred { get; set; }
 
         /// <summary>
-        /// True if this value represents the count of an array
+        /// True if this value represents the count of an array. This
+        /// is considered an explicit array because it specifies that
+        /// N more of the next Element are to follow.
         /// </summary>
         [YamlMember(Alias = "is_array_count", ApplyNamingConventions = false)]
         public bool IsArrayCount { get; set; }
+
+        /// <summary>
+        /// True if this value is an implicit array.
+        /// An implicit array means that the length is not encoded in the data
+        /// and that the outter container defines the size of each element. This
+        /// means that each element can be read implicitly by parsing until
+        /// the buffer is fully processed.
+        /// </summary>
+        [YamlMember(Alias = "is_array", ApplyNamingConventions = false)]
+        public bool IsArray { get; set; }
 
         /// <summary>
         /// If this block is referencing a structure, Structure
@@ -79,13 +90,17 @@
         /// </summary>
         public string Enumeration { get; set; }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Generator yields each line from ToString()
+        /// Size of this element will either be a constant 8 if a deferred
+        /// otherwise report the Units property.
         /// </summary>
-        /// <returns></returns>
+        public int Size => IsDeferred ? 8 : Units;
+
+        /// <inheritdoc />
         public IEnumerable<string> EnumerateLayout()
         {
-            var content = ToString().Split('\n');
+            var content = ToTabbedString().Split('\n');
             foreach (var str in content)
             {
                 yield return str;
@@ -95,7 +110,7 @@
         /// <summary>
         ///     Returns all properties as newline delimited string
         /// </summary>
-        public override string ToString()
+        public string ToTabbedString()
         {
             var sb = new StringBuilder();
 
@@ -106,7 +121,7 @@
             sb.AppendFormat("Units: {0}\n", Units);
             sb.AppendFormat("Payload: {0}\n", Matrix);
             sb.AppendFormat("Little Endian: {0}\n", IsLittleEndian);
-
+            
             if (!string.IsNullOrEmpty(Structure))
             {
                 sb.AppendFormat("Structure: {0}\n", Structure);
@@ -115,6 +130,21 @@
             if (!string.IsNullOrEmpty(Enumeration))
             {
                 sb.AppendFormat("Enumeration: {0}\n", Enumeration);
+            }
+
+            if (IsArray)
+            {
+                sb.AppendFormat("IsArray\n");
+            }
+
+            if (IsArrayCount)
+            {
+                sb.AppendFormat("IsArrayCount\n");                
+            }
+
+            if (IsDeferred)
+            {
+                sb.AppendFormat("IsDeferred\n");
             }
 
             return sb.ToString();
@@ -128,6 +158,11 @@
         /// <returns>List of rows, formatted as strings</returns>
         public IEnumerable<string> TryFormat(byte[] data)
         {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+            
             var result = new List<string>();
 
             try
@@ -143,7 +178,7 @@
                         break;
 
                     default:
-                        var number = Number.From(this, data);
+                        var number = new Number(this, data);
                         var formatted = FormatNumber(number);
                         result.Add(formatted);
                         break;
@@ -172,7 +207,7 @@
         {
             try
             {
-                var number = Number.From(this, data);
+                var number = new Number(this, data);
                 return def.Values.TryGetValue(number.si, out var name)
                     ? name
                     : $"{number.si} is not defined in {def.Name}";
@@ -219,15 +254,13 @@
                     break;
 
                 case Bender.PrintFormat.Float:
-                    // Reinterpret data as floating point
-                    if (Units == 4 || (Units == 8))
+                    result = Units switch
                     {
-                        result = number.fd.ToString("F");
-                    }
-                    else
-                    {
-                        result = "Malformed float. Width must be 4 or 8 bytes";
-                    }
+                        // Reinterpret data as floating point
+                        4 => number.fs.ToString("F6"),
+                        8 => number.fd.ToString("F6"),
+                        _ => "Malformed float. Width must be 4 or 8 bytes"
+                    };
 
                     break;
 
@@ -258,28 +291,18 @@
                 PrintFormat = PrintFormat,
                 Units = Units,
                 Matrix = Matrix,
+                IsArray = IsArray,
+                IsArrayCount = IsArrayCount,
+                Enumeration = Enumeration,
+                Structure = Structure,
+                IsDeferred = IsDeferred
             };
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override string ToString()
         {
-            return obj is Element element &&
-                   Name == element.Name &&
-                   IsLittleEndian == element.IsLittleEndian &&
-                   IsSigned == element.IsSigned &&
-                   Elide == element.Elide &&
-                   PrintFormat == element.PrintFormat &&
-                   Units == element.Units &&
-                   Matrix == element.Matrix;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            var hashCode = 170416633;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
-            return hashCode;
+            return $"{Name}, Units: {Units}, Format: {PrintFormat}, LE: {IsLittleEndian}, Elide: {Elide}";
         }
     }
 }

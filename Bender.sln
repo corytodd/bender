@@ -24,7 +24,7 @@ ProjectSection(SolutionItems) = preProject
 	readme.md = readme.md
 	tools\release.bat = tools\release.bat
 	.github\workflows\stale.yml = .github\workflows\stale.yml
-	.github\workflows\test.yml = .github\workflows\test.yml
+	.github\workflows\ci.yml = .github\workflows\ci.yml
 EndProjectSection
 EndProject
 Global

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <SemVer>0.6.2.0</SemVer>
+    <SemVer>0.6.4.0</SemVer>
     <Suffix></Suffix>
     <Year>2020</Year>
   </PropertyGroup>
@@ -19,6 +19,7 @@
     <Copyright>$(Year) Cory Todd</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(SemVer)$(Suffix)</Version>
+    <RepositoryUrl>https://github.com/corytodd/Bender</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <AssemblyVersion>$(SemVer)</AssemblyVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -32,6 +33,16 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bender.Core\Bender.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="4.7.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

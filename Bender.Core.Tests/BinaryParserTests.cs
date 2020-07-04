@@ -7,7 +7,7 @@ namespace Bender.Core.Tests
         [Fact]
         public void TestParseMatchingSpec()
         {
-            var spec = new SpecParser().Parse(DataFile.FromASCII(TestData.SimpleTest));
+            var spec = new SpecParser().Parse(DataFile.FromAscii(TestData.SimpleTest));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }
@@ -15,7 +15,7 @@ namespace Bender.Core.Tests
         [Fact]
         public void TestParseMissingMatrix()
         {
-            var spec = new SpecParser().Parse(DataFile.FromASCII(TestData.TestMatrices));
+            var spec = new SpecParser().Parse(DataFile.FromAscii(TestData.TestMatrices));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }
@@ -23,7 +23,7 @@ namespace Bender.Core.Tests
         [Fact]
         public void TestParseStrings()
         {
-            var spec = new SpecParser().Parse(DataFile.FromASCII(TestData.StringTest));
+            var spec = new SpecParser().Parse(DataFile.FromAscii(TestData.StringTest));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.simple_layout_binary));
             Assert.NotNull(bender);
         }
@@ -31,7 +31,7 @@ namespace Bender.Core.Tests
         [Fact]
         public void TestParseDeferred()
         {
-            var spec = new SpecParser().Parse(DataFile.FromASCII(TestData.TestDeferred));
+            var spec = new SpecParser().Parse(DataFile.FromAscii(TestData.TestDeferred));
             var bender = new BinaryParser(spec).Parse(DataFile.From(Properties.Resources.test_deferred_binary));
             Assert.NotNull(bender);
         }

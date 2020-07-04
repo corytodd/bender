@@ -1,13 +1,14 @@
-﻿namespace Bender.Core
+﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global - This is a library class, consumers may use all properties
+namespace Bender.Core
 {
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Text;
     using YamlDotNet.Serialization;
 
     /// <summary>
     /// Represents YAML specification for Bender files
     /// </summary>
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class SpecFile
     {
         /// <summary>
@@ -91,40 +92,17 @@
             sb.AppendLine();
 
             sb.AppendLine("Default Element:");
-            foreach (var str in BaseElement.EnumerateLayout())
-            {
-                sb.AppendFormat("\t{0}\n", str);
-            }
-            sb.AppendLine();
+            FormatLayout(BaseElement, sb);
+
             
             sb.AppendLine("Structures:");
-            foreach (var m in Structures)
-            {
-                foreach (var str in m.EnumerateLayout())
-                {
-                    sb.AppendFormat("\t{0}\n", str);
-                }
-                sb.AppendLine();
-            }
+            FormatLayouts(Structures, sb);
             
             sb.AppendLine("Enumerations:");
-            foreach (var m in Enumerations)
-            {
-                foreach (var str in m.EnumerateLayout())
-                {
-                    sb.AppendFormat("\t{0}\n", str);
-                }
-                sb.AppendLine();
-            }
+            FormatLayouts(Enumerations, sb);
 
             sb.AppendLine("Elements:");
-            foreach(var el in Elements)
-            {
-                foreach(var str in el.EnumerateLayout()) {
-                    sb.AppendFormat("\t{0}\n", str);
-                }
-                sb.AppendLine();
-            }
+            FormatLayouts(Elements, sb);
 
             sb.AppendLine("Layout:");
             foreach (var str in Layout)
@@ -134,6 +112,34 @@
             sb.AppendLine();
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Format a layout
+        /// </summary>
+        /// <param name="layout">Layout to format</param>
+        /// <param name="sbOut">Receives formatted layout</param>
+        private static void FormatLayout(ILayout layout, StringBuilder sbOut)
+        {
+            foreach (var str in layout.EnumerateLayout())
+            {
+                sbOut.AppendFormat("\t{0}\n", str);
+            }
+            sbOut.AppendLine();
+        }
+        
+        /// <summary>
+        /// Format a collection of layouts and separate with a newline
+        /// </summary>
+        /// <param name="layouts">Layouts to format</param>
+        /// <param name="sbOut">Receives formatted layout</param>
+        private static void FormatLayouts(IEnumerable<ILayout> layouts, StringBuilder sbOut)
+        {
+            foreach (var layout in layouts)
+            {
+                FormatLayout(layout, sbOut);
+            }
+            sbOut.AppendLine();
         }
     }
 }
