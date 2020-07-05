@@ -25,6 +25,11 @@
         public string Root { get; set; }
 
         public bool PrintSpec { get; set; }
+        
+        /// <summary>
+        /// If true, do not print the logo
+        /// </summary>
+        public bool NoLogo { get; set; }
 
         public static implicit operator bool(Options o)
         {
@@ -87,6 +92,10 @@
                         case "-r":
                         case "--root":
                             nextCapture = (s) => result.Root = s;
+                            break;
+                        case "-n":
+                        case "--nologo":
+                            result.NoLogo = true;
                             break;
                         default:
                             result.Okay = false;

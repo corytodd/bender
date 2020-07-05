@@ -41,11 +41,6 @@ jobs:
       - name: Create Bender Windows CLI
         if: startsWith(github.ref, 'refs/tags/v') && runner.os == 'Linux'
         run: dotnet publish --nologo --runtime win-x64 /p:PublishSingleFile=true --configuration=Release Bender -o build
-      
-      # If we add other binaries there will be name conflict so add os.arch to each binary
-      - name: Rename Binaries
-        if: startsWith(github.ref, 'refs/tags/v') && runner.os == 'Linux'
-        run: mv ./build/Bender.exe ./build/Bender.win64.exe
 
       - name: Upload NuGet package artifact
         if: startsWith(github.ref, 'refs/tags/v') && runner.os == 'Linux'
@@ -58,7 +53,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v') && runner.os == 'Linux'
         uses: actions/upload-artifact@v2
         with:
-          name: bender-win64
+          name: bender-tools
           path: ./build/*.*exe           
   
   # Publish library to GPR          
@@ -96,7 +91,7 @@ jobs:
       - name: Download NuGet package artifact
         uses: actions/download-artifact@v2
         with:
-          name: bender-win64
+          name: bender-tools
                     
       - uses: meeDamian/github-release@2.0
         with:
@@ -104,4 +99,4 @@ jobs:
           draft: true
           gzip: false
           files: >
-            Bender.win64.exe
+            bender.win64.exe

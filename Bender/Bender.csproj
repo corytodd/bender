@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <SemVer>0.6.5.0</SemVer>
+    <SemVer>0.6.6.0</SemVer>
     <Suffix></Suffix>
     <Year>2020</Year>
   </PropertyGroup>
 
   <PropertyGroup>
     <Title>Bender</Title>
+    <AssemblyName>bender</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>default</LangVersion>
@@ -19,7 +20,7 @@
     <Copyright>$(Year) Ardonyx LLC</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(SemVer)$(Suffix)</Version>
-    <RepositoryUrl>https://github.com/ardonyx/Bender</RepositoryUrl>
+    <RepositoryUrl>https://github.com/ardonyx/bender</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <AssemblyVersion>$(SemVer)</AssemblyVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -44,5 +45,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+    
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+      <AssemblyName>bender.win64</AssemblyName>
+  </PropertyGroup>
 
 </Project>

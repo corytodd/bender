@@ -6,12 +6,18 @@ using Bender.Core;
 
 namespace Bender
 {
+    using System.Reflection;
+
     internal class Program
     {
         private static void Main(string[] args)
         {
             var parser = new ArgParser();
             var opts = parser.Parse(args);
+            if (!opts.NoLogo)
+            {
+                Console.WriteLine($"Bender v{Version} Copyright {DateTime.Now.Year} Ardonyx LLC");
+            }
 
             var ret = Run(opts);
             Environment.Exit(ret);  
@@ -139,5 +145,10 @@ namespace Bender
 
             return result;
         }
+        
+        /// <summary>
+        /// Get version of this assembly
+        /// </summary>
+        private static string Version => typeof(Program).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
     }
 }

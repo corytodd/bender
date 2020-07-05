@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <SemVer>0.6.5.0</SemVer>
+    <SemVer>0.6.6.0</SemVer>
     <Suffix></Suffix>
     <Year>2020</Year>
   </PropertyGroup>
 
   <PropertyGroup>
-    <Title>BenderLib</Title>
+    <Title>Bender.Core</Title>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>default</LangVersion>
     <Platforms>AnyCPU</Platforms>
@@ -18,7 +18,7 @@
     <Copyright>$(Year) Ardonyx LLC</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(SemVer)$(Suffix)</Version>
-    <RepositoryUrl>https://github.com/ardonyx/Bender</RepositoryUrl>      
+    <RepositoryUrl>https://github.com/ardonyx/bender</RepositoryUrl>      
     <RepositoryType>git</RepositoryType>
     <AssemblyVersion>$(SemVer)</AssemblyVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
