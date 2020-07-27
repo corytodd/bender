@@ -1,4 +1,5 @@
 ﻿// ReSharper disable UnusedAutoPropertyAccessor.Global - This is a serialized type, all setters be global
+
 namespace Bender.Core
 {
     using System;
@@ -121,7 +122,7 @@ namespace Bender.Core
             sb.AppendFormat("Units: {0}\n", Units);
             sb.AppendFormat("Payload: {0}\n", Matrix);
             sb.AppendFormat("Little Endian: {0}\n", IsLittleEndian);
-            
+
             if (!string.IsNullOrEmpty(Structure))
             {
                 sb.AppendFormat("Structure: {0}\n", Structure);
@@ -139,7 +140,7 @@ namespace Bender.Core
 
             if (IsArrayCount)
             {
-                sb.AppendFormat("IsArrayCount\n");                
+                sb.AppendFormat("IsArrayCount\n");
             }
 
             if (IsDeferred)
@@ -156,31 +157,31 @@ namespace Bender.Core
         /// </summary>
         /// <param name="data">Data to format</param>
         /// <returns>List of rows, formatted as strings</returns>
-        public IEnumerable<string> TryFormat(byte[] data)
+        public BNode TryFormat(byte[] data)
         {
             if (data is null)
             {
                 throw new ArgumentNullException(nameof(data));
             }
-            
-            var result = new List<string>();
+
+            BNode node;
 
             try
             {
                 switch (PrintFormat)
                 {
                     case Bender.PrintFormat.Ascii:
-                        result.Add(Encoding.ASCII.GetString(data));
+                        node = new BPrimitive(Name, Encoding.ASCII.GetString(data));
                         break;
 
                     case Bender.PrintFormat.Unicode:
-                        result.Add(Encoding.Unicode.GetString(data));
+                        node = new BPrimitive(Name, Encoding.Unicode.GetString(data));
                         break;
 
                     default:
                         var number = new Number(this, data);
                         var formatted = FormatNumber(number);
-                        result.Add(formatted);
+                        node = new BPrimitive(Name, formatted);
                         break;
                 }
             }
@@ -191,7 +192,7 @@ namespace Bender.Core
                     Name, Units, data.Length);
             }
 
-            return result;
+            return node;
         }
 
         /// <summary>
@@ -203,14 +204,20 @@ namespace Bender.Core
         /// <returns></returns>
         /// <exception cref="OutOfDataException">Thrown is data does not allow for interpreting
         /// in the specified Units or Width</exception>
-        public string TryFormatEnumeration(Enumeration def, byte[] data)
+        public BNode TryFormatEnumeration(Enumeration def, byte[] data)
         {
             try
             {
                 var number = new Number(this, data);
-                return def.Values.TryGetValue(number.si, out var name)
-                    ? name
-                    : $"{number.si} is not defined in {def.Name}";
+
+                if (def.Values.TryGetValue(number.si, out var name))
+                {
+                    return new BPrimitive(name, "");
+                }
+                else
+                {
+                    return new BError("Unknown Enumeration", $"{number.si} is not defined in {def.Name}");
+                }
             }
             catch (ArgumentException)
             {

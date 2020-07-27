@@ -1,9 +1,10 @@
 ﻿// ReSharper disable MemberCanBePrivate.Global - This is a library class, consumers may instantiate it
+
 namespace Bender.Core
 {
     using System;
     using System.IO;
-    
+
     /// <summary>
     /// Pretty printer for Benders
     /// </summary>
@@ -71,22 +72,26 @@ namespace Bender.Core
             WriteBytes(LineDelimiter);
             WriteBytes(Environment.NewLine);
 
-            foreach (var f in bender.FormattedFields)
+            foreach (var f in bender.Tree.Nodes)
             {
                 // Only print the name on the first row of this formatted element
                 var isFirst = true;
-                foreach (var v in f.Value)
+                foreach (var v in f.Children)
                 {
+                    if (v is null)
+                    {
+                        continue;
+                    }
+
                     if (isFirst)
                     {
                         isFirst = false;
-                        WriteBytes(string.Format(RowFormat, f.Name, v));
+                        WriteBytes(string.Format(RowFormat, f.Value, v));
                     }
                     else
                     {
                         WriteBytes(string.Format(RowFormat, string.Empty, v));
                     }
-
                 }
             }
 

@@ -1,15 +1,16 @@
-﻿
-namespace Bender.Core
+﻿namespace Bender.Core
 {
     using System;
+    using System.Buffers.Binary;
     using System.Collections.Generic;
+    using System.Reflection;
+    using System.Reflection.Emit;
 
     /// <summary>
     ///     Library extension methods
     /// </summary>
     public static class Extensions
     {
-
         /// <summary>
         /// Splits <paramref name="source"/> into chunks of size not greater than <paramref name="chunkMaxSize"/>
         /// </summary>
@@ -28,6 +29,7 @@ namespace Bender.Core
                 {
                     yield break;
                 }
+
                 var arr = new T[len];
                 Array.Copy(source, pos, arr, 0, len);
                 pos += len;
@@ -47,7 +49,7 @@ namespace Bender.Core
             {
                 return 2;
             }
-            
+
             v--;
             v |= v >> 1;
             v |= v >> 2;
@@ -56,6 +58,102 @@ namespace Bender.Core
             v |= v >> 16;
             v++;
             return v;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <param name="isLittleEndian"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T[] As<T>(this byte[] arr, bool isLittleEndian)
+        {
+            T[] result = null;
+
+            if (typeof(T) == typeof(byte))
+            {
+                result = new T[arr.Length];
+                Array.Copy(arr, result, arr.Length);
+            }
+            else if (typeof(T) == typeof(long))
+            {
+                if (arr.Length % 8 != 0)
+                {
+                    throw new ArgumentException("Array is not aligned to 4 bytes");
+                }
+
+                var temp = new long[arr.Length / 8];
+                for (var index = 0; index < temp.Length; ++index)
+                {
+                    var val = BitConverter.ToInt64(arr, index);
+                    val = isLittleEndian && !BitConverter.IsLittleEndian
+                        ? BinaryPrimitives.ReverseEndianness(val)
+                        : val;
+                    temp[index] = val;
+                }
+
+                result = new T[temp.Length];
+                Array.Copy(temp, result, temp.Length);
+            }
+            else if (typeof(T) == typeof(int))
+            {
+                if (arr.Length % 4 != 0)
+                {
+                    throw new ArgumentException("Array is not aligned to 4 bytes");
+                }
+
+                var temp = new int[arr.Length / 4];
+                for (var index = 0; index < temp.Length; ++index)
+                {
+                    var val = BitConverter.ToInt32(arr, index);
+                    val = isLittleEndian && !BitConverter.IsLittleEndian
+                        ? BinaryPrimitives.ReverseEndianness(val)
+                        : val;
+                    temp[index] = val;
+                }
+
+                result = new T[temp.Length];
+                Array.Copy(temp, result, temp.Length);
+            }
+            else if (typeof(T) == typeof(short))
+            {
+                if (arr.Length % 2 != 0)
+                {
+                    throw new ArgumentException("Array is not aligned to 4 bytes");
+                }
+
+                var temp = new short[arr.Length / 2];
+                for (var index = 0; index < temp.Length; ++index)
+                {
+                    var val = BitConverter.ToInt16(arr, index);
+                    val = isLittleEndian && !BitConverter.IsLittleEndian
+                        ? BinaryPrimitives.ReverseEndianness(val)
+                        : val;
+                    temp[index] = val;
+                }
+
+                result = new T[temp.Length];
+                Array.Copy(temp, result, temp.Length);
+            }
+
+            return result;
+        }
+
+        public static T[,] Reshape<T>(this T[] arr, int rows, int cols)
+        {
+            var result = new T[rows, cols];
+
+            var i = 0;
+            for (var r = 0; r < rows; ++r)
+            {
+                for (var c = 0; c < cols; ++c)
+                {
+                    result[r, c] = arr[i++];
+                }
+            }
+
+            return result;
         }
     }
 }

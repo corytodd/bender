@@ -57,14 +57,11 @@
         /// </summary>
         public Bender()
         {
-            FormattedFields = new List<FormattedField>();
+            Tree = new ParseTree();
         }
-
-        /// <summary>
-        /// Returns list of formatted data extracted from binary
-        /// </summary>
-        public List<FormattedField> FormattedFields { get; }
-
+        
+        public ParseTree Tree { get; }
+        
         /// <summary>
         /// Supported element formats
         /// </summary>

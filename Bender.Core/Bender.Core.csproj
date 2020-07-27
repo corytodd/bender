@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <!-- https://github.com/aaubry/YamlDotNet/issues/492 blocks upgrade -->
+    <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="YamlDotNet" Version="[8.1.0]" />
   </ItemGroup>
 

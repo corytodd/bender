@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
     using Logging;
 
     /// <summary>
@@ -23,9 +22,6 @@
         private const int NestedStructLimit = 64;
         private int _nestedDepth;
 
-        // Keeps track of progress in the even of an exception
-        private readonly Bender _shadowCopy;
-
         /// <summary>
         /// Returns name of next section in layout
         /// </summary>
@@ -38,7 +34,6 @@
         public BinaryParser(SpecFile spec)
         {
             _spec = spec;
-            _shadowCopy = new Bender();
         }
 
         /// <summary>
@@ -50,6 +45,8 @@
         /// number with width bytes</exception>
         public Bender Parse(DataFile binary)
         {
+            var bender = new Bender();
+
             if (binary == null)
             {
                 throw new ArgumentException("{0} cannot be null", nameof(binary));
@@ -62,52 +59,44 @@
 
             try
             {
-                return TryParse(binary);
+                TryParse(bender, binary);
             }
             catch (Exception ex)
             {
                 // Generated a neatly formatted field explaining the exceptions
                 // and stacktrace leading to this problem.
-                var errorField = new Bender.FormattedField
-                {
-                    Name = "Parse Failure",
-                    Value = new List<string>
-                    {
-                        new string('*', ex.Message.Length),
-                        ex.Message,
-                        ex.StackTrace
-                    }
-                };
+                var value = $"{new string('*', ex.Message.Length)} {ex.Message} {ex.StackTrace}";
+                var error = new BError("Parse Failure", value, ex);
+                bender.Tree.Begin(error);
 
                 var next = ex.InnerException;
                 while (!(next is null))
                 {
-                    errorField.Value.Add(next.Message);
-                    errorField.Value.Add(next.StackTrace);
+                    error = new BError(next.Message, next.StackTrace, next);
+                    bender.Tree.Add(error);
 
                     Log.Error(next, "Parser error");
 
                     next = ex.InnerException;
                 }
-
-                _shadowCopy.FormattedFields.Add(errorField);
-
-                return _shadowCopy;
             }
+
+            bender.Tree.End();
+
+            return bender;
         }
 
         /// <summary>
         /// Parse binary file into a Bender file using the
         /// current SpecFile.
         /// </summary>
+        /// <param name="bender">Bender target</param>
         /// <param name="binary">Source file</param>
         /// <returns>Parsed Bender</returns>
         /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
         /// number with width bytes</exception> 
-        private Bender TryParse(DataFile binary)
+        private void TryParse(Bender bender, DataFile binary)
         {
-            var bender = new Bender();
-
             using var stream = new MemoryStream(binary.Data);
             _reader = new BinaryReader(stream);
             _binary = binary;
@@ -126,38 +115,27 @@
             // Recursive calls may alter layoutQ so actively check the count
             while (layoutQ.Count > 0)
             {
-                var formatted = HandleSection(SectionGetter);
-
-                // Result may be one or more format fields
-                foreach (var f in formatted)
-                {
-                    bender.FormattedFields.Add(f);
-
-                    _shadowCopy.FormattedFields.Add(f);
-                }
+                HandleSection(SectionGetter, bender.Tree);
             }
-
-            return bender;
         }
 
         /// <summary>
         /// Process this section definition
         /// </summary>
         /// <param name="fnGetSection">Section name getter</param>
+        /// <param name="tree">Receives Bender nodes</param>
         /// <returns>Formatted results from element</returns>
         /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
         /// number with width bytes</exception>
-        private IEnumerable<Bender.FormattedField> HandleSection(GetNextSection fnGetSection)
+        private void HandleSection(GetNextSection fnGetSection, ParseTree tree)
         {
             var section = fnGetSection.Invoke();
             if (string.IsNullOrEmpty(section))
             {
-                return Enumerable.Empty<Bender.FormattedField>();
+                return;
             }
 
             Log.Debug("Handling '{0}'", section);
-
-            var result = new List<Bender.FormattedField>();
 
             // Find definition of the element
             var element = _spec.Elements.FirstOrDefault(o => o.Name.Equals(section));
@@ -165,7 +143,7 @@
             {
                 Log.Warn("Section '{0}' is undefined", section);
 
-                result.Add(Bender.FormattedField.From(section, "Undefined object"));
+                tree.Add(new BPrimitive(section, "Undefined object"));
             }
             else if (element.IsArrayCount)
             {
@@ -178,47 +156,45 @@
                 for (var i = 0; i < count; ++i)
                 {
                     // Repeats the same section without requiring it to actually be defined in the layout
-                    var formattedSection = HandleSection(() => repeatedSection);
-
-                    result.AddRange(formattedSection);
+                    HandleSection(() => repeatedSection, tree);
                 }
             }
             else
             {
-                var formattedElement = HandleElement(element);
-
-                result.Add(formattedElement);
+                HandleElement(element, tree);
             }
-
-            return result;
         }
 
         /// <summary>
         /// Process the fields of this element to build a formatted field
         /// </summary>
         /// <param name="el">Data definition</param>
+        /// <param name="tree">Receives parsed nodes</param>
         /// <returns>Formatted result from element</returns>
         /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
         /// number with width bytes</exception>
-        private Bender.FormattedField HandleElement(Element el)
+        private void HandleElement(Element el, ParseTree tree)
         {
             var buff = ReadNextElement(el);
             if (buff is null)
             {
                 Log.Warn("'{0}' is an invalid deferred object", el.Name);
 
-                return Bender.FormattedField.From(el, "Error: Invalid deferred object");
+                tree.Add(new BError(el.Name, "Error: Invalid deferred object"));
             }
 
             // This is declared as a deferral but the definition was marked as empty
-            if (el.IsDeferred && buff.Length == 0)
+            else if (el.IsDeferred && buff.Length == 0)
             {
                 Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
 
-                return Bender.FormattedField.From(el, "Empty");
+                tree.Add(new BError(el.Name, "Empty"));
             }
 
-            return FormatBuffer(el, buff);
+            else
+            {
+                FormatBuffer(el, buff, tree);
+            }
         }
 
         /// <summary>
@@ -226,21 +202,17 @@
         /// </summary>
         /// <param name="el">Element rules</param>
         /// <param name="buff">Data to format</param>
+        /// <param name="tree">Receives parsed nodes</param>
         /// <returns>Formatted string</returns>
         /// <exception cref="OutOfDataException">Raised if data from offset does not have enough bytes to make a
         /// number with width bytes</exception>
-        private Bender.FormattedField FormatBuffer(Element el, byte[] buff)
+        private void FormatBuffer(Element el, byte[] buff, ParseTree tree)
         {
-            // An element may span multiple lines. Each element 
-            // of 'value' is a line in the string formatting of this element.
-            var value = new List<string>();
-
-
             if (el.Elide)
             {
                 Log.Debug("'{0}' is elided", el.Name);
 
-                value.Add($"Elided {buff.Length} bytes");
+                tree.Add(new BPrimitive("Elided", $"{buff.Length} bytes"));
             }
             else
             {
@@ -249,33 +221,27 @@
                 {
                     var formattedMatrix = FormatMatrix(el, buff);
 
-                    value.AddRange(formattedMatrix);
+                    tree.Add(formattedMatrix);
                 }
                 else if (!string.IsNullOrEmpty(el.Structure))
                 {
-                    var formattedStructure = FormatStructure(el, buff);
+                    var formattedStructure = FormatStructure(el, buff, tree);
 
-                    value.AddRange(formattedStructure);
+                    tree.Add(formattedStructure);
                 }
                 else if (!string.IsNullOrEmpty(el.Enumeration))
                 {
                     var formattedEnumeration = FormatEnumeration(el, buff);
 
-                    value.Add(formattedEnumeration);
+                    tree.Add(formattedEnumeration);
                 }
                 else
                 {
                     var formattedElement = el.TryFormat(buff);
 
-                    value.AddRange(formattedElement);
+                    tree.Add(formattedElement);
                 }
             }
-
-            return new Bender.FormattedField
-            {
-                Name = el.Name,
-                Value = value
-            };
         }
 
         /// <summary>
@@ -291,7 +257,7 @@
         /// <returns>List of formatted matrix rows</returns>
         /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
         /// number with width bytes</exception>
-        private IEnumerable<string> FormatMatrix(Element el, byte[] buff)
+        private BNode FormatMatrix(Element el, byte[] buff)
         {
             Log.Debug("Formatting '{0}' as matrix '{1}'", el.Name, el.Matrix);
 
@@ -302,51 +268,36 @@
 
             if (elClone.Units == 0 || buff.Length == 0 || el.Matrix is null)
             {
-                return Enumerable.Empty<string>();
+                return null;
             }
 
-            var value = new List<string>();
-            var sb = new StringBuilder();
-            sb.Append("[ ");
+            return MakeMatrix(buff, el.Matrix);
+        }
 
-            var totalVars = buff.Length / elClone.Units;
-            var mat = el.Matrix;
+        private BNode MakeMatrix(byte[] data, Matrix mat)
+        {
+            var cols = mat.Columns <= 0 ? 8 : mat.Columns;
+            var rows = (data.Length / mat.Units) / cols;
 
-            // Use a default column count
-            var colWidth = mat.Columns == 0 ? 8 : mat.Columns;
-
-            // Chop data into payload.unit bytes to produce an output similar to
-            //
-            // [ ... numbers ... ]
-            // [ ... numbers ... ]
-            //
-            var cols = 0;
-            var count = 0;
-            foreach (var unit in buff.AsChunks(elClone.Units))
+            switch (mat.Units)
             {
-                ++count;
+                case 1:
+                    return new BMatrix<byte>(data.Reshape(rows, cols));
 
-                foreach (var f in FormatBuffer(elClone, unit).Value)
-                {
-                    sb.AppendFormat("{0} ", f);
-                }
+                case 2:
+                    var tShort = data.As<short>(false).Reshape(rows, cols);
+                    return new BMatrix<short>(tShort);
 
-                if (++cols % colWidth != 0)
-                {
-                    continue;
-                }
+                case 4:
+                    var tInt = data.As<int>(false).Reshape(rows, cols);
+                    return new BMatrix<int>(tInt);
 
-                sb.Append("]");
-                value.Add(sb.ToString());
-                sb.Clear();
-
-                if (count != totalVars)
-                {
-                    sb.Append("[ ");
-                }
+                case 8:
+                    var tLong = data.As<long>(false).Reshape(rows, cols);
+                    return new BMatrix<long>(tLong);
             }
 
-            return value;
+            return null;
         }
 
         /// <summary>
@@ -367,29 +318,31 @@
         /// </summary>
         /// <param name="el">Element definition</param>
         /// <param name="buff">Raw data</param>
+        /// <param name="tree">Receives nested structure data</param>
         /// <returns>Structure formatted using this element's rules</returns>
-        private IEnumerable<string> FormatStructure(Element el, byte[] buff)
+        private BNode FormatStructure(Element el, byte[] buff, ParseTree tree)
         {
             Log.Debug("Formatting '{0}' as structure '{1}'", el.Name, el.Structure);
 
             if (_nestedDepth >= NestedStructLimit)
             {
-                return new[] {$"**Exceeded nested structure limit ({NestedStructLimit})**"};
+                return new BError("Depth Exceeded", $"**Exceeded nested structure limit ({NestedStructLimit})**");
             }
 
             var def = GetStructure(el);
             if (def is null)
             {
-                return new List<string> {$"Unknown structure type {el.Structure} on element {el.Name}"};
+                return new BError("Unknown Structure", $"Unknown structure type {el.Structure} on element {el.Name}");
             }
 
             Log.Debug("Using structure definition for '{0}'", def.Name);
 
+            var structure = new BStructure(el.Name);
+            tree.Begin(structure);
+
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
             var elClone = el.Clone();
             elClone.Structure = string.Empty;
-
-            var result = new List<string>(def.Elements.Count);
 
             // Buff is the binary representation of this structure definition
             // so reads must be relative to this buffer.
@@ -411,19 +364,9 @@
                 // Recursively handle any nested elements
                 foreach (var childEl in def.Elements)
                 {
-                    var formatted = HandleElement(childEl);
+                    HandleElement(childEl, tree);
 
                     bytesRead += GetElementSize(childEl);
-
-                    var isFirst = true;
-
-                    foreach (var value in formatted.Value)
-                    {
-                        // Repeat name only once for each element, maintain padding
-                        var prefix = isFirst ? childEl.Name : new string(' ', childEl.Name.Length);
-                        result.Add($"[ {prefix}: {value} ]");
-                        isFirst = false;
-                    }
                 }
             } while (el.IsArray && bytesRead < buff.Length);
 
@@ -434,7 +377,8 @@
             ReaderLog.Debug("Continuing at offset {0}/{1}", _reader.BaseStream.Position,
                 _reader.BaseStream.Length);
 
-            return result;
+            tree.End();
+            return structure;
         }
 
         /// <summary>
@@ -449,14 +393,15 @@
         /// <param name="el">Element definition</param>
         /// <param name="buff">Raw data</param>
         /// <returns>Enumeration string for the value in buff</returns>
-        private string FormatEnumeration(Element el, byte[] buff)
+        private BNode FormatEnumeration(Element el, byte[] buff)
         {
             Log.Debug("Formatting '{0}' as enumeration '{1}'", el.Name, el.Enumeration);
 
             var def = GetEnumeration(el);
             if (def is null)
             {
-                return $"Unknown enumeration type {el.Enumeration} on element {el.Name}";
+                return new BError("Unknown Enumeration",
+                    "$Unknown enumeration type {el.Enumeration} on element {el.Name}");
             }
 
             Log.Debug("Using enumeration definition for '{0}'", def.Name);
@@ -542,7 +487,7 @@
             {
                 return null;
             }
-            
+
             if (_spec.Structures == null)
             {
                 Log.Warn("'{0}' references a structure but no structures are defined");
@@ -570,7 +515,7 @@
             {
                 return null;
             }
-            
+
             if (_spec.Enumerations == null)
             {
                 Log.Warn("'{0}' references an enumeration but no enumerations are defined");
