@@ -210,9 +210,9 @@ namespace Bender.Core
             {
                 var number = new Number(this, data);
 
-                if (def.Values.TryGetValue(number.si, out var name))
+                if (def.Values.TryGetValue(number.si, out var enumValue))
                 {
-                    return new BPrimitive(name, "");
+                    return new BPrimitive(Name, enumValue);
                 }
                 else
                 {

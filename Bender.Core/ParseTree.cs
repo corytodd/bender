@@ -1,48 +1,51 @@
 namespace Bender.Core
 {
+    using System;
     using System.Collections.Generic;
 
-    public class ParseTree
+    public class ParseTree<T>
     {
-        private Stack<ParseNode> _stack = new Stack<ParseNode>();
+        private LinkedList<ParseTree<T>> _children = new LinkedList<ParseTree<T>>();
 
-        public List<ParseNode> Nodes { get; } = new List<ParseNode>();
-
-        public ParseTree Begin(BNode val)
+        public ParseTree()
         {
-            if (_stack.Count == 0)
-            {
-                var node = new ParseNode(val, null);
-                Nodes.Add(node);
-                _stack.Push(node);
-            }
-            else
-            {
-                var node = _stack.Peek().Add(val);
-                _stack.Push(node);
-            }
-
-            return this;
         }
 
-        public ParseTree Add(BNode val)
+        public ParseTree(T node) : this(node, null)
         {
-            if (_stack.TryPeek(out var parent))
-            {
-                parent.Add(val);
-            }
-            else
-            {
-                Begin(val);
-            }
-
-            return this;
         }
 
-        public ParseTree End()
+        private ParseTree(T node, ParseTree<T> parent)
         {
-            _stack.Pop();
-            return this;
+            Value = node;
+            Parent = parent;
+        }
+
+        public T Value { get; }
+
+        public ParseTree<T> Parent { get; }
+
+        public IEnumerable<ParseTree<T>> Children
+        {
+            get => _children;
+        }
+
+        public ParseTree<T> AddChild(T value)
+        {
+            var node = new ParseTree<T>(value, this);
+
+            _children.AddLast(node);
+
+            return node;
+        }
+        
+        public void Traverse(Action<T> action)
+        {
+            action(Value);
+            foreach (var child in _children)
+            {
+                child.Traverse(action);
+            }
         }
     }
 }

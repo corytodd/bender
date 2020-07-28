@@ -7,6 +7,7 @@ using Bender.Core;
 namespace Bender
 {
     using System.Reflection;
+    using System.Text;
 
     internal class Program
     {
@@ -20,7 +21,7 @@ namespace Bender
             }
 
             var ret = Run(opts);
-            Environment.Exit(ret);  
+            Environment.Exit(ret);
         }
 
         private static int Run(Options opts)
@@ -50,11 +51,11 @@ namespace Bender
             {
                 return 1;
             }
-            
+
             try
             {
                 var bender = new BinaryParser(spec).Parse(binary);
-                WriteToConsole(spec, bender);               
+                WriteToConsole(spec, bender);
                 return 0;
             }
             catch (ParseException ex)
@@ -72,11 +73,16 @@ namespace Bender
         private static void WriteToConsole(SpecFile spec, Core.Bender bender)
         {
             Console.WriteLine("Binary File - {0}{1}", spec.Name, Environment.NewLine);
-            using (var stream = new MemoryStream())
-            {
+            using var stream = new MemoryStream();
+            var sw = new StreamWriter(stream, new UTF8Encoding());
 
+            try
+            {
                 var printer = new BenderPrinter();
-                printer.WriteStream(bender, stream);
+                printer.WriteStream(bender, sw);
+                
+                sw.Flush();//otherwise you are risking empty stream
+                stream.Seek(0, SeekOrigin.Begin);
 
                 // Stream content to console
                 using (var reader = new StreamReader(stream))
@@ -86,9 +92,13 @@ namespace Bender
                         Console.WriteLine(reader.ReadLine());
                     }
                 }
-            }
 
-            Console.WriteLine();
+                Console.WriteLine();
+            }
+            finally
+            {
+                sw.Dispose();
+            }
         }
 
         private static SpecFile GetSpecFile(Options opts)
@@ -135,7 +145,9 @@ namespace Bender
 
             // Try to find spec for provided binary, no leading '.'
             var binext = Path.GetExtension(opts.BinaryFile).Remove(0, 1);
-            var result = string.IsNullOrEmpty(opts.SpecFile) ? specs.FirstOrDefault(s => s.Extensions.Contains(binext)) : specs.FirstOrDefault();
+            var result = string.IsNullOrEmpty(opts.SpecFile)
+                ? specs.FirstOrDefault(s => s.Extensions.Contains(binext))
+                : specs.FirstOrDefault();
 
             if (result == null)
             {
@@ -145,10 +157,11 @@ namespace Bender
 
             return result;
         }
-        
+
         /// <summary>
         /// Get version of this assembly
         /// </summary>
-        private static string Version => typeof(Program).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+        private static string Version =>
+            typeof(Program).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
     }
 }

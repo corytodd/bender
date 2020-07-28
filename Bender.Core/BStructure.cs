@@ -1,6 +1,7 @@
 namespace Bender.Core
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Text;
 
     public class BStructure : BNode
@@ -24,6 +25,11 @@ namespace Bender.Core
             sb.Append("]");
 
             return sb.ToString();
+        }
+
+        public void Print(StreamWriter writer)
+        {
+            writer.WriteLine(this);
         }
     }
 }

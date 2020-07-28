@@ -67,21 +67,19 @@
                 // and stacktrace leading to this problem.
                 var value = $"{new string('*', ex.Message.Length)} {ex.Message} {ex.StackTrace}";
                 var error = new BError("Parse Failure", value, ex);
-                bender.Tree.Begin(error);
+                var errorTree = bender.Tree.AddChild(error);
 
                 var next = ex.InnerException;
                 while (!(next is null))
                 {
                     error = new BError(next.Message, next.StackTrace, next);
-                    bender.Tree.Add(error);
+                    errorTree.AddChild(error);
 
                     Log.Error(next, "Parser error");
 
                     next = ex.InnerException;
                 }
             }
-
-            bender.Tree.End();
 
             return bender;
         }
@@ -127,7 +125,7 @@
         /// <returns>Formatted results from element</returns>
         /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
         /// number with width bytes</exception>
-        private void HandleSection(GetNextSection fnGetSection, ParseTree tree)
+        private void HandleSection(GetNextSection fnGetSection, ParseTree<BNode> tree)
         {
             var section = fnGetSection.Invoke();
             if (string.IsNullOrEmpty(section))
@@ -143,7 +141,7 @@
             {
                 Log.Warn("Section '{0}' is undefined", section);
 
-                tree.Add(new BPrimitive(section, "Undefined object"));
+                tree.AddChild(new BPrimitive(section, "Undefined object"));
             }
             else if (element.IsArrayCount)
             {
@@ -173,14 +171,14 @@
         /// <returns>Formatted result from element</returns>
         /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
         /// number with width bytes</exception>
-        private void HandleElement(Element el, ParseTree tree)
+        private ParseTree<BNode> HandleElement(Element el, ParseTree<BNode> tree)
         {
             var buff = ReadNextElement(el);
             if (buff is null)
             {
                 Log.Warn("'{0}' is an invalid deferred object", el.Name);
 
-                tree.Add(new BError(el.Name, "Error: Invalid deferred object"));
+                tree.AddChild(new BError(el.Name, "Error: Invalid deferred object"));
             }
 
             // This is declared as a deferral but the definition was marked as empty
@@ -188,13 +186,15 @@
             {
                 Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
 
-                tree.Add(new BError(el.Name, "Empty"));
+                tree.AddChild(new BError(el.Name, "Empty"));
             }
 
             else
             {
-                FormatBuffer(el, buff, tree);
+                tree = FormatBuffer(el, buff, tree);
             }
+
+            return tree;
         }
 
         /// <summary>
@@ -206,13 +206,13 @@
         /// <returns>Formatted string</returns>
         /// <exception cref="OutOfDataException">Raised if data from offset does not have enough bytes to make a
         /// number with width bytes</exception>
-        private void FormatBuffer(Element el, byte[] buff, ParseTree tree)
+        private ParseTree<BNode>  FormatBuffer(Element el, byte[] buff, ParseTree<BNode> tree)
         {
             if (el.Elide)
             {
                 Log.Debug("'{0}' is elided", el.Name);
 
-                tree.Add(new BPrimitive("Elided", $"{buff.Length} bytes"));
+                tree = tree.AddChild(new BPrimitive("Elided", $"{buff.Length} bytes"));
             }
             else
             {
@@ -221,27 +221,29 @@
                 {
                     var formattedMatrix = FormatMatrix(el, buff);
 
-                    tree.Add(formattedMatrix);
+                    tree.AddChild(formattedMatrix);
                 }
                 else if (!string.IsNullOrEmpty(el.Structure))
                 {
                     var formattedStructure = FormatStructure(el, buff, tree);
 
-                    tree.Add(formattedStructure);
+                    tree = formattedStructure;
                 }
                 else if (!string.IsNullOrEmpty(el.Enumeration))
                 {
                     var formattedEnumeration = FormatEnumeration(el, buff);
 
-                    tree.Add(formattedEnumeration);
+                    tree = tree.AddChild(formattedEnumeration);
                 }
                 else
                 {
                     var formattedElement = el.TryFormat(buff);
 
-                    tree.Add(formattedElement);
+                    tree = tree.AddChild(formattedElement);
                 }
             }
+
+            return tree;
         }
 
         /// <summary>
@@ -271,30 +273,31 @@
                 return null;
             }
 
-            return MakeMatrix(buff, el.Matrix);
+            return MakeMatrix(buff, el);
         }
 
-        private BNode MakeMatrix(byte[] data, Matrix mat)
+        private BNode MakeMatrix(byte[] data, Element el)
         {
+            var mat = el.Matrix;
             var cols = mat.Columns <= 0 ? 8 : mat.Columns;
             var rows = (data.Length / mat.Units) / cols;
 
             switch (mat.Units)
             {
                 case 1:
-                    return new BMatrix<byte>(data.Reshape(rows, cols));
+                    return new BMatrix<byte>(el.Name, data.Reshape(rows, cols));
 
                 case 2:
                     var tShort = data.As<short>(false).Reshape(rows, cols);
-                    return new BMatrix<short>(tShort);
+                    return new BMatrix<short>(el.Name, tShort);
 
                 case 4:
                     var tInt = data.As<int>(false).Reshape(rows, cols);
-                    return new BMatrix<int>(tInt);
+                    return new BMatrix<int>(el.Name, tInt);
 
                 case 8:
                     var tLong = data.As<long>(false).Reshape(rows, cols);
-                    return new BMatrix<long>(tLong);
+                    return new BMatrix<long>(el.Name, tLong);
             }
 
             return null;
@@ -320,25 +323,27 @@
         /// <param name="buff">Raw data</param>
         /// <param name="tree">Receives nested structure data</param>
         /// <returns>Structure formatted using this element's rules</returns>
-        private BNode FormatStructure(Element el, byte[] buff, ParseTree tree)
+        private ParseTree<BNode> FormatStructure(Element el, byte[] buff, ParseTree<BNode> tree)
         {
             Log.Debug("Formatting '{0}' as structure '{1}'", el.Name, el.Structure);
 
             if (_nestedDepth >= NestedStructLimit)
             {
-                return new BError("Depth Exceeded", $"**Exceeded nested structure limit ({NestedStructLimit})**");
+                var error = new BError("Depth Exceeded", $"**Exceeded nested structure limit ({NestedStructLimit})**");
+                return tree.AddChild(error);
             }
 
             var def = GetStructure(el);
             if (def is null)
             {
-                return new BError("Unknown Structure", $"Unknown structure type {el.Structure} on element {el.Name}");
+                var error = new BError("Unknown Structure", $"Unknown structure type {el.Structure} on element {el.Name}");
+                return tree.AddChild(error);
             }
 
             Log.Debug("Using structure definition for '{0}'", def.Name);
 
             var structure = new BStructure(el.Name);
-            tree.Begin(structure);
+            tree = tree.AddChild(structure);
 
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
             var elClone = el.Clone();
@@ -376,9 +381,8 @@
             _reader = tempReader;
             ReaderLog.Debug("Continuing at offset {0}/{1}", _reader.BaseStream.Position,
                 _reader.BaseStream.Length);
-
-            tree.End();
-            return structure;
+            
+            return tree.AddChild(structure);
         }
 
         /// <summary>

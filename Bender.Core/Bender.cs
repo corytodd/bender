@@ -1,67 +1,23 @@
 ﻿namespace Bender.Core
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// A fully parsed binary file
     /// </summary>
     public class Bender
     {
         /// <summary>
-        /// Contains one complete, formatted field entry that can span
-        /// rows and maintain column alignment.
-        /// { "field name", "decode value(s) that"
-        ///                 "can span lines" }
-        /// </summary>
-        public struct FormattedField
-        {
-            /// <summary>
-            ///     Field key
-            /// </summary>
-            public string Name { get; set; }
-
-            /// <summary>
-            ///     Field values
-            /// </summary>
-            public IList<string> Value { get; set; }
-
-            /// <summary>
-            /// Helper to generate a new formatted field for this element
-            /// </summary>
-            /// <param name="el">Element instance</param>
-            /// <param name="message">Message to assign as value</param>
-            /// <returns>New formatted field</returns>
-            public static FormattedField From(Element el, string message)
-            {
-                return From(el.Name, message);
-            }
-
-            /// <summary>
-            /// Helper to generate a new formatted field for this name
-            /// </summary>
-            /// <param name="name">Field name</param>
-            /// <param name="message">Message to assign as value</param>
-            /// <returns>New formatted field</returns>
-            public static FormattedField From(string name, string message)
-            {
-                return new FormattedField
-                {
-                    Name = name,
-                    Value = new[] {message}
-                };
-            }
-        }
-
-        /// <summary>
         /// Create a new Bender with this reference spec
         /// </summary>
         public Bender()
         {
-            Tree = new ParseTree();
+            Tree = new ParseTree<BNode>();
         }
-        
-        public ParseTree Tree { get; }
-        
+
+        /// <summary>
+        /// Logical structure of binary file
+        /// </summary>
+        public ParseTree<BNode> Tree { get; }
+
         /// <summary>
         /// Supported element formats
         /// </summary>

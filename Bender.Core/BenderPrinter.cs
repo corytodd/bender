@@ -49,53 +49,30 @@ namespace Bender.Core
         /// <param name="bender">Data to write</param>
         /// <param name="stream">Where data is being written to</param>
         /// <exception cref="ArgumentException">Raised is bender or stream are null or if stream cannot be written</exception>
-        public void WriteStream(Bender bender, Stream stream)
+        public void WriteStream(Bender bender, StreamWriter writer)
         {
             if (bender == null)
             {
                 throw new ArgumentException("{0} cannot be null", nameof(bender));
             }
 
-            if (stream == null || !stream.CanWrite)
+            if (writer == null || !writer.BaseStream.CanWrite)
             {
-                throw new ArgumentException("{0} cannot be written", nameof(stream));
+                throw new ArgumentException("{0} cannot be written", nameof(writer));
             }
 
-            // Helper function wraps stream write operation
-            void WriteBytes(string s)
+            void WriteNode(BNode node)
             {
-                var bytes = System.Text.Encoding.UTF8.GetBytes(s);
-                stream.Write(bytes, 0, bytes.Length);
+                node?.Print(writer);
             }
 
-            WriteBytes(Header);
-            WriteBytes(LineDelimiter);
-            WriteBytes(Environment.NewLine);
+            writer.Write(Header);
+            writer.Write(LineDelimiter);
+            writer.Write(Environment.NewLine);
 
-            foreach (var f in bender.Tree.Nodes)
-            {
-                // Only print the name on the first row of this formatted element
-                var isFirst = true;
-                foreach (var v in f.Children)
-                {
-                    if (v is null)
-                    {
-                        continue;
-                    }
+            bender.Tree.Traverse(WriteNode);
 
-                    if (isFirst)
-                    {
-                        isFirst = false;
-                        WriteBytes(string.Format(RowFormat, f.Value, v));
-                    }
-                    else
-                    {
-                        WriteBytes(string.Format(RowFormat, string.Empty, v));
-                    }
-                }
-            }
-
-            stream.Position = 0;
+            writer.BaseStream.Position = 0;
         }
     }
 }

@@ -1,6 +1,7 @@
 namespace Bender.Core
 {
     using System;
+    using System.IO;
 
     public class BError : BNode
     {
@@ -9,7 +10,9 @@ namespace Bender.Core
             Error = error;
             Details = details;
             Exception = ex;
-        }
+        }   
+        
+        public string Name { get; }
 
         public Exception Exception { get; }
 
@@ -19,7 +22,12 @@ namespace Bender.Core
 
         public override string ToString()
         {
-            return $"{Error} : {Details}";
+            return $"{Name}:{Error}|{Details}";
+        }
+
+        public void Print(StreamWriter writer)
+        {
+            writer.WriteLine(this);
         }
     }
 }
