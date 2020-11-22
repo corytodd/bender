@@ -12,7 +12,7 @@ namespace Bender.Core.Tests
         public void TestPrint()
         {
             // Setup
-            var spec = new SpecParser().Parse(DataFile.From(Properties.Resources.simple_layout));
+            var spec = SpecFile.Parse(DataFile.From(Properties.Resources.simple_layout));
             var parser=  new BinaryParser(spec);
             var dataFile = DataFile.From(Properties.Resources.simple_layout_binary);
             var bender = parser.Parse(dataFile);

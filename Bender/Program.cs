@@ -93,7 +93,6 @@ namespace Bender
 
         private static SpecFile GetSpecFile(Options opts)
         {
-            var parser = new SpecParser();
             var paths = new List<string>();
             var specs = new List<SpecFile>();
 
@@ -111,7 +110,7 @@ namespace Bender
             {
                 try
                 {
-                    specs.Add(parser.Parse(DataFile.From(p)));
+                    specs.Add(SpecFile.Parse(DataFile.From(p)));
                 }
                 catch (ParseException ex)
                 {

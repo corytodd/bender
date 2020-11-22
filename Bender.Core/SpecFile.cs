@@ -1,10 +1,16 @@
 ﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global - This is a library class, consumers may use all properties
+
 namespace Bender.Core
 {
     using System.Collections.Generic;
     using System.Text;
     using Layouts;
     using YamlDotNet.Serialization;
+    using System.Text;
+    using System.Collections.Generic;
+    using YamlDotNet.Serialization;
+    using YamlDotNet.Core;
+    using YamlDotNet.Serialization.NamingConventions;
 
     /// <summary>
     /// Represents YAML specification for Bender files
@@ -39,12 +45,12 @@ namespace Bender.Core
         /// </summary>
         [YamlMember(Alias = "base_element", ApplyNamingConventions = false)]
         public Element BaseElement { get; set; } = new Element();
-        
+
         /// <summary>
         /// List of named structures
         /// </summary>
-		public IList<Structure> Structures { get; set; } = new List<Structure>();
-        
+        public IList<Structure> Structures { get; set; } = new List<Structure>();
+
         /// <summary>
         /// List of defined enumeration mappings
         /// </summary>
@@ -86,19 +92,20 @@ namespace Bender.Core
             sb.AppendLine(new string('-', 80));
 
             sb.AppendLine("Extensions:");
-            foreach(var ext in Extensions)
+            foreach (var ext in Extensions)
             {
                 sb.AppendFormat("\t - .{0}\n", ext);
             }
+
             sb.AppendLine();
 
             sb.AppendLine("Default Element:");
             FormatLayout(BaseElement, sb);
 
-            
+
             sb.AppendLine("Structures:");
             FormatLayouts(Structures, sb);
-            
+
             sb.AppendLine("Enumerations:");
             FormatLayouts(Enumerations, sb);
 
@@ -110,9 +117,47 @@ namespace Bender.Core
             {
                 sb.AppendFormat("\t{0}\n", str);
             }
+
             sb.AppendLine();
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Parses DataFile as a SpecFile
+        /// </summary>
+        /// <param name="file">File to read</param>
+        /// <exception cref="ParseException">Raised if file cannot be parsed</exception>
+        /// <returns>Parsed spec file</returns>
+        public static SpecFile Parse(DataFile file)
+        {
+            try
+            {
+                using var reader = file.AsStringReader();
+                var parser = new MergingParser(new Parser(reader));
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    .Build();
+
+                return deserializer.Deserialize<SpecFile>(parser);
+            }
+            catch (YamlException ex)
+            {
+                var sb = new StringBuilder(ex.Message);
+                var inner = ex.InnerException;
+                while (inner != null)
+                {
+                    sb.AppendLine(inner.Message);
+                    inner = inner.InnerException;
+                }
+
+                throw new ParseException(sb.ToString());
+            }
+            catch (KeyNotFoundException ex)
+            {
+                var err = $"Malformed YAML, try running through an online validator: {ex.Message}";
+                throw new ParseException(err);
+            }
         }
 
         /// <summary>
@@ -126,9 +171,10 @@ namespace Bender.Core
             {
                 sbOut.AppendFormat("\t{0}\n", str);
             }
+
             sbOut.AppendLine();
         }
-        
+
         /// <summary>
         /// Format a collection of layouts and separate with a newline
         /// </summary>
@@ -140,6 +186,7 @@ namespace Bender.Core
             {
                 FormatLayout(layout, sbOut);
             }
+
             sbOut.AppendLine();
         }
     }
