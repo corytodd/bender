@@ -20,13 +20,18 @@ namespace Bender.Core.Nodes
 
         public override string ToString()
         {
-            return $"{Name}:{Error}|{Details}";
+            return Format();
+        }
+
+        public override string Format()
+        {
+            return $"{Name} : {Error}|{Details}";
         }
 
         /// <inheritdoc />
-        public override void Print(StreamWriter writer)
+        public override void Render(StreamWriter stream)
         {
-            writer.WriteLine(this);
+            stream.Write(this);
         }
     }
 }

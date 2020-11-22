@@ -1,8 +1,10 @@
 namespace Bender.Core.Nodes
 {
+    using System.Diagnostics;
     using System.IO;
     using Layouts;
 
+    [DebuggerDisplay("{Name}")]
     public abstract class BaseNode : BNode
     {
         protected BaseNode(Element el)
@@ -18,12 +20,12 @@ namespace Bender.Core.Nodes
         public string Name { get; }
 
         /// <inheritdoc />
-        public virtual string Format(string format)
+        public virtual string Format()
         {
             return ToString();
         }
 
         /// <inheritdoc />
-        public abstract void Print(StreamWriter writer);
+        public abstract void Render(StreamWriter stream);
     }
 }

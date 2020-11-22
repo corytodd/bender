@@ -8,16 +8,15 @@ namespace Bender.Core.Rendering
     public interface IRenderable
     {
         /// <summary>
-        ///     Format self using specified format string
+        ///     Format self
         /// </summary>
-        /// <param name="format">Standard format string, e.g. {0} or {0:X4}</param>
-        /// <returns></returns>
-        string Format(string format);
+        /// <returns>Formatted string</returns>
+        string Format();
 
         /// <summary>
         ///     Write self to stream
         /// </summary>
         /// <param name="stream">Receives rendered data</param>
-        void Print(StreamWriter stream);
+        void Render(StreamWriter stream);
     }
 }

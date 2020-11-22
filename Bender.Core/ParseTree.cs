@@ -39,13 +39,19 @@ namespace Bender.Core
             return node;
         }
         
-        public void Traverse(Action<T> action)
+        public void Traverse(Action<T> visitNode, Action endGeneration)
         {
-            action(Value);
+            if (!(Value is null))
+            {
+                visitNode(Value);
+            }
+
             foreach (var child in _children)
             {
-                child.Traverse(action);
+                child.Traverse(visitNode, endGeneration);
             }
+
+            endGeneration();
         }
     }
 }

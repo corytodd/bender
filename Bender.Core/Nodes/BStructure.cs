@@ -18,17 +18,17 @@ namespace Bender.Core.Nodes
         {
             // TODO add check to prevent infinite loop
             var sb = new StringBuilder();
-            sb.Append($"{Name}:[");
-            sb.Append(string.Join(",", Fields));
+            sb.Append($"{Name} : [");
+            sb.Append(string.Join(", ", Fields));
             sb.Append("]");
 
             return sb.ToString();
         }
 
         /// <inheritdoc />
-        public override void Print(StreamWriter writer)
+        public override void Render(StreamWriter stream)
         {
-            writer.WriteLine(this);
+            stream.Write(this);
         }
     }
 }

@@ -24,7 +24,24 @@ namespace Bender.Core
         /// <param name="data">Raw data</param>
         /// <returns>Number type</returns>
         /// <exception cref="ArgumentException">Thrown is element width is not in {1,2,4,8}</exception>
-        public Number(Element el, byte[] data)
+        public Number(Element el, byte[] data) : this(el.Units, el.IsSigned, el.IsLittleEndian, el.PrintFormat, data)
+        {
+        }
+
+        /// <summary>
+        /// Converts raw buffer data into a numeric type. This handles 
+        /// sign conversion. Data is not checked for length validity, the caller
+        /// must take caution to ensure data has exactly the number of bytes for the
+        /// format prescribed by the element specification.
+        /// </summary>
+        /// <param name="units">Interpret data at this width</param>
+        /// <param name="isSigned">True if value is signed</param>
+        /// <param name="isLittleEndian">True if number should be interpretted little Endian</param>
+        /// <param name="printFormat">Format type</param>
+        /// <param name="data">Raw data</param>
+        /// <returns>Number type</returns>
+        /// <exception cref="ArgumentException">Thrown is element width is not in {1,2,4,8}</exception>
+        public Number(int units, bool isSigned, bool isLittleEndian, Bender.PrintFormat printFormat, byte[] data)
         {
             // Default values required for readonly struct
             ub = 0;
@@ -40,16 +57,17 @@ namespace Bender.Core
 
             // If byte order does not match, flip now
             // Or if this is a bigint and the source is little endian, flip now
-            if (!(el.IsLittleEndian && BitConverter.IsLittleEndian) ||
-                (el.PrintFormat == Bender.PrintFormat.BigInt && el.IsLittleEndian))
+            if (!(isLittleEndian && BitConverter.IsLittleEndian) ||
+                (printFormat == Bender.PrintFormat.BigInt && isLittleEndian))
             {
                 Array.Reverse(data);
             }
 
             const int offset = 0;
-            _width = el.Units;
-            _isSigned = el.IsSigned;
-            _isFloat = el.PrintFormat == Bender.PrintFormat.Float;
+            _width = units;
+            _isSigned = isSigned;
+            _isFloat = printFormat == Bender.PrintFormat.Float;
+            _printFormat = printFormat;
 
             // Set the long number for everything so any field can be 
             // access correctly
@@ -279,6 +297,11 @@ namespace Bender.Core
         [FieldOffset(13)]
         private readonly bool _isFloat;
 
+        /// <summary>
+        /// How number format should be handled
+        /// </summary>
+        [FieldOffset(14)]
+        private readonly Bender.PrintFormat _printFormat;
 
         /// <inheritdoc />
         public override string ToString()
@@ -286,33 +309,46 @@ namespace Bender.Core
             return sl.ToString();
         }
 
-        public string Format(string format)
+        /// <inheritdoc />
+        public string Format()
         {
-            switch (_width)
+            switch (_printFormat)
             {
-                case 1:
-                    return string.Format(format, _isSigned ? sb : ub);
-                case 2:
-                    return string.Format(format, _isSigned ? ss : us);
-                case 4:
-                    return string.Format(format,
-                        _isFloat ? fs
-                        : _isSigned ? si : ui
-                    );
-                case 8:
-                    return string.Format(format,
-                        _isFloat ? fd
-                        : _isSigned ? sl : ul
-                    );
+                case Bender.PrintFormat.Binary:
+                    return Convert.ToString(si, 2).PadLeft(_width * 8, '0');
+                case Bender.PrintFormat.Octal:
+                    return $"O{Convert.ToString(sl, 8)}";
+                case Bender.PrintFormat.Decimal:
+                    return sl.ToString();
+                case Bender.PrintFormat.Hex:
+                case Bender.PrintFormat.BigInt:
+                    var width = (_width * 2).NextPowerOf2();
+                    var hex = Convert.ToString(sl, 16).PadLeft(width, '0').ToUpper();
+                    return $"{hex}";
+
+                case Bender.PrintFormat.Float:
+                    var result = _width switch
+                    {
+                        // Reinterpret data as floating point
+                        4 => fs.ToString("F6"),
+                        8 => fd.ToString("F6"),
+                        _ => "Malformed float. Width must be 4 or 8 bytes"
+                    };
+                    return result;
+
+                case Bender.PrintFormat.Ascii:
+                case Bender.PrintFormat.Unicode:
+                    throw new ParseException("Cannot format numbers as a string type. This is bug");
 
                 default:
-                    return string.Empty;
+                    return $"Unsupported format: {_printFormat}";
             }
         }
 
-        public void Print(StreamWriter stream)
+        /// <inheritdoc />
+        public void Render(StreamWriter stream)
         {
-            throw new NotImplementedException();
+            stream.Write(Format());
         }
     }
 }

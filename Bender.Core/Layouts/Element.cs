@@ -5,8 +5,11 @@ namespace Bender.Core.Layouts
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
     using System.Text;
     using Nodes;
+    using Rendering;
     using YamlDotNet.Serialization;
 
     /// <summary>
@@ -17,10 +20,20 @@ namespace Bender.Core.Layouts
     public class Element : ILayout
     {
         /// <summary>
+        /// Do not build a node more than once
+        /// </summary>
+        private bool _debugIsBuilt;
+
+        /// <summary>
         /// Raw data this element is associated with
         /// </summary>
         private byte[] _rawData;
-        
+
+        /// <summary>
+        /// Parsed form of <see cref="_rawData"/>
+        /// </summary>
+        private List<IRenderable> _payload = new();
+
         /// <summary>
         /// Human friendly name of this element
         /// </summary>
@@ -85,17 +98,35 @@ namespace Bender.Core.Layouts
         public bool IsArray { get; set; }
 
         /// <summary>
+        /// Name of structure this element represents
+        /// In order to simplify the YAML file, structures
+        /// are forward declared and then referenced by name.
+        /// </summary>
+        [YamlMember(Alias = "structure", ApplyNamingConventions = false)]
+        public string StructureName { get; set; }
+
+        /// <summary>
         /// If this block is referencing a structure, Structure
         /// value should match a known structure definition
         /// </summary>
-        public string Structure { get; set; }
+        [YamlIgnore]
+        public Structure Structure { get; set; }
+
+        /// <summary>
+        /// Name of enumeration this element represents
+        /// In order to simplify the YAML file, enumerations
+        /// are forward declared and then referenced by name.
+        /// </summary>
+        [YamlMember(Alias = "enumeration", ApplyNamingConventions = false)]
+        public string EnumerationName { get; set; }
 
         /// <summary>
         /// If this block's value should be interpreted as
         /// an enumeration string, this name will map to
         /// a predefined Enumeration element in the SpecFil.
         /// </summary>
-        public string Enumeration { get; set; }
+        [YamlIgnore]
+        public Enumeration Enumeration { get; set; }
 
         /// <inheritdoc />
         /// <summary>
@@ -105,13 +136,101 @@ namespace Bender.Core.Layouts
         public int Size => IsDeferred ? 8 : Units;
 
         /// <summary>
+        /// Parsedf data associated with this element
+        /// </summary>
+        public IEnumerable<IRenderable> Payload => _payload;
+
+        /// <summary>
         /// Set raw data associated with this element
         /// </summary>
         /// <param name="data">Data this element should interpret</param>
-        public void SetData(byte[] data)
+        public BNode BuildNode(byte[] data)
         {
+            //Debug.Assert(!_debugIsBuilt);
+
             _rawData = new byte[data.Length];
             Array.Copy(data, _rawData, _rawData.Length);
+
+            BNode result = null;
+
+            // Do not try to format the data if spec says to elide
+            if (Elide)
+            {
+                result = new BString(this, $"Elided {data.Length} bytes");
+            }
+            else
+            {
+                try
+                {
+                    if (!(Enumeration is null))
+                    {
+                        var number = new Number(this, data);
+
+                        if (Enumeration.Values.TryGetValue(number.si, out var enumValue))
+                        {
+                            result = new BString(this, enumValue);
+                        }
+                        else
+                        {
+                            result = new BError("Unknown Enumeration",
+                                $"{number.si} is not defined in {Enumeration.Name}");
+                        }
+                    }
+                    else if (!(Matrix is null))
+                    {
+                        var rows = (Size / Matrix.Columns) / Matrix.Units;
+                        var matrix = new Number[rows, Matrix.Columns];
+                        var chunks = _rawData.AsChunks(Matrix.Units).ToList();
+                        for (var row = 0; row < rows; ++row)
+                        {
+                            for (var col = 0; col < Matrix.Columns; ++col)
+                            {
+                                matrix[row, col] = new Number(Matrix.Units, IsSigned, IsLittleEndian, PrintFormat,
+                                    chunks[row * Matrix.Columns + col]);
+                            }
+                        }
+
+                        result = new BMatrix<Number>(this, matrix);
+                    }
+                    else if (!(Structure is null))
+                    {
+                        using var stream = new MemoryStream(data);
+                        using var reader = new BinaryReader(stream);
+                        
+                        var structure = new BStructure(this);
+                        foreach(var child in Structure.Elements)
+                        {
+                            var node = child.BuildNode(reader.ReadBytes(child.Units));
+                            
+                            structure.Fields.Add(node);
+                        }
+
+                        result = structure;
+                    }
+                    else
+                    {
+                        result = PrintFormat switch
+                        {
+                            Bender.PrintFormat.Ascii => new BString(this, Encoding.ASCII.GetString(data)),
+                            Bender.PrintFormat.Unicode => new BString(this, Encoding.Unicode.GetString(data)),
+                            _ => new BPrimitive<Number>(this, new Number(this, data))
+                        };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result = new BError($"{Name} BuildNodeError", ex.Message, ex);
+                }
+            }
+
+            _payload = new List<IRenderable>
+            {
+                result
+            };
+
+            _debugIsBuilt = true;
+
+            return result;
         }
 
         /// <inheritdoc />
@@ -139,12 +258,12 @@ namespace Bender.Core.Layouts
             sb.AppendFormat("Payload: {0}\n", Matrix);
             sb.AppendFormat("Little Endian: {0}\n", IsLittleEndian);
 
-            if (!string.IsNullOrEmpty(Structure))
+            if (!(Structure is null))
             {
                 sb.AppendFormat("Structure: {0}\n", Structure);
             }
 
-            if (!string.IsNullOrEmpty(Enumeration))
+            if (!(Enumeration is null))
             {
                 sb.AppendFormat("Enumeration: {0}\n", Enumeration);
             }
@@ -166,146 +285,14 @@ namespace Bender.Core.Layouts
 
             return sb.ToString();
         }
-
-        /// <summary>
-        /// Formats data into an ordered list of matrix rows. Each row is
-        /// formatted using the rules defined in element.
-        /// </summary>
-        /// <param name="data">Data to format</param>
-        /// <returns>List of rows, formatted as strings</returns>
-        public BNode TryFormat(byte[] data)
-        {
-            if (data is null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            BNode node;
-
-            try
-            {
-                switch (PrintFormat)
-                {
-                    case Bender.PrintFormat.Ascii:
-                        node = new BPrimitive<string>(this, Encoding.ASCII.GetString(data));
-                        break;
-
-                    case Bender.PrintFormat.Unicode:
-                        node = new BPrimitive<string>(this, Encoding.Unicode.GetString(data));
-                        break;
-
-                    default:
-                        var number = new Number(this, data);
-                        var formatted = FormatNumber(number);
-                        node = new BPrimitive<string>(this, formatted);
-                        break;
-                }
-            }
-            catch (ArgumentException)
-            {
-                throw new OutOfDataException(
-                    "Element {0}: Not enough data left to create a {1} byte number ({2} bytes left)",
-                    Name, Units, data.Length);
-            }
-
-            return node;
-        }
-
-        /// <summary>
-        /// Interpret data as a number according to this element's definition
-        /// and uses the specified enumeration to use as a string value.
-        /// </summary>
-        /// <param name="def">Enumeration to use</param>
-        /// <param name="data">Raw data</param>
-        /// <returns></returns>
-        /// <exception cref="OutOfDataException">Thrown is data does not allow for interpreting
-        /// in the specified Units or Width</exception>
-        public BNode TryFormatEnumeration(Enumeration def, byte[] data)
-        {
-            try
-            {
-                var number = new Number(this, data);
-
-                if (def.Values.TryGetValue(number.si, out var enumValue))
-                {
-                    return new BPrimitive<string>(this, enumValue);
-                }
-                else
-                {
-                    return new BError("Unknown Enumeration", $"{number.si} is not defined in {def.Name}");
-                }
-            }
-            catch (ArgumentException)
-            {
-                throw new OutOfDataException(
-                    "Element {0}: Not enough data left to create a {1} byte number ({2} bytes left)",
-                    Name, Units, data.Length);
-            }
-        }
-
-        /// <summary>
-        /// Format number using the current PrintFormat
-        /// </summary>
-        /// <param name="number">Number to format</param>
-        /// <returns>Formatted string</returns>
-        private string FormatNumber(Number number)
-        {
-            string result;
-
-            switch (PrintFormat)
-            {
-                case Bender.PrintFormat.Binary:
-                    // Make sure every byte has 8 places, 0 filled if needed
-                    var binary = Convert.ToString(number.sl, 2).PadLeft(Units * 8, '0');
-                    result = $"b{binary}";
-                    break;
-
-                case Bender.PrintFormat.Octal:
-                    result = $"O{Convert.ToString(number.sl, 8)}";
-                    break;
-
-                case Bender.PrintFormat.Decimal:
-                    result = number.sl.ToString();
-                    break;
-
-                case Bender.PrintFormat.Hex:
-                case Bender.PrintFormat.BigInt:
-                    var prefix = PrintFormat == Bender.PrintFormat.Hex ? "0x" : "";
-                    var width = (Units * 2).NextPowerOf2();
-                    var hex = Convert.ToString(number.sl, 16).PadLeft(width, '0').ToUpper();
-                    result = $"{prefix}{hex}";
-                    break;
-
-                case Bender.PrintFormat.Float:
-                    result = Units switch
-                    {
-                        // Reinterpret data as floating point
-                        4 => number.fs.ToString("F6"),
-                        8 => number.fd.ToString("F6"),
-                        _ => "Malformed float. Width must be 4 or 8 bytes"
-                    };
-
-                    break;
-
-                case Bender.PrintFormat.Ascii:
-                case Bender.PrintFormat.Unicode:
-                    throw new ParseException("Cannot format numbers as a string type. This is bug");
-
-                default:
-                    result = $"Unsupported format: {PrintFormat}";
-                    break;
-            }
-
-            return result;
-        }
-
+        
         /// <summary>
         /// Deep copy this instance
         /// </summary>
         /// <returns>Copy of this</returns>
         public Element Clone()
         {
-            return new Element
+            var el = new Element
             {
                 Name = Name,
                 IsLittleEndian = IsLittleEndian,
@@ -320,52 +307,10 @@ namespace Bender.Core.Layouts
                 Structure = Structure,
                 IsDeferred = IsDeferred
             };
+
+            return el;
         }
-
-        /// <summary>
-        ///     Returns the C# format code for <see cref="PrintFormat"/>
-        /// </summary>
-        /// <returns></returns>
-        public Func<Number, string> GetCSharpFormatter()
-        {
-            switch (PrintFormat)
-            {
-                case Bender.PrintFormat.Binary:
-                    return number => Convert.ToString(number.si, 2).PadLeft(Units * 8, '0');
-                case Bender.PrintFormat.Octal:
-                    return number => $"O{Convert.ToString(number.sl, 8)}";
-                case Bender.PrintFormat.Decimal:
-                    return number => number.sl.ToString();
-                case Bender.PrintFormat.Hex:
-                case Bender.PrintFormat.BigInt:
-                    return number =>
-                    {
-                        var prefix = PrintFormat == Bender.PrintFormat.Hex ? "0x" : "";
-                        var width = (Units * 2).NextPowerOf2();
-                        var hex = Convert.ToString(number.sl, 16).PadLeft(width, '0').ToUpper();
-                        return $"{prefix}{hex}";
-                    };
-                case Bender.PrintFormat.Float:
-                    return number =>
-                    {
-                        var result = Units switch
-                        {
-                            // Reinterpret data as floating point
-                            4 => number.fs.ToString("F6"),
-                            8 => number.fd.ToString("F6"),
-                            _ => "Malformed float. Width must be 4 or 8 bytes"
-                        };
-                        return result;
-                    };
-                case Bender.PrintFormat.Ascii:
-                case Bender.PrintFormat.Unicode:
-                    throw new ParseException("Cannot format numbers as a string type. This is bug");
-
-                default:
-                    return number => $"Unsupported format: {PrintFormat}";
-            }
-        }
-
+        
         /// <inheritdoc />
         public override string ToString()
         {

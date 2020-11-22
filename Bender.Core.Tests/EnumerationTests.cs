@@ -19,18 +19,25 @@ namespace Bender.Core.Tests
 
         private static readonly Element _element = new Element
         {
-            Enumeration = "Test Enumeration",
+            Enumeration = new Enumeration
+            {
+                Name = "Test Enumeration",
+                Values = new Dictionary<int, string>
+                {
+                    {0, "Foo"}
+                }
+            },
             Name = "Element w/ Enumeration",
             Units = 1
         };
-        
+
         [Theory]
-        [InlineData(new byte[]{0}, "None")]
-        [InlineData(new byte[]{1}, "First")]
-        [InlineData(new byte[]{2}, "Second")]
+        [InlineData(new byte[] {0}, "None")]
+        [InlineData(new byte[] {1}, "First")]
+        [InlineData(new byte[] {2}, "Second")]
         public void CanFormatElement(byte[] buff, string expected)
         {
-            var actual = _element.TryFormatEnumeration(_enumeration, buff);
+            var actual = _element.BuildNode(buff);
             Assert.Equal(expected, actual.Name);
         }
     }

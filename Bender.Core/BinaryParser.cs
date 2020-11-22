@@ -182,237 +182,31 @@
 
                 tree.AddChild(new BError(el.Name, "Error: Invalid deferred object"));
             }
-
-            // This is declared as a deferral but the definition was marked as empty
-            else if (el.IsDeferred && buff.Length == 0)
-            {
-                Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
-
-                tree.AddChild(new BError(el.Name, "Empty"));
-            }
-
             else
             {
-                tree = FormatBuffer(el, buff, tree);
-            }
-
-            return tree;
-        }
-
-        /// <summary>
-        /// Formats data according to element rules
-        /// </summary>
-        /// <param name="el">Element rules</param>
-        /// <param name="buff">Data to format</param>
-        /// <param name="tree">Receives parsed nodes</param>
-        /// <returns>Formatted string</returns>
-        /// <exception cref="OutOfDataException">Raised if data from offset does not have enough bytes to make a
-        /// number with width bytes</exception>
-        private ParseTree<BNode>  FormatBuffer(Element el, byte[] buff, ParseTree<BNode> tree)
-        {
-            if (el.Elide)
-            {
-                Log.Debug("'{0}' is elided", el.Name);
-
-                tree = tree.AddChild(new BPrimitive<string>(el, $"Elided {buff.Length} bytes"));
-            }
-            else
-            {
-                // Handle nestable types first
-                if (!(el.Matrix is null))
+                // Load complex types before building the new node
+                if (!string.IsNullOrEmpty(el.EnumerationName))
                 {
-                    var formattedMatrix = FormatMatrix(el, buff);
-
-                    tree.AddChild(formattedMatrix);
+                    el.Enumeration = GetEnumeration(el.EnumerationName);
                 }
-                else if (!string.IsNullOrEmpty(el.Structure))
+                else if (!(string.IsNullOrEmpty(el.StructureName)))
                 {
-                    var formattedStructure = FormatStructure(el, buff, tree);
-
-                    tree = formattedStructure;
+                    el.Structure = GetStructure(el.StructureName);
                 }
-                else if (!string.IsNullOrEmpty(el.Enumeration))
-                {
-                    var formattedEnumeration = FormatEnumeration(el, buff);
 
-                    tree = tree.AddChild(formattedEnumeration);
+                if (el.IsDeferred && buff.Length == 0)
+                {
+                    Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
+
+                    tree.AddChild(new BError(el.Name, "Empty"));
                 }
                 else
                 {
-                    var formattedElement = el.TryFormat(buff);
-
-                    tree = tree.AddChild(formattedElement);
+                    tree.AddChild(el.BuildNode(buff));
                 }
             }
 
             return tree;
-        }
-
-        /// <summary>
-        /// Formats the nested payload type as a matrix.
-        /// 
-        /// <remarks>If the matrix is not defined, a string describing
-        /// error will instead be returned.
-        /// </remarks>
-        /// 
-        /// </summary>
-        /// <param name="el">Element descriptor</param>
-        /// <param name="buff">Raw data</param>
-        /// <returns>List of formatted matrix rows</returns>
-        /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
-        /// number with width bytes</exception>
-        private BNode FormatMatrix(Element el, byte[] buff)
-        {
-            Log.Debug("Formatting '{0}' as matrix '{1}'", el.Name, el.Matrix);
-
-            // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
-            var elClone = el.Clone();
-            elClone.Units = el.Clone().Matrix.Units;
-            elClone.Matrix = null;
-
-            if (elClone.Units == 0 || buff.Length == 0 || el.Matrix is null)
-            {
-                return null;
-            }
-
-            return MakeMatrix(buff, el);
-        }
-
-        private BNode MakeMatrix(byte[] data, Element el)
-        {
-            var mat = el.Matrix;
-            var cols = mat.Columns <= 0 ? 8 : mat.Columns;
-            var rows = (data.Length / mat.Units) / cols;
-
-            switch (mat.Units)
-            {
-                case 1:
-                    return new BMatrix<byte>(el, data.Reshape(rows, cols));
-
-                case 2:
-                    var tShort = data.As<short>(false).Reshape(rows, cols);
-                    return new BMatrix<short>(el, tShort);
-
-                case 4:
-                    var tInt = data.As<int>(false).Reshape(rows, cols);
-                    return new BMatrix<int>(el, tInt);
-
-                case 8:
-                    var tLong = data.As<long>(false).Reshape(rows, cols);
-                    return new BMatrix<long>(el, tLong);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Formats the buffer as a structure. If the structure is
-        /// not defined, a string describing the error will be returned.
-        /// If there is an parser issue such as missing or malformed
-        /// data, an exception will be thrown.
-        /// 
-        /// <remarks>
-        /// If the structure is not defined, a string describing
-        /// error will instead be returned.
-        /// </remarks>
-        /// 
-        /// <remarks>
-        /// This supports up to two nested structures. After two levels of nesting, the parser will break and
-        /// we do not have a mechanism to test this yet.
-        /// </remarks>
-        /// </summary>
-        /// <param name="el">Element definition</param>
-        /// <param name="buff">Raw data</param>
-        /// <param name="tree">Receives nested structure data</param>
-        /// <returns>Structure formatted using this element's rules</returns>
-        private ParseTree<BNode> FormatStructure(Element el, byte[] buff, ParseTree<BNode> tree)
-        {
-            Log.Debug("Formatting '{0}' as structure '{1}'", el.Name, el.Structure);
-
-            if (_nestedDepth >= NestedStructLimit)
-            {
-                var error = new BError("Depth Exceeded", $"**Exceeded nested structure limit ({NestedStructLimit})**");
-                return tree.AddChild(error);
-            }
-
-            var def = GetStructure(el);
-            if (def is null)
-            {
-                var error = new BError("Unknown Structure", $"Unknown structure type {el.Structure} on element {el.Name}");
-                return tree.AddChild(error);
-            }
-
-            Log.Debug("Using structure definition for '{0}'", def.Name);
-
-            var structure = new BStructure(el);
-            tree = tree.AddChild(structure);
-
-            // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop
-            var elClone = el.Clone();
-            elClone.Structure = string.Empty;
-
-            // Buff is the binary representation of this structure definition
-            // so reads must be relative to this buffer.
-            using var stream = new MemoryStream(buff);
-            using var innerReader = new BinaryReader(stream);
-
-            // Temporarily set reader source to this structure's data
-            var tempReader = _reader;
-            _reader = innerReader;
-            ReaderLog.Debug("Switching to temporary reader for {0} (Size == {1})", el.Name,
-                _reader.BaseStream.Length);
-
-            ++_nestedDepth;
-
-            // If this is an implicit array we must track total bytes read
-            var bytesRead = 0;
-            do
-            {
-                // Recursively handle any nested elements
-                foreach (var childEl in def.Elements)
-                {
-                    HandleElement(childEl, tree);
-
-                    bytesRead += GetElementSize(childEl);
-                }
-            } while (el.IsArray && bytesRead < buff.Length);
-
-            --_nestedDepth;
-
-            // Restore the previous reader
-            _reader = tempReader;
-            ReaderLog.Debug("Continuing at offset {0}/{1}", _reader.BaseStream.Position,
-                _reader.BaseStream.Length);
-            
-            return tree.AddChild(structure);
-        }
-
-        /// <summary>
-        /// Formats the buffer as an enumeration.
-        ///
-        /// <remarks>
-        /// If the matrix is not defined, a string describing
-        /// error will instead be returned.
-        /// </remarks>
-        /// 
-        /// </summary>
-        /// <param name="el">Element definition</param>
-        /// <param name="buff">Raw data</param>
-        /// <returns>Enumeration string for the value in buff</returns>
-        private BNode FormatEnumeration(Element el, byte[] buff)
-        {
-            Log.Debug("Formatting '{0}' as enumeration '{1}'", el.Name, el.Enumeration);
-
-            var def = GetEnumeration(el);
-            if (def is null)
-            {
-                return new BError("Unknown Enumeration",
-                    "$Unknown enumeration type {el.Enumeration} on element {el.Name}");
-            }
-
-            Log.Debug("Using enumeration definition for '{0}'", def.Name);
-
-            return el.TryFormatEnumeration(def, buff);
         }
 
         /// <summary>
@@ -483,59 +277,47 @@
         }
 
         /// <summary>
-        /// Locate structure by structure name on this element
+        /// Return the request structure insance
         /// </summary>
-        /// <param name="el">Element with structure definition</param>
+        /// <param name="name">Structure name</param>
         /// <returns>Structure or null if no match is found</returns>
-        private Structure GetStructure(Element el)
+        private Structure GetStructure(string name)
         {
-            if (el.Structure is null)
+            if (string.IsNullOrEmpty(name))
             {
                 return null;
             }
 
-            if (_spec.Structures == null)
+            var result = _spec.Structures.FirstOrDefault(p =>
+                name.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (result is null)
             {
-                Log.Warn("'{0}' references a structure but no structures are defined");
-                return null;
+                Log.Warn("'{0}' is not a defined structure");
             }
 
-            var def = _spec.Structures.FirstOrDefault(p =>
-                el.Structure.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (def == null)
-            {
-                Log.Warn("'{0}' references an undefined structure '{1}'", el.Name, el.Structure);
-            }
-
-            return def;
+            return result;
         }
 
         /// <summary>
-        /// Locate enumeration by enumeration name on this element
+        /// Return the requested enumeration instance
         /// </summary>
-        /// <param name="el">Element with enumeration definition</param>
-        /// <returns>Enumeration of null if no match is found</returns>
-        private Enumeration GetEnumeration(Element el)
+        /// <param name="name">Enumeration name</param>
+        /// <returns>Enumeration or null if no match is found</returns>
+        private Enumeration GetEnumeration(string name)
         {
-            if (el.Enumeration is null)
+            if (string.IsNullOrEmpty(name))
             {
                 return null;
             }
 
-            if (_spec.Enumerations == null)
+            var result = _spec.Enumerations.FirstOrDefault(p =>
+                name.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (result is null)
             {
-                Log.Warn("'{0}' references an enumeration but no enumerations are defined");
-                return null;
+                Log.Warn("'{0}' is not a defined enumeration");
             }
 
-            var def = _spec.Enumerations.FirstOrDefault(p =>
-                el.Enumeration.Equals(p.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (def == null)
-            {
-                Log.Warn("'{0}' references an undefined enumeration '{1}'", el.Name, el.Enumeration);
-            }
-
-            return def;
+            return result;
         }
 
         /// <summary>
@@ -545,7 +327,7 @@
         /// <returns>Size in bytes</returns>
         private int GetElementSize(Element el)
         {
-            var childStruct = GetStructure(el);
+            var childStruct = GetStructure(el.StructureName);
             return childStruct?.Size ?? el.Size;
         }
 

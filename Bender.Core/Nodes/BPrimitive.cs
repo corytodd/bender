@@ -2,8 +2,9 @@ namespace Bender.Core.Nodes
 {
     using System.IO;
     using Layouts;
+    using Rendering;
 
-    public class BPrimitive<T> : BaseNode
+    public class BPrimitive<T> : BaseNode where T : IRenderable
     {
         public BPrimitive(Element el, T value) : base(el)
         {
@@ -15,13 +16,13 @@ namespace Bender.Core.Nodes
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{Name}:{Value}";
+            return $"{Name} : {Value.Format()}";
         }
 
         /// <inheritdoc />
-        public override void Print(StreamWriter writer)
+        public override void Render(StreamWriter stream)
         {
-            writer.WriteLine(this);
+            stream.Write(this);
         }
     }
 }

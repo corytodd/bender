@@ -62,16 +62,21 @@ namespace Bender.Core
                 throw new ArgumentException("{0} cannot be written", nameof(stream));
             }
 
-            void WriteNode(BNode node)
+            void RenderNode(BNode node)
             {
-                node?.Print(stream);
+                node?.Render(stream);
+            }
+
+            void EndLine()
+            {
+                stream.WriteLine();
             }
 
             stream.Write(Header);
             stream.Write(LineDelimiter);
             stream.Write(Environment.NewLine);
 
-            bender.Tree.Traverse(WriteNode);
+            bender.Tree.Traverse(RenderNode, EndLine);
         }
     }
 }

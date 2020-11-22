@@ -1,7 +1,7 @@
 namespace Bender.Core.Nodes
 {
-    using global::Bender.Core.Rendering;
     using Layouts;
+    using Rendering;
 
     public interface BNode : IRenderable
     {

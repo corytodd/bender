@@ -2,10 +2,12 @@ namespace Bender.Core.Nodes
 {
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using global::Bender.Core.Rendering;
     using Layouts;
 
+    [DebuggerDisplay("{Name}")]
     public class BArrray<T> : BaseNode, IEnumerable<T> where T : IRenderable
     {
         private T[] _data;
@@ -36,18 +38,21 @@ namespace Bender.Core.Nodes
         {
             return GetEnumerator();
         }
-
+        
         /// <inheritdoc />
-        public override void Print(StreamWriter writer)
+        public override void Render(StreamWriter stream)
         {
             if (_data is null)
             {
-                writer.WriteLine($"{this}:NULL");
+                stream.Write($"{this} : NULL");
                 return;
             }
 
-            writer.Write($"{Name}:");
-            writer.WriteLine(string.Join(",", _data));
+            stream.Write($"{Name} : ");
+            foreach (var t in _data)
+            {
+                t.Render(stream);
+            }
         }
     }
 }
