@@ -1,15 +1,22 @@
 ﻿// ReSharper disable MemberCanBePrivate.Global - This is a library type, all fields must be public
+
 namespace Bender.Core
 {
     using System;
+    using System.IO;
     using System.Runtime.InteropServices;
+    using Rendering;
 
     /// <summary>
     /// Number wrapper holds any number type
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
-    public readonly struct Number
+    public readonly struct Number : IRenderable
     {
+        private readonly int _width;
+        private readonly bool _isSigned;
+        private readonly bool _isFloat;
+
         /// <summary>
         /// Converts raw buffer data into a numeric type. This handles 
         /// sign conversion. Data is not checked for length validity, the caller
@@ -19,6 +26,7 @@ namespace Bender.Core
         /// <param name="el">Element spec</param>
         /// <param name="data">Raw data</param>
         /// <returns>Number type</returns>
+        /// <exception cref="ArgumentException">Thrown is element width is not in {1,2,4,8}</exception>
         public Number(Element el, byte[] data)
         {
             // Default values required for readonly struct
@@ -32,7 +40,7 @@ namespace Bender.Core
             sl = 0;
             fs = 0;
             fd = 0;
-            
+
             // If byte order does not match, flip now
             // Or if this is a bigint and the source is little endian, flip now
             if (!(el.IsLittleEndian && BitConverter.IsLittleEndian) ||
@@ -42,16 +50,16 @@ namespace Bender.Core
             }
 
             const int offset = 0;
-            var width = el.Units;
-            var isSigned = el.IsSigned;
-            var isFloat = el.PrintFormat == Bender.PrintFormat.Float;
+            _width = el.Units;
+            _isSigned = el.IsSigned;
+            _isFloat = el.PrintFormat == Bender.PrintFormat.Float;
 
             // Set the long number for everything so any field can be 
             // access correctly
-            switch (width)
+            switch (_width)
             {
                 case 1:
-                    if (isSigned)
+                    if (_isSigned)
                     {
                         sl = (sbyte) data[0];
                     }
@@ -62,7 +70,7 @@ namespace Bender.Core
 
                     break;
                 case 2:
-                    if (isSigned)
+                    if (_isSigned)
                     {
                         sl = BitConverter.ToInt16(data, offset);
                     }
@@ -73,11 +81,11 @@ namespace Bender.Core
 
                     break;
                 case 4:
-                    if (isFloat)
+                    if (_isFloat)
                     {
                         fs = BitConverter.ToSingle(data);
                     }
-                    else if (isSigned)
+                    else if (_isSigned)
                     {
                         sl = BitConverter.ToInt32(data, offset);
                     }
@@ -88,11 +96,11 @@ namespace Bender.Core
 
                     break;
                 case 8:
-                    if (isFloat)
+                    if (_isFloat)
                     {
                         fd = BitConverter.ToDouble(data);
                     }
-                    else if (isSigned)
+                    else if (_isSigned)
                     {
                         sl = BitConverter.ToInt64(data, offset);
                     }
@@ -102,6 +110,9 @@ namespace Bender.Core
                     }
 
                     break;
+
+                default:
+                    throw new ArgumentException($"Unsupported width: {_width}");
             }
         }
 
@@ -257,6 +268,35 @@ namespace Bender.Core
         public override string ToString()
         {
             return sl.ToString();
+        }
+
+        public string Format(string format)
+        {
+            switch (_width)
+            {
+                case 1:
+                    return string.Format(format, _isSigned ? sb : ub);
+                case 2:
+                    return string.Format(format, _isSigned ? ss : us);
+                case 4:
+                    return string.Format(format,
+                        _isFloat ? fs
+                        : _isSigned ? si : ui
+                    );
+                case 8:
+                    return string.Format(format,
+                        _isFloat ? fd
+                        : _isSigned ? sl : ul
+                    );
+
+                default:
+                    return string.Empty;
+            }
+        }
+
+        public void Print(StreamWriter stream)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,9 +1,11 @@
 namespace Bender.Core
 {
+    using System.Collections;
+    using System.Collections.Generic;
     using System.IO;
-    using System.Text;
+    using Rendering;
 
-    public class BArrray<T> : BaseNode
+    public class BArrray<T> : BaseNode, IEnumerable<T> where T : IRenderable
     {
         private T[] _data;
 
@@ -19,9 +21,19 @@ namespace Bender.Core
             get => _data[index];
         }
 
+        public IEnumerator<T> GetEnumerator()
+        {
+            return new List<T>(_data).GetEnumerator();
+        }
+
         public override string ToString()
         {
             return $"array({Length})";
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         /// <inheritdoc />

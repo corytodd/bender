@@ -17,6 +17,12 @@ namespace Bender.Core
         public string Name { get; }
 
         /// <inheritdoc />
+        public virtual string Format(string format)
+        {
+            return ToString();
+        }
+
+        /// <inheritdoc />
         public abstract void Print(StreamWriter writer);
     }
 }

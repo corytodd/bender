@@ -5,6 +5,7 @@ namespace Bender.Core
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Security;
     using System.Text;
     using YamlDotNet.Serialization;
 
@@ -15,6 +16,11 @@ namespace Bender.Core
     [DebuggerDisplay("Name = {Name}, Units = {Units}")]
     public class Element : ILayout
     {
+        /// <summary>
+        /// Raw data this element is associated with
+        /// </summary>
+        private byte[] _rawData;
+        
         /// <summary>
         /// Human friendly name of this element
         /// </summary>
@@ -97,6 +103,16 @@ namespace Bender.Core
         /// otherwise report the Units property.
         /// </summary>
         public int Size => IsDeferred ? 8 : Units;
+
+        /// <summary>
+        /// Set raw data associated with this element
+        /// </summary>
+        /// <param name="data">Data this element should interpret</param>
+        public void SetData(byte[] data)
+        {
+            _rawData = new byte[data.Length];
+            Array.Copy(data, _rawData, _rawData.Length);
+        }
 
         /// <inheritdoc />
         public IEnumerable<string> EnumerateLayout()
@@ -304,6 +320,50 @@ namespace Bender.Core
                 Structure = Structure,
                 IsDeferred = IsDeferred
             };
+        }
+
+        /// <summary>
+        ///     Returns the C# format code for <see cref="PrintFormat"/>
+        /// </summary>
+        /// <returns></returns>
+        public Func<Number, string> GetCSharpFormatter()
+        {
+            switch (PrintFormat)
+            {
+                case Bender.PrintFormat.Binary:
+                    return number => Convert.ToString(number.si, 2).PadLeft(Units * 8, '0');
+                case Bender.PrintFormat.Octal:
+                    return number => $"O{Convert.ToString(number.sl, 8)}";
+                case Bender.PrintFormat.Decimal:
+                    return number => number.sl.ToString();
+                case Bender.PrintFormat.Hex:
+                case Bender.PrintFormat.BigInt:
+                    return number =>
+                    {
+                        var prefix = PrintFormat == Bender.PrintFormat.Hex ? "0x" : "";
+                        var width = (Units * 2).NextPowerOf2();
+                        var hex = Convert.ToString(number.sl, 16).PadLeft(width, '0').ToUpper();
+                        return $"{prefix}{hex}";
+                    };
+                case Bender.PrintFormat.Float:
+                    return number =>
+                    {
+                        var result = Units switch
+                        {
+                            // Reinterpret data as floating point
+                            4 => number.fs.ToString("F6"),
+                            8 => number.fd.ToString("F6"),
+                            _ => "Malformed float. Width must be 4 or 8 bytes"
+                        };
+                        return result;
+                    };
+                case Bender.PrintFormat.Ascii:
+                case Bender.PrintFormat.Unicode:
+                    throw new ParseException("Cannot format numbers as a string type. This is bug");
+
+                default:
+                    return number => $"Unsupported format: {PrintFormat}";
+            }
         }
 
         /// <inheritdoc />
