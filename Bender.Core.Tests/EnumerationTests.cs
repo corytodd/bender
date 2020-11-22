@@ -30,7 +30,7 @@ namespace Bender.Core.Tests
         public void CanFormatElement(byte[] buff, string expected)
         {
             var actual = _element.TryFormatEnumeration(_enumeration, buff);
-            Assert.Equal(expected, actual);
+            Assert.Equal(expected, actual.Name);
         }
     }
 }

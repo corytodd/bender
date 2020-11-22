@@ -171,17 +171,17 @@ namespace Bender.Core
                 switch (PrintFormat)
                 {
                     case Bender.PrintFormat.Ascii:
-                        node = new BPrimitive(Name, Encoding.ASCII.GetString(data));
+                        node = new BPrimitive<string>(this, Encoding.ASCII.GetString(data));
                         break;
 
                     case Bender.PrintFormat.Unicode:
-                        node = new BPrimitive(Name, Encoding.Unicode.GetString(data));
+                        node = new BPrimitive<string>(this, Encoding.Unicode.GetString(data));
                         break;
 
                     default:
                         var number = new Number(this, data);
                         var formatted = FormatNumber(number);
-                        node = new BPrimitive(Name, formatted);
+                        node = new BPrimitive<string>(this, formatted);
                         break;
                 }
             }
@@ -212,7 +212,7 @@ namespace Bender.Core
 
                 if (def.Values.TryGetValue(number.si, out var enumValue))
                 {
-                    return new BPrimitive(Name, enumValue);
+                    return new BPrimitive<string>(this, enumValue);
                 }
                 else
                 {

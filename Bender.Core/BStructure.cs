@@ -4,15 +4,12 @@ namespace Bender.Core
     using System.IO;
     using System.Text;
 
-    public class BStructure : BNode
+    public class BStructure : BaseNode
     {
-        public BStructure(string name)
+        public BStructure(Element el) : base(el)
         {
-            Name = name;
             Fields = new List<BNode>();
         }
-
-        public string Name { get; }
 
         public List<BNode> Fields { get; }
 
@@ -27,7 +24,8 @@ namespace Bender.Core
             return sb.ToString();
         }
 
-        public void Print(StreamWriter writer)
+        /// <inheritdoc />
+        public override void Print(StreamWriter writer)
         {
             writer.WriteLine(this);
         }

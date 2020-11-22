@@ -18,10 +18,11 @@ namespace Bender.Core.Tests
             var bender = parser.Parse(dataFile);
             
             var captureStream = new MemoryStream();
+            var binaryWriter = new StreamWriter(captureStream);
             
             // Execute
             var printer = new BenderPrinter();
-            printer.WriteStream(bender, captureStream);
+            printer.WriteStream(bender, binaryWriter);
 
             // Test
             Assert.True(captureStream.Length > 0);

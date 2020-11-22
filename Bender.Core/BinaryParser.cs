@@ -141,7 +141,7 @@
             {
                 Log.Warn("Section '{0}' is undefined", section);
 
-                tree.AddChild(new BPrimitive(section, "Undefined object"));
+                tree.AddChild(new BError(section, "Undefined object"));
             }
             else if (element.IsArrayCount)
             {
@@ -212,7 +212,7 @@
             {
                 Log.Debug("'{0}' is elided", el.Name);
 
-                tree = tree.AddChild(new BPrimitive("Elided", $"{buff.Length} bytes"));
+                tree = tree.AddChild(new BPrimitive<string>(el, $"Elided {buff.Length} bytes"));
             }
             else
             {
@@ -285,19 +285,19 @@
             switch (mat.Units)
             {
                 case 1:
-                    return new BMatrix<byte>(el.Name, data.Reshape(rows, cols));
+                    return new BMatrix<byte>(el, data.Reshape(rows, cols));
 
                 case 2:
                     var tShort = data.As<short>(false).Reshape(rows, cols);
-                    return new BMatrix<short>(el.Name, tShort);
+                    return new BMatrix<short>(el, tShort);
 
                 case 4:
                     var tInt = data.As<int>(false).Reshape(rows, cols);
-                    return new BMatrix<int>(el.Name, tInt);
+                    return new BMatrix<int>(el, tInt);
 
                 case 8:
                     var tLong = data.As<long>(false).Reshape(rows, cols);
-                    return new BMatrix<long>(el.Name, tLong);
+                    return new BMatrix<long>(el, tLong);
             }
 
             return null;
@@ -342,7 +342,7 @@
 
             Log.Debug("Using structure definition for '{0}'", def.Name);
 
-            var structure = new BStructure(el.Name);
+            var structure = new BStructure(el);
             tree = tree.AddChild(structure);
 
             // Make a copy of Element and erase the payload name so we don't get stuck in a recursive loop

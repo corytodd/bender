@@ -49,30 +49,28 @@ namespace Bender.Core
         /// <param name="bender">Data to write</param>
         /// <param name="stream">Where data is being written to</param>
         /// <exception cref="ArgumentException">Raised is bender or stream are null or if stream cannot be written</exception>
-        public void WriteStream(Bender bender, StreamWriter writer)
+        public void WriteStream(Bender bender, StreamWriter stream)
         {
             if (bender == null)
             {
                 throw new ArgumentException("{0} cannot be null", nameof(bender));
             }
 
-            if (writer == null || !writer.BaseStream.CanWrite)
+            if (stream == null || !stream.BaseStream.CanWrite)
             {
-                throw new ArgumentException("{0} cannot be written", nameof(writer));
+                throw new ArgumentException("{0} cannot be written", nameof(stream));
             }
 
             void WriteNode(BNode node)
             {
-                node?.Print(writer);
+                node?.Print(stream);
             }
 
-            writer.Write(Header);
-            writer.Write(LineDelimiter);
-            writer.Write(Environment.NewLine);
+            stream.Write(Header);
+            stream.Write(LineDelimiter);
+            stream.Write(Environment.NewLine);
 
             bender.Tree.Traverse(WriteNode);
-
-            writer.BaseStream.Position = 0;
         }
     }
 }

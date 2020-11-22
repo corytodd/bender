@@ -1,26 +1,24 @@
 namespace Bender.Core
 {
     using System.IO;
-    using System.Text;
 
-    public class BPrimitive : BNode
+    public class BPrimitive<T> : BaseNode
     {
-        public BPrimitive(string name, string value)
+        public BPrimitive(Element el, T value) : base(el)
         {
-            Name = name;
             Value = value;
         }
         
-        public string Name { get; }
-        
-        public string Value { get; }
+        public T Value { get; }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"{Name}:{Value}";
         }
 
-        public void Print(StreamWriter writer)
+        /// <inheritdoc />
+        public override void Print(StreamWriter writer)
         {
             writer.WriteLine(this);
         }

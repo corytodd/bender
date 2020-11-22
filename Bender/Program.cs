@@ -74,26 +74,16 @@ namespace Bender
         {
             Console.WriteLine("Binary File - {0}{1}", spec.Name, Environment.NewLine);
             using var stream = new MemoryStream();
-            var sw = new StreamWriter(stream, new UTF8Encoding());
+            var sw = new StreamWriter(Console.OpenStandardOutput())
+            {
+                AutoFlush = true
+            };
+            Console.SetOut(sw);
 
             try
             {
                 var printer = new BenderPrinter();
                 printer.WriteStream(bender, sw);
-                
-                sw.Flush();//otherwise you are risking empty stream
-                stream.Seek(0, SeekOrigin.Begin);
-
-                // Stream content to console
-                using (var reader = new StreamReader(stream))
-                {
-                    while (!reader.EndOfStream)
-                    {
-                        Console.WriteLine(reader.ReadLine());
-                    }
-                }
-
-                Console.WriteLine();
             }
             finally
             {

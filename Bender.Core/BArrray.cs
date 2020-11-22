@@ -3,16 +3,14 @@ namespace Bender.Core
     using System.IO;
     using System.Text;
 
-    public class BArrray<T> : BNode
+    public class BArrray<T> : BaseNode
     {
         private T[] _data;
 
-        public BArrray(T[] arr)
+        public BArrray(Element el, T[] arr) : base(el)
         {
             _data = arr;
         }
-
-        public string Name { get; }
 
         public int Length => _data?.Length ?? 0;
 
@@ -26,7 +24,8 @@ namespace Bender.Core
             return $"array({Length})";
         }
 
-        public void Print(StreamWriter writer)
+        /// <inheritdoc />
+        public override void Print(StreamWriter writer)
         {
             if (_data is null)
             {
@@ -35,7 +34,7 @@ namespace Bender.Core
             }
 
             writer.Write($"{Name}:");
-            writer.WriteLine(",", _data);
+            writer.WriteLine(string.Join(",", _data));
         }
     }
 }

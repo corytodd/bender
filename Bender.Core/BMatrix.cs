@@ -2,17 +2,14 @@ namespace Bender.Core
 {
     using System.IO;
 
-    public class BMatrix<T> : BNode
+    public class BMatrix<T> : BaseNode
     {
         private readonly T[,] _data;
 
-        public BMatrix(string name, T[,] data)
+        public BMatrix(Element el, T[,] data) : base(el)
         {
-            Name = name;
             _data = data;
         }
-
-        public string Name { get; }
         
         public int RowCount => _data?.GetLength(0) ?? 0;
 
@@ -25,7 +22,8 @@ namespace Bender.Core
             return $"{Name}:({RowCount}x{ColCount})";
         }
 
-        public void Print(StreamWriter writer)
+        /// <inheritdoc />
+        public override void Print(StreamWriter writer)
         {
             if (_data is null)
             {
