@@ -1,6 +1,7 @@
-namespace Bender.Core
+namespace Bender.Core.Nodes
 {
     using System.IO;
+    using Layouts;
 
     public class BPrimitive<T> : BaseNode
     {

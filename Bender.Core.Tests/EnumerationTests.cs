@@ -1,6 +1,7 @@
 namespace Bender.Core.Tests
 {
     using System.Collections.Generic;
+    using Layouts;
     using Xunit;
 
     public class EnumerationTests

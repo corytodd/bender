@@ -5,6 +5,7 @@ namespace Bender.Core
     using System;
     using System.IO;
     using System.Runtime.InteropServices;
+    using Layouts;
     using Rendering;
 
     /// <summary>

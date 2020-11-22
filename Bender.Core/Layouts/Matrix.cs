@@ -1,9 +1,7 @@
-﻿namespace Bender.Core
+﻿namespace Bender.Core.Layouts
 {
-    using System;
     using System.Collections.Generic;
     using System.Text;
-    using System.Linq;
 
     /// <summary>
     /// Represents a format type arranging data into rows and columns

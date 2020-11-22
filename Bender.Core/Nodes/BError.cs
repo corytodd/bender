@@ -1,4 +1,4 @@
-namespace Bender.Core
+namespace Bender.Core.Nodes
 {
     using System;
     using System.IO;

@@ -5,6 +5,8 @@ using Xunit;
 
 namespace Bender.Core.Tests
 {
+    using Layouts;
+
     public class SpecParserTests
     {
         [Fact]

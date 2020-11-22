@@ -1,5 +1,7 @@
 ﻿namespace Bender.Core
 {
+    using Nodes;
+
     /// <summary>
     /// A fully parsed binary file
     /// </summary>

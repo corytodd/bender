@@ -4,6 +4,7 @@ namespace Bender.Core
 {
     using System;
     using System.IO;
+    using Nodes;
 
     /// <summary>
     /// Pretty printer for Benders

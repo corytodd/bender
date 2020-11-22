@@ -2,6 +2,8 @@
 
 namespace Bender.Core.Tests
 {
+    using Layouts;
+
     public class ElementTests
     {
         [Fact]

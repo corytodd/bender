@@ -1,8 +1,9 @@
-namespace Bender.Core
+namespace Bender.Core.Nodes
 {
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
+    using Layouts;
 
     public class BStructure : BaseNode
     {

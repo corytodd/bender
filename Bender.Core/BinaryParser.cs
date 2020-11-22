@@ -4,7 +4,9 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using Layouts;
     using Logging;
+    using Nodes;
 
     /// <summary>
     /// Reads a binary file and formats the data as specified in the SpecFile

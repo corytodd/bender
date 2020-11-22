@@ -1,9 +1,10 @@
-namespace Bender.Core
+namespace Bender.Core.Nodes
 {
     using System.Collections;
     using System.Collections.Generic;
     using System.IO;
-    using Rendering;
+    using global::Bender.Core.Rendering;
+    using Layouts;
 
     public class BArrray<T> : BaseNode, IEnumerable<T> where T : IRenderable
     {

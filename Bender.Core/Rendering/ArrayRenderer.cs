@@ -1,6 +1,8 @@
 namespace Bender.Core.Rendering
 {
     using System.IO;
+    using Layouts;
+    using Nodes;
 
     public class ArrayRenderer<T> : IRenderer<BArrray<T>> where T : IRenderable
     {

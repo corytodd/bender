@@ -1,12 +1,12 @@
 ﻿// ReSharper disable UnusedAutoPropertyAccessor.Global - This is a serialized type, all setters be global
 
-namespace Bender.Core
+namespace Bender.Core.Layouts
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Security;
     using System.Text;
+    using Nodes;
     using YamlDotNet.Serialization;
 
     /// <summary>
