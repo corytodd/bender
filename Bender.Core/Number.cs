@@ -14,10 +14,6 @@ namespace Bender.Core
     [StructLayout(LayoutKind.Explicit)]
     public readonly struct Number : IRenderable
     {
-        private readonly int _width;
-        private readonly bool _isSigned;
-        private readonly bool _isFloat;
-
         /// <summary>
         /// Converts raw buffer data into a numeric type. This handles 
         /// sign conversion. Data is not checked for length validity, the caller
@@ -264,6 +260,25 @@ namespace Bender.Core
         /// </summary>
         [FieldOffset(0)]
         public readonly double fd;
+
+        /// <summary>
+        /// Count of bytes stored
+        /// </summary>
+        [FieldOffset(8)]
+        private readonly int _width;
+
+        /// <summary>
+        /// True if signed
+        /// </summary>
+        [FieldOffset(12)]
+        private readonly bool _isSigned;
+
+        /// <summary>
+        /// True if floating point
+        /// </summary>
+        [FieldOffset(13)]
+        private readonly bool _isFloat;
+
 
         /// <inheritdoc />
         public override string ToString()
