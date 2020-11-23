@@ -166,50 +166,15 @@ namespace Bender.Core.Layouts
                 {
                     if (!(Enumeration is null))
                     {
-                        var number = new Number(this, data);
-
-                        if (Enumeration.Values.TryGetValue(number.si, out var enumValue))
-                        {
-                            result = new BString(this, enumValue);
-                        }
-                        else
-                        {
-                            result = new BError(this, "Unknown Enumeration",
-                                $"{number.si} is not defined in {Enumeration.Name}");
-                        }
+                        result = BuildEnumeration();
                     }
                     else if (!(Matrix is null))
                     {
-                        var rows = (Size / Matrix.Columns) / Matrix.Units;
-                        var matrix = new Number[rows, Matrix.Columns];
-                        var chunks = _rawData.AsChunks(Matrix.Units).ToList();
-                        for (var row = 0; row < rows; ++row)
-                        {
-                            for (var col = 0; col < Matrix.Columns; ++col)
-                            {
-                                matrix[row, col] = new Number(Matrix.Units, IsSigned, IsLittleEndian, PrintFormat,
-                                    chunks[row * Matrix.Columns + col]);
-                            }
-                        }
-
-                        result = new BMatrix<Number>(this, matrix);
+                        result = BuildMatrix();
                     }
                     else if (!(Structure is null))
                     {
-                        using var stream = new MemoryStream(data);
-                        using var reader = new BinaryReader(stream);
-
-                        var structure = new BStructure(this);
-                        foreach (var child in Structure.Elements)
-                        {
-                            var fieldBytes = reader.ReadBytes(child.Units);
-                            
-                            var node = child.BuildNode(fieldBytes);
-
-                            structure.Fields.Add(node);
-                        }
-
-                        result = structure;
+                        result = BuildStructure();
                     }
                     else
                     {
@@ -319,6 +284,70 @@ namespace Bender.Core.Layouts
         public override string ToString()
         {
             return $"{Name}, Units: {Units}, Format: {PrintFormat}, LE: {IsLittleEndian}, Elide: {Elide}";
+        }
+
+        /// <summary>
+        ///     Parse and create Enumeration for this element
+        /// </summary>
+        /// <returns>Parsed node</returns>
+        private BNode BuildEnumeration()
+        {
+            Ensure.IsNotNull(nameof(Enumeration), Enumeration);
+            
+            var number = new Number(this, _rawData);
+
+            if (Enumeration.Values.TryGetValue(number.si, out var enumValue))
+            {
+                return new BString(this, enumValue);
+            }
+            else
+            {
+                return new BError(this, "Unknown Enumeration",
+                    $"{number.si} is not defined in {Enumeration.Name}");
+            }
+        }
+
+        /// <summary>
+        ///     Parse and create Matrix for this element
+        /// </summary>
+        /// <returns>Parsed node</returns>
+        private BNode BuildMatrix()
+        {
+            var rows = (Size / Matrix.Columns) / Matrix.Units;
+            var matrix = new Number[rows, Matrix.Columns];
+            var chunks = _rawData.AsChunks(Matrix.Units).ToList();
+            for (var row = 0; row < rows; ++row)
+            {
+                for (var col = 0; col < Matrix.Columns; ++col)
+                {
+                    matrix[row, col] = new Number(Matrix.Units, IsSigned, IsLittleEndian, PrintFormat,
+                        chunks[row * Matrix.Columns + col]);
+                }
+            }
+
+            return new BMatrix<Number>(this, matrix);
+        }
+        
+        /// <summary>
+        ///     Parse and create structure for this element
+        /// </summary>
+        /// <returns>Parsed node</returns>
+        private BNode BuildStructure()
+        {
+            using var stream = new MemoryStream(_rawData);
+            using var reader = new BinaryReader(stream);
+
+            var structure = new BStructure(this);
+            foreach (var child in Structure.Elements)
+            {
+                var fieldBytes = reader.ReadBytes(child.Units);
+                            
+                var node = child.BuildNode(fieldBytes);
+
+                structure.Fields.Add(node);
+            }
+
+            return structure;
         }
     }
 }

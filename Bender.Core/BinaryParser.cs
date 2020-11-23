@@ -137,6 +137,7 @@
             }
             else
             {
+                // Recurse element to discover all nested an non-trivial definitions
                 LocateComplexTypes(el);
 
                 if (el.IsArrayCount)
