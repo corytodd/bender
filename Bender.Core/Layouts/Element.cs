@@ -196,12 +196,12 @@ namespace Bender.Core.Layouts
                     {
                         using var stream = new MemoryStream(data);
                         using var reader = new BinaryReader(stream);
-                        
+
                         var structure = new BStructure(this);
-                        foreach(var child in Structure.Elements)
+                        foreach (var child in Structure.Elements)
                         {
                             var node = child.BuildNode(reader.ReadBytes(child.Units));
-                            
+
                             structure.Fields.Add(node);
                         }
 
@@ -285,7 +285,7 @@ namespace Bender.Core.Layouts
 
             return sb.ToString();
         }
-        
+
         /// <summary>
         /// Deep copy this instance
         /// </summary>
@@ -310,7 +310,7 @@ namespace Bender.Core.Layouts
 
             return el;
         }
-        
+
         /// <inheritdoc />
         public override string ToString()
         {

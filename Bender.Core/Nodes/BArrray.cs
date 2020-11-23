@@ -2,43 +2,57 @@ namespace Bender.Core.Nodes
 {
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
-    using global::Bender.Core.Rendering;
+    using Rendering;
     using Layouts;
 
-    [DebuggerDisplay("{Name}")]
+    /// <summary>
+    ///     A one dimensional collection of <typeparamref name="T"/>
+    /// </summary>
+    /// <typeparam name="T">Array type</typeparam>
     public class BArrray<T> : BaseNode, IEnumerable<T> where T : IRenderable
     {
-        private T[] _data;
+        private readonly T[] _data;
 
-        public BArrray(Element el, T[] arr) : base(el)
+        /// <summary>
+        ///     Create a new BArray
+        /// </summary>
+        /// <param name="el">Parent</param>
+        /// <param name="data">Array elements</param>
+        public BArrray(Element el, T[] data) : base(el)
         {
-            _data = arr;
+            _data = data;
         }
 
+        /// <summary>
+        ///     Count of elements
+        /// </summary>
         public int Length => _data?.Length ?? 0;
 
-        public T this[int index]
-        {
-            get => _data[index];
-        }
+        /// <summary>
+        ///     Get item at index
+        /// </summary>
+        /// <param name="index">Array index</param>
+        public T this[int index] => _data[index];
 
+        /// <inheritdoc />
         public IEnumerator<T> GetEnumerator()
         {
             return new List<T>(_data).GetEnumerator();
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"array({Length})";
         }
 
+        /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
-        
+
         /// <inheritdoc />
         public override void Render(StreamWriter stream)
         {

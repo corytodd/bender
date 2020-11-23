@@ -1,39 +1,38 @@
 namespace Bender.Core.Nodes
 {
-    using System.Diagnostics;
     using System.IO;
     using Layouts;
-    
-    [DebuggerDisplay("{Name}")]
-    public class BString : BNode
+    using Rendering;
+
+    /// <summary>
+    ///     Specialized string element type provides an <see cref="IRenderable"/>
+    ///     version of the native string type.
+    /// </summary>
+    public class BString : BaseNode
     {
-        public BString(Element el, string value)
+        /// <summary>
+        ///     Create a new BString
+        /// </summary>
+        /// <param name="el">Parent</param>
+        /// <param name="value">String value</param>
+        public BString(Element el, string value) : base(el)
         {
-            El = el;
-            Name = el.Name;
             Value = value;
         }
 
-        public Element El { get; }
-
-        public string Name { get; }
-
+        /// <summary>
+        ///     String value
+        /// </summary>
         public string Value { get; }
 
         /// <inheritdoc />
-        public string Format()
+        public override string ToString()
         {
             return $"{Name} : {Value}";
         }
 
         /// <inheritdoc />
-        public override string ToString()
-        {
-            return Format();
-        }
-
-        /// <inheritdoc />
-        public void Render(StreamWriter stream)
+        public override void Render(StreamWriter stream)
         {
             stream.Write(Format());
         }

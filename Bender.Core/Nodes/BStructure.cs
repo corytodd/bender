@@ -5,15 +5,26 @@ namespace Bender.Core.Nodes
     using System.Text;
     using Layouts;
 
+    /// <summary>
+    ///     A recursive node structure
+    /// </summary>
     public class BStructure : BaseNode
     {
+        /// <summary>
+        ///     Create a new structure
+        /// </summary>
+        /// <param name="el">Parent</param>
         public BStructure(Element el) : base(el)
         {
             Fields = new List<BNode>();
         }
 
+        /// <summary>
+        ///     Top-level struct members
+        /// </summary>
         public List<BNode> Fields { get; }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             // TODO add check to prevent infinite loop
