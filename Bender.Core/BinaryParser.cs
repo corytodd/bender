@@ -17,7 +17,7 @@
         private static readonly ILog ReaderLog = LogProvider.GetLogger("ReaderLog");
 
         private readonly SpecFile _spec;
-        private BinaryReader _reader;
+        private ReaderContext _reader;
 
         /// <summary>
         /// Returns name of next section in layout
@@ -87,9 +87,10 @@
         private void TryParse(Bender bender, DataFile binary)
         {
             using var stream = new MemoryStream(binary.Data);
-            _reader = new BinaryReader(stream);
+            var binaryReader = new BinaryReader(stream);
+            _reader = new ReaderContext(binaryReader);
 
-            ReaderLog.Debug("New reader created. Total size == {0}", _reader.BaseStream.Length);
+            ReaderLog.Debug("New reader created. Total size == {0}", _reader.Length);
 
             // Iterates over the order specified in 'layout'
             var layoutQ = new Queue<string>(_spec.Layout);
@@ -206,8 +207,7 @@
 
             if (el.IsDeferred)
             {
-                var deferredReader = new DeferredReader(_reader);
-                buff = deferredReader.Read();
+                buff = _reader.DeferredRead();
 
                 if (buff.Length == 0)
                 {
@@ -236,8 +236,8 @@
         /// <returns></returns>
         private byte[] ReadBytes(int count, string section)
         {
-            ReaderLog.Info("{0,4}@0x{1:X4}/0x{2:X4} ({3})", count, _reader.BaseStream.Position,
-                _reader.BaseStream.Length, section);
+            ReaderLog.Info("{0,4}@0x{1:X4}/0x{2:X4} ({3})", count, _reader.Position, _reader.Length, 
+                section);
 
             return _reader.ReadBytes(count);
         }
@@ -317,7 +317,7 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            _reader?.Dispose();
+            _reader.Dispose();
         }
     }
 }

@@ -5,27 +5,23 @@ namespace Bender.Core
     using Logging;
 
     /// <summary>
-    ///     Extracts a deferred chunk of data
-    ///     from a stream using the concept of
-    ///     a binary pointer. A binary pointer is
-    ///     a size and offset, each of which are
-    ///     4 bytes in size and stored Big Endian.
+    ///     Reader context manages access to a binary reader
     /// </summary>
-    public class DeferredReader
+    public class ReaderContext : IDisposable
     {
         private static readonly ILog ReaderLog = LogProvider.GetLogger("ReaderLog");
-        
-        /// <summary>
-        ///     Do not dispose of this stream
-        /// </summary>
-        private readonly BinaryReader _reader;
 
         /// <summary>
-        ///     Create a new deferred reader
+        ///     Data source
+        /// </summary>
+        private BinaryReader _reader;
+
+        /// <summary>
+        ///     Create a new reader context
         /// </summary>
         /// <param name="reader">Data source</param>
         /// <exception cref="ArgumentException">Thrown if reader cannot be read or is unseekable</exception>
-        public DeferredReader(BinaryReader reader)
+        public ReaderContext(BinaryReader reader)
         {
             Ensure.IsNotNull(nameof(reader), reader);
             Ensure.IsValid(nameof(reader), reader.BaseStream.CanRead);
@@ -35,13 +31,37 @@ namespace Bender.Core
         }
 
         /// <summary>
+        ///     Get or set reader position
+        /// </summary>
+        public long Position
+        {
+            get => _reader.BaseStream.Position;
+            set => _reader.BaseStream.Seek(value, SeekOrigin.Begin);
+        }
+
+        /// <summary>
+        ///     Size in bytes of underlying data source
+        /// </summary>
+        public long Length => _reader.BaseStream.Length;
+
+        /// <summary>
+        ///     Read and return count bytes from current position
+        /// </summary>
+        /// <param name="count">Count of bytes to read</param>
+        /// <returns>Read data</returns>
+        public byte[] ReadBytes(int count)
+        {
+            return _reader.ReadBytes(count);
+        }
+
+        /// <summary>
         ///     From the current stream position, read
         ///     in the next binary pointer type. The reader
         ///     position will be left 8 bytes ahead of the current
         ///     position.
         /// </summary>
         /// <returns>Deferred data</returns>
-        public byte[] Read()
+        public byte[] DeferredRead()
         {
             var size = _reader.ReadInt32();
             Ensure.IsValid(nameof(size), size >= 0);
@@ -55,18 +75,24 @@ namespace Bender.Core
                 return new byte[0];
             }
 
-            ReaderLog.Debug("[deferred.abs]{0,4}@0x{1:X4}/0x{2:X4}", size, offset,
-                _reader.BaseStream.Length);
+            ReaderLog.Debug("[deferred.abs]{0,4}@0x{1:X4}/0x{2:X4}", size, offset, Length);
 
             // We must leave the read position immediately after the offset read position
-            var bookmark = _reader.BaseStream.Position;
-            _reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-            
-            var result = _reader.ReadBytes((int) size);
+            var bookmark = Position;
+            Position = offset;
 
-            _reader.BaseStream.Position = bookmark;
+            var result = ReadBytes(size);
+
+            // Return to end of binary pointer
+            Position = bookmark;
 
             return result;
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _reader.Dispose();
         }
     }
 }
