@@ -132,30 +132,36 @@
             Log.Debug("Handling '{0}'", section);
 
             // Find definition of the element
-            var element = _spec.Elements.FirstOrDefault(o => o.Name.Equals(section));
-            if (element is null)
+            var el = _spec.Elements.FirstOrDefault(o => o.Name.Equals(section));
+            if (el is null)
             {
                 Log.Warn("Section '{0}' is undefined", section);
 
-                tree.AddChild(new BError(element, section, "Undefined object"));
-            }
-            else if (element.IsArrayCount)
-            {
-                var buff = ReadNextElement(element);
-                var count = new Number(element, buff);
-                var repeatedSection = fnGetSection();
-
-                Log.Debug("'{0}' is an array with {1} elements", repeatedSection, count);
-
-                for (var i = 0; i < count; ++i)
-                {
-                    // Repeats the same section without requiring it to actually be defined in the layout
-                    HandleSection(() => repeatedSection, tree);
-                }
+                tree.AddChild(new BError(section, "Undefined object"));
             }
             else
             {
-                HandleElement(element, tree);
+                
+                LocateComplexTypes(el);
+
+                if (el.IsArrayCount)
+                {
+                    var buff = ReadNextElement(el);
+                    var count = new Number(el, buff);
+                    var repeatedSection = fnGetSection();
+
+                    Log.Debug("'{0}' is an array with {1} elements", repeatedSection, count);
+
+                    for (var i = 0; i < count; ++i)
+                    {
+                        // Repeats the same section without requiring it to actually be defined in the layout
+                        HandleSection(() => repeatedSection, tree);
+                    }
+                }
+                else
+                {
+                    HandleElement(el, tree);
+                }
             }
         }
 
@@ -178,16 +184,6 @@
             }
             else
             {
-                // Load complex types before building the new node
-                if (!string.IsNullOrEmpty(el.EnumerationName))
-                {
-                    el.Enumeration = GetEnumeration(el.EnumerationName);
-                }
-                else if (!(string.IsNullOrEmpty(el.StructureName)))
-                {
-                    el.Structure = GetStructure(el.StructureName);
-                }
-
                 if (el.IsDeferred && buff.Length == 0)
                 {
                     Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
@@ -314,6 +310,34 @@
             return result;
         }
 
+        /// <summary>
+        ///     Recursively locate and instantiate all nested types
+        ///     in this element
+        /// </summary>
+        /// <param name="el">Starting element</param>
+        private void LocateComplexTypes(Element el)
+        {
+            // Load complex types before building the new node
+            if (!string.IsNullOrEmpty(el.EnumerationName))
+            {
+                el.Enumeration = GetEnumeration(el.EnumerationName);
+            }
+            else if (!(string.IsNullOrEmpty(el.StructureName)))
+            {
+                el.Structure = GetStructure(el.StructureName);
+
+                if (el.Structure is null)
+                {
+                    return;
+                }
+
+                foreach (var field in el.Structure.Elements)
+                {
+                    LocateComplexTypes(field);
+                }
+            }
+        }
+        
         /// <summary>
         /// Returns the size in bytes of this element
         /// </summary>
