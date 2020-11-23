@@ -18,11 +18,6 @@
 
         private readonly SpecFile _spec;
         private BinaryReader _reader;
-        private DataFile? _binary;
-
-        // Limits the recursion depth
-        private const int NestedStructLimit = 64;
-        private int _nestedDepth;
 
         /// <summary>
         /// Returns name of next section in layout
@@ -93,7 +88,6 @@
         {
             using var stream = new MemoryStream(binary.Data);
             _reader = new BinaryReader(stream);
-            _binary = binary;
 
             ReaderLog.Debug("New reader created. Total size == {0}", _reader.BaseStream.Length);
 
