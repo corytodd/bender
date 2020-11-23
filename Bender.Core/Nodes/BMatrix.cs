@@ -26,17 +26,17 @@ namespace Bender.Core.Nodes
         /// <summary>
         ///     Count of rows in this matrix
         /// </summary>
-        public int RowCount => _data?.GetLength(0) ?? 0;
+        public int RowCount => _data.GetLength(0);
 
         /// <summary>
         ///     Count of columns in this matrix
         /// </summary>
-        public int ColCount => _data?.GetLength(1) ?? 0;
+        public int ColCount => _data.GetLength(1);
 
         /// <summary>
         ///     Total count of elements in this matrix
         /// </summary>
-        public int ElementCount => _data?.Length ?? 0;
+        public int ElementCount => _data.Length;
 
         /// <summary>
         ///     Returns elements at specified row and column

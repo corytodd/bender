@@ -1,3 +1,4 @@
+#pragma warning disable 8618
 namespace Bender.Core
 {
 /* MIT License

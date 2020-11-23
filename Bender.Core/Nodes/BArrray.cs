@@ -28,7 +28,7 @@ namespace Bender.Core.Nodes
         /// <summary>
         ///     Count of elements
         /// </summary>
-        public int Length => _data?.Length ?? 0;
+        public int Length => _data.Length;
 
         /// <summary>
         ///     Get item at index

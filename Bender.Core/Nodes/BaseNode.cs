@@ -14,19 +14,17 @@ namespace Bender.Core.Nodes
         ///     Create a new Node
         /// </summary>
         /// <param name="el">Parent</param>
-        protected BaseNode(Element el)
+        protected BaseNode(Element? el)
         {
-            Ensure.IsNotNull(nameof(el), el);
-
             El = el;
-            Name = el.Name;
+            Name = el?.Name;
         }
 
         /// <inheritdoc />
-        public Element El { get; }
+        public Element? El { get; }
 
         /// <inheritdoc />
-        public string Name { get; }
+        public string? Name { get; }
 
         /// <inheritdoc />
         public virtual string Format()

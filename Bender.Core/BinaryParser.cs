@@ -17,8 +17,8 @@
         private static readonly ILog ReaderLog = LogProvider.GetLogger("ReaderLog");
 
         private readonly SpecFile _spec;
-        private BinaryReader _reader;
-        private DataFile _binary;
+        private BinaryReader? _reader;
+        private DataFile? _binary;
 
         // Limits the recursion depth
         private const int NestedStructLimit = 64;
@@ -68,7 +68,7 @@
                 var next = ex.InnerException;
                 while (!(next is null))
                 {
-                    error = new BError(next.Message, next.StackTrace, next);
+                    error = new BError(next.Message, next.StackTrace ?? null, next);
                     errorTree.AddChild(error);
 
                     Log.Error(next, "Parser error");
@@ -275,7 +275,7 @@
         /// </summary>
         /// <param name="name">Structure name</param>
         /// <returns>Structure or null if no match is found</returns>
-        private Structure GetStructure(string name)
+        private Structure? GetStructure(string name)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -297,7 +297,7 @@
         /// </summary>
         /// <param name="name">Enumeration name</param>
         /// <returns>Enumeration or null if no match is found</returns>
-        private Enumeration GetEnumeration(string name)
+        private Enumeration? GetEnumeration(string name)
         {
             if (string.IsNullOrEmpty(name))
             {

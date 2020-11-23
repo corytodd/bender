@@ -72,8 +72,7 @@ namespace Bender.Core.Layouts
         /// <summary>
         /// Matrix definition, if any
         /// </summary>
-        [CanBeNull]
-        public Matrix Matrix { get; set; }
+        public Matrix? Matrix { get; set; }
 
         /// <summary>
         /// True if this block is pointing to more data
@@ -112,8 +111,7 @@ namespace Bender.Core.Layouts
         /// value should match a known structure definition
         /// </summary>
         [YamlIgnore]
-        [CanBeNull]
-        public Structure Structure { get; set; }
+        public Structure? Structure { get; set; }
 
         /// <summary>
         /// Name of enumeration this element represents
@@ -129,8 +127,7 @@ namespace Bender.Core.Layouts
         /// a predefined Enumeration element in the SpecFil.
         /// </summary>
         [YamlIgnore]
-        [CanBeNull]
-        public Enumeration Enumeration { get; set; }
+        public Enumeration? Enumeration { get; set; }
 
         /// <inheritdoc />
         /// <summary>

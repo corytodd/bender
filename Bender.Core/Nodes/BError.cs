@@ -16,7 +16,7 @@ namespace Bender.Core.Nodes
         /// <param name="error">Short error name</param>
         /// <param name="details">Explanation and context</param>
         /// <param name="ex">Associated exception, if any</param>
-        public BError(string error, string details, Exception ex = null) : base(null)
+        public BError(string error, string details, Exception? ex = null) : base(null)
         {
             Error = error;
             Details = details;
@@ -26,7 +26,7 @@ namespace Bender.Core.Nodes
         /// <summary>
         ///     Runtime exception that generated this error
         /// </summary>
-        public Exception Exception { get; }
+        public Exception? Exception { get; }
 
         /// <summary>
         ///     Short error code

@@ -1,3 +1,6 @@
+// ReSharper disable All
+#pragma warning disable 8603
+#pragma warning disable 8625
 namespace Bender.Core.Logging.LogProviders
 {
     using System;

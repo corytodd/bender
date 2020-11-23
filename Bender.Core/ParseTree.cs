@@ -31,7 +31,7 @@ namespace Bender.Core
         /// </summary>
         /// <param name="node">Value</param>
         /// <param name="parent">Parent tree</param>
-        private ParseTree(T node, ParseTree<T> parent)
+        private ParseTree(T? node, ParseTree<T>? parent)
         {
             Value = node;
             Parent = parent;
@@ -40,12 +40,12 @@ namespace Bender.Core
         /// <summary>
         ///     Value of this node
         /// </summary>
-        public T Value { get; }
+        public T? Value { get; }
 
         /// <summary>
         ///     Parent of this node
         /// </summary>
-        public ParseTree<T> Parent { get; }
+        public ParseTree<T>? Parent { get; }
 
         /// <summary>
         ///     Children of this node

@@ -1,3 +1,4 @@
+#pragma warning disable 8625
 namespace Bender.Core.Logging.LogProviders
 {
     using System;
@@ -7,7 +8,7 @@ namespace Bender.Core.Logging.LogProviders
 #endif
     internal class DisposableAction : IDisposable
     {
-        private readonly Action _onDispose;
+        private readonly Action? _onDispose;
 
         public DisposableAction(Action onDispose = null)
         {
