@@ -189,7 +189,7 @@ namespace Bender.Core.Logging.LogProviders
                             methodType != null && methodType.DeclaringType == typeof(LogExtensions))
                             callsiteLoggerType = typeof(LogExtensions);
                         else if (methodType == typeof(LoggerExecutionWrapper) || methodType != null &&
-                                 methodType.DeclaringType == typeof(LoggerExecutionWrapper))
+                            methodType.DeclaringType == typeof(LoggerExecutionWrapper))
                             callsiteLoggerType = typeof(LoggerExecutionWrapper);
                         var nlogLevel = TranslateLevel(logLevel);
                         var nlogEvent = s_logEventInfoFact(_logger.Name, nlogLevel, formatMessage, formatParameters,

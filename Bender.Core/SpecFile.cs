@@ -2,14 +2,11 @@
 
 namespace Bender.Core
 {
-    using System.Collections.Generic;
-    using System.Text;
     using Layouts;
-    using YamlDotNet.Serialization;
-    using System.Text;
     using System.Collections.Generic;
-    using YamlDotNet.Serialization;
+    using System.Text;
     using YamlDotNet.Core;
+    using YamlDotNet.Serialization;
     using YamlDotNet.Serialization.NamingConventions;
 
     /// <summary>

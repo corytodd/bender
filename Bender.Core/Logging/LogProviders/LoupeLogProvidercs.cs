@@ -55,7 +55,8 @@ namespace Bender.Core.Logging.LogProviders
 
         private static Type GetTypeFromCoreOrFrameworkDll(string typeName)
         {
-            return Type.GetType($"{typeName}, {LoupeAgentNetCoreDll}") ?? Type.GetType($"{typeName}, {LoupeAgentNetFrameworkDll}");
+            return Type.GetType($"{typeName}, {LoupeAgentNetCoreDll}") ??
+                   Type.GetType($"{typeName}, {LoupeAgentNetFrameworkDll}");
         }
 
         private static Type GetLogManagerType()

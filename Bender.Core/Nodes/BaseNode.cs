@@ -13,11 +13,13 @@ namespace Bender.Core.Nodes
         /// <summary>
         ///     Create a new Node
         /// </summary>
-        /// <param name="el"></param>
+        /// <param name="el">Parent</param>
         protected BaseNode(Element el)
         {
+            Ensure.IsNotNull(nameof(el), el);
+
             El = el;
-            Name = el?.Name;
+            Name = el.Name;
         }
 
         /// <inheritdoc />

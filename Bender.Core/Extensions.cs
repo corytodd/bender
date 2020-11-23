@@ -140,6 +140,14 @@
             return result;
         }
 
+        /// <summary>
+        ///     Reshape flat array into multi dimensional array
+        /// </summary>
+        /// <param name="arr">Source data</param>
+        /// <param name="rows">Count of rows in output</param>
+        /// <param name="cols">Count of columns in output</param>
+        /// <typeparam name="T">Array type</typeparam>
+        /// <returns>Multi dimensional array</returns>
         public static T[,] Reshape<T>(this T[] arr, int rows, int cols)
         {
             var result = new T[rows, cols];

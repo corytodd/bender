@@ -35,6 +35,7 @@
         /// <param name="spec">Binary layout spec</param>
         public BinaryParser(SpecFile spec)
         {
+            Ensure.IsNotNull(nameof(spec), spec);
             _spec = spec;
         }
 
@@ -47,17 +48,10 @@
         /// number with width bytes</exception>
         public Bender Parse(DataFile binary)
         {
+            Ensure.IsNotNull(nameof(binary), binary);
+            Ensure.IsValid(nameof(binary), !binary.Empty);
+
             var bender = new Bender();
-
-            if (binary == null)
-            {
-                throw new ArgumentException("{0} cannot be null", nameof(binary));
-            }
-
-            if (binary.Empty)
-            {
-                throw new ArgumentException("{0} cannot be empty", nameof(binary));
-            }
 
             try
             {

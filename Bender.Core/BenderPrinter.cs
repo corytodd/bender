@@ -52,15 +52,9 @@ namespace Bender.Core
         /// <exception cref="ArgumentException">Raised is bender or stream are null or if stream cannot be written</exception>
         public void WriteStream(Bender bender, StreamWriter stream)
         {
-            if (bender == null)
-            {
-                throw new ArgumentException("{0} cannot be null", nameof(bender));
-            }
-
-            if (stream == null || !stream.BaseStream.CanWrite)
-            {
-                throw new ArgumentException("{0} cannot be written", nameof(stream));
-            }
+            Ensure.IsNotNull(nameof(bender), bender);
+            Ensure.IsNotNull(nameof(stream), stream);
+            Ensure.IsValid(nameof(stream), stream.BaseStream.CanWrite, $"{nameof(stream)} cannot be written");
 
             void RenderNode(BNode node)
             {

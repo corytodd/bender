@@ -10,7 +10,9 @@ namespace Bender.Core.Logging.LogProviders
     {
         private static readonly IDisposable NoopDisposableInstance = new DisposableAction();
         private readonly Lazy<OpenMdc> _lazyOpenMdcMethod;
-        protected const string ErrorInitializingProvider = "Unable to log due to problem initializing the log provider. See inner exception for details.";
+
+        protected const string ErrorInitializingProvider =
+            "Unable to log due to problem initializing the log provider. See inner exception for details.";
 
         private readonly Lazy<OpenNdc> _lazyOpenNdcMethod;
 

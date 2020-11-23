@@ -66,7 +66,7 @@
         /// <summary>
         /// Returns a copy of underlying data
         /// </summary>
-        public byte[] Data => (byte[])_data.Clone();
+        public byte[] Data => (byte[]) _data.Clone();
 
         /// <summary>
         /// Returns true if this DataFile is empty

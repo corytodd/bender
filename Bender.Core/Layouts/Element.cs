@@ -8,6 +8,7 @@ namespace Bender.Core.Layouts
     using System.IO;
     using System.Linq;
     using System.Text;
+    using JetBrains.Annotations;
     using Nodes;
     using Rendering;
     using YamlDotNet.Serialization;
@@ -71,6 +72,7 @@ namespace Bender.Core.Layouts
         /// <summary>
         /// Matrix definition, if any
         /// </summary>
+        [CanBeNull]
         public Matrix Matrix { get; set; }
 
         /// <summary>
@@ -110,6 +112,7 @@ namespace Bender.Core.Layouts
         /// value should match a known structure definition
         /// </summary>
         [YamlIgnore]
+        [CanBeNull]
         public Structure Structure { get; set; }
 
         /// <summary>
@@ -126,6 +129,7 @@ namespace Bender.Core.Layouts
         /// a predefined Enumeration element in the SpecFil.
         /// </summary>
         [YamlIgnore]
+        [CanBeNull]
         public Enumeration Enumeration { get; set; }
 
         /// <inheritdoc />
@@ -146,12 +150,13 @@ namespace Bender.Core.Layouts
         /// <param name="data">Data this element should interpret</param>
         public BNode BuildNode(byte[] data)
         {
+            Ensure.IsNotNull(nameof(data), data);
             //Debug.Assert(!_debugIsBuilt);
 
             _rawData = new byte[data.Length];
             Array.Copy(data, _rawData, _rawData.Length);
 
-            BNode result = null;
+            BNode? result = null;
 
             // Do not try to format the data if spec says to elide
             if (Elide)

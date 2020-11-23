@@ -19,6 +19,7 @@ namespace Bender.Core.Nodes
         /// <param name="data">Matrix elements</param>
         public BMatrix(Element el, T[,] data) : base(el)
         {
+            Ensure.IsNotNull(nameof(data), data);
             _data = data;
         }
 
@@ -53,12 +54,6 @@ namespace Bender.Core.Nodes
         /// <inheritdoc />
         public override void Render(StreamWriter stream)
         {
-            if (_data is null)
-            {
-                stream.Write($"{this} : NULL");
-                return;
-            }
-
             stream.Write($"{Name} : ");
 
             for (var row = 0; row < RowCount; ++row)
