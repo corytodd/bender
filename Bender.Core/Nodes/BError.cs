@@ -2,6 +2,7 @@ namespace Bender.Core.Nodes
 {
     using System;
     using System.IO;
+    using Layouts;
 
     /// <summary>
     ///     Error specialization capture node errors
@@ -16,7 +17,18 @@ namespace Bender.Core.Nodes
         /// <param name="error">Short error name</param>
         /// <param name="details">Explanation and context</param>
         /// <param name="ex">Associated exception, if any</param>
-        public BError(string error, string details, Exception? ex = null) : base(null)
+        public BError(string error, string details, Exception? ex = null) : this(null, error, details, ex)
+        {
+        }
+        
+        /// <summary>
+        ///     Create a new error
+        /// </summary>
+        /// <param name="el">Parent</param>
+        /// <param name="error">Short error name</param>
+        /// <param name="details">Explanation and context</param>
+        /// <param name="ex">Associated exception, if any</param>
+        public BError(Element el, string error, string details, Exception? ex = null) : base(el)
         {
             Error = error;
             Details = details;

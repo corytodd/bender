@@ -174,7 +174,7 @@ namespace Bender.Core.Layouts
                         }
                         else
                         {
-                            result = new BError("Unknown Enumeration",
+                            result = new BError(this, "Unknown Enumeration",
                                 $"{number.si} is not defined in {Enumeration.Name}");
                         }
                     }
@@ -202,7 +202,9 @@ namespace Bender.Core.Layouts
                         var structure = new BStructure(this);
                         foreach (var child in Structure.Elements)
                         {
-                            var node = child.BuildNode(reader.ReadBytes(child.Units));
+                            var fieldBytes = reader.ReadBytes(child.Units);
+                            
+                            var node = child.BuildNode(fieldBytes);
 
                             structure.Fields.Add(node);
                         }
@@ -221,7 +223,7 @@ namespace Bender.Core.Layouts
                 }
                 catch (Exception ex)
                 {
-                    result = new BError($"{Name} BuildNodeError", ex.Message, ex);
+                    result = new BError(this, "BuildNodeError", ex.Message, ex);
                 }
             }
 

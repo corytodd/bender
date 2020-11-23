@@ -137,7 +137,7 @@
             {
                 Log.Warn("Section '{0}' is undefined", section);
 
-                tree.AddChild(new BError(section, "Undefined object"));
+                tree.AddChild(new BError(element, section, "Undefined object"));
             }
             else if (element.IsArrayCount)
             {
@@ -192,7 +192,7 @@
                 {
                     Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
 
-                    tree.AddChild(new BError(el.Name, "Empty"));
+                    tree.AddChild(new BString(el, "Empty"));
                 }
                 else
                 {
