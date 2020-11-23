@@ -17,7 +17,7 @@
         private static readonly ILog ReaderLog = LogProvider.GetLogger("ReaderLog");
 
         private readonly SpecFile _spec;
-        private BinaryReader? _reader;
+        private BinaryReader _reader;
         private DataFile? _binary;
 
         // Limits the recursion depth
@@ -137,11 +137,12 @@
             {
                 Log.Warn("Section '{0}' is undefined", section);
 
-                tree.AddChild(new BError(section, "Undefined object"));
+                var error = new BError(section, "Undefined object");
+
+                tree.AddChild(error);
             }
             else
             {
-                
                 LocateComplexTypes(el);
 
                 if (el.IsArrayCount)
@@ -210,33 +211,13 @@
 
             if (el.IsDeferred)
             {
-                // Deferred object is always 8 bytes (2 ints)
-                const int intWidth = 4;
+                var deferredReader = new DeferredReader(_reader);
+                buff = deferredReader.Read();
 
-                var sizeEl = new Element {Units = intWidth, Name = "size_bytes"};
-                buff = ReadNextElement(sizeEl);
-                var size = new Number(sizeEl, buff);
-
-                var offsetEl = new Element {Units = intWidth, Name = "offset_bytes"};
-                buff = ReadNextElement(offsetEl);
-                var offset = new Number(offsetEl, buff);
-
-                if (size == 0 || offset == 0)
+                if (buff.Length == 0)
                 {
                     ReaderLog.Debug("{0} is empty", el.Name);
-                    return new byte[0];
                 }
-
-                ReaderLog.Debug("[deferred.abs]{0,4}@0x{1:X4}/0x{2:X4} ({3})", size.si, offset.sl,
-                    _binary.Data.Length, el.Name);
-
-                // Create a new reader so we don't interfere with the current element
-                using var stream = new MemoryStream(_binary.Data);
-                using var reader = new BinaryReader(stream);
-
-                // Read the deferred object in its entirety
-                reader.BaseStream.Position = offset.sl;
-                buff = reader.ReadBytes(size.si);
             }
             else
             {
@@ -336,17 +317,6 @@
                     LocateComplexTypes(field);
                 }
             }
-        }
-        
-        /// <summary>
-        /// Returns the size in bytes of this element
-        /// </summary>
-        /// <param name="el">Element to measure</param>
-        /// <returns>Size in bytes</returns>
-        private int GetElementSize(Element el)
-        {
-            var childStruct = GetStructure(el.StructureName);
-            return childStruct?.Size ?? el.Size;
         }
 
         /// <inheritdoc />
