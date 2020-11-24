@@ -69,7 +69,7 @@ jobs:
           
       # Must use nuget as well to workaround API key non-sense with dotnet tool    
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.2
+        uses: NuGet/setup-nuget@v1.0.5
         with:
           nuget-version: latest
 
