@@ -401,22 +401,20 @@ namespace Bender.Core.Layouts
             foreach (var field in Structure.Elements)
             {
                 byte[] fieldBytes;
-                BNode node;
 
                 if (field.IsDeferred)
                 {
                     var pointer = childReader.ReadBinaryPointer();
 
                     fieldBytes = context.DeferredRead(pointer);
-
-                    node = field.BuildNode(context, fieldBytes);
                 }
                 else
                 {
                     fieldBytes = childReader.ReadBytes(field.Units);
+                    
                 }
 
-                node = field.BuildNode(context, fieldBytes);
+                var node = field.BuildNode(context, fieldBytes);
 
                 structure.Fields.Add(node);
             }

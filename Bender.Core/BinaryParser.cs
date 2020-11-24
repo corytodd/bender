@@ -92,6 +92,12 @@
 
             ReaderLog.Debug("New reader created. Total size == {0}", _reader.Length);
 
+            // Visit all elements an ensure their nested types are built
+            foreach (var el in _spec.Elements)
+            {
+                LocateComplexTypes(el);
+            }
+
             // Iterates over the order specified in 'layout'
             var layoutQ = new Queue<string>(_spec.Layout);
 
@@ -138,9 +144,6 @@
             }
             else
             {
-                // Recurse element to discover all nested an non-trivial definitions
-                LocateComplexTypes(el);
-
                 if (el.IsArrayCount)
                 {
                     var buff = ReadElementData(el);
