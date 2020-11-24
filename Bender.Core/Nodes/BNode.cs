@@ -13,11 +13,11 @@ namespace Bender.Core.Nodes
         /// <summary>
         ///     Parent Element describes node layout
         /// </summary>
-        Element? El { get; }
+        Element El { get; }
 
         /// <summary>
         ///     Name of this node is derived from its <see cref="SpecFile"/>
         /// </summary>
-        string? Name { get; }
+        string Name { get; }
     }
 }

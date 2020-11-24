@@ -56,7 +56,7 @@ namespace Bender.Core
             Ensure.IsNotNull(nameof(stream), stream);
             Ensure.IsValid(nameof(stream), stream.BaseStream.CanWrite, $"{nameof(stream)} cannot be written");
 
-            void RenderNode(BNode? node)
+            void RenderNode(BNode node)
             {
                 node?.Render(stream);
             }

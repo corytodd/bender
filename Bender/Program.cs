@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bender.Core;
+using System.Reflection;
 
 namespace Bender
 {
-    using System.Reflection;
-    using System.Text;
 
     internal class Program
     {
@@ -133,15 +132,15 @@ namespace Bender
             }
 
             // Try to find spec for provided binary, no leading '.'
-            var binext = Path.GetExtension(opts.BinaryFile).Remove(0, 1);
+            var binExtension = Path.GetExtension(opts.BinaryFile)?.Remove(0, 1);
             var result = string.IsNullOrEmpty(opts.SpecFile)
-                ? specs.FirstOrDefault(s => s.Extensions.Contains(binext))
+                ? specs.FirstOrDefault(s => s.Extensions.Contains(binExtension))
                 : specs.FirstOrDefault();
 
             if (result == null)
             {
                 Console.WriteLine("No specification file found for \"{0}\" type. Try specifying " +
-                                  "a spec file with the -s flag or a spec root with the -r flag.", binext);
+                                  "a spec file with the -s flag or a spec root with the -r flag.", binExtension);
             }
 
             return result;

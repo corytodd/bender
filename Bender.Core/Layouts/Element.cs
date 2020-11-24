@@ -21,11 +21,6 @@ namespace Bender.Core.Layouts
     public class Element : ILayout
     {
         /// <summary>
-        /// Do not build a node more than once
-        /// </summary>
-        private bool _debugIsBuilt;
-
-        /// <summary>
         /// Raw data this element is associated with
         /// </summary>
         private byte[] _rawData;
@@ -72,7 +67,7 @@ namespace Bender.Core.Layouts
         /// <summary>
         /// Matrix definition, if any
         /// </summary>
-        public Matrix? Matrix { get; set; }
+        public Matrix Matrix { get; set; }
 
         /// <summary>
         /// True if this block is pointing to more data
@@ -111,7 +106,7 @@ namespace Bender.Core.Layouts
         /// value should match a known structure definition
         /// </summary>
         [YamlIgnore]
-        public Structure? Structure { get; set; }
+        public Structure Structure { get; set; }
 
         /// <summary>
         /// Name of enumeration this element represents
@@ -127,7 +122,7 @@ namespace Bender.Core.Layouts
         /// a predefined Enumeration element in the SpecFil.
         /// </summary>
         [YamlIgnore]
-        public Enumeration? Enumeration { get; set; }
+        public Enumeration Enumeration { get; set; }
 
         /// <inheritdoc />
         /// <summary>
@@ -144,16 +139,16 @@ namespace Bender.Core.Layouts
         /// <summary>
         /// Set raw data associated with this element
         /// </summary>
+        /// <param name="context">Data provider context</param>
         /// <param name="data">Data this element should interpret</param>
         public BNode BuildNode(ReaderContext context, byte[] data)
         {
             Ensure.IsNotNull(nameof(data), data);
-            //Debug.Assert(!_debugIsBuilt);
 
             _rawData = new byte[data.Length];
             Array.Copy(data, _rawData, _rawData.Length);
 
-            BNode? result = null;
+            BNode result = null;
 
             // Do not try to format the data if spec says to elide
             if (Elide)
@@ -207,8 +202,6 @@ namespace Bender.Core.Layouts
             {
                 result
             };
-
-            _debugIsBuilt = true;
 
             return result;
         }

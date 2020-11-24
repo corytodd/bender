@@ -14,7 +14,7 @@ namespace Bender.Core
         /// <summary>
         ///     Optional memory stream backing
         /// </summary>
-        private readonly MemoryStream? _memory;
+        private readonly MemoryStream _memory;
 
         /// <summary>
         ///     Data source

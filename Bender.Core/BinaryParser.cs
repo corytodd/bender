@@ -238,7 +238,7 @@
         /// </summary>
         /// <param name="name">Structure name</param>
         /// <returns>Structure or null if no match is found</returns>
-        private Structure? GetStructure(string name)
+        private Structure GetStructure(string name)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -260,7 +260,7 @@
         /// </summary>
         /// <param name="name">Enumeration name</param>
         /// <returns>Enumeration or null if no match is found</returns>
-        private Enumeration? GetEnumeration(string name)
+        private Enumeration GetEnumeration(string name)
         {
             if (string.IsNullOrEmpty(name))
             {

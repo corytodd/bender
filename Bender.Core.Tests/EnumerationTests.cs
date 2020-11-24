@@ -7,7 +7,7 @@ namespace Bender.Core.Tests
 
     public class EnumerationTests
     {
-        private static readonly Element _element = new()
+        private static readonly Element TestElement = new()
         {
             Enumeration = new Enumeration
             {
@@ -30,7 +30,7 @@ namespace Bender.Core.Tests
         public void CanFormatElement(byte[] buff, string expected)
         {
             var context = new ReaderContext(buff);
-            var actual = _element.BuildNode(context, buff);
+            var actual = TestElement.BuildNode(context, buff);
 
             var asPrimitive = actual as BPrimitive<Phrase>;
             Assert.NotNull(asPrimitive);

@@ -142,7 +142,7 @@ namespace Bender.Core
         /// <summary>
         /// Returns true if values are equal
         /// </summary>
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             return obj is int other && Equals(other);
         }
