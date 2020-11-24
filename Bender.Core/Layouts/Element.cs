@@ -145,7 +145,7 @@ namespace Bender.Core.Layouts
         /// Set raw data associated with this element
         /// </summary>
         /// <param name="data">Data this element should interpret</param>
-        public BNode BuildNode(byte[] data)
+        public BNode BuildNode(ReaderContext context, byte[] data)
         {
             Ensure.IsNotNull(nameof(data), data);
             //Debug.Assert(!_debugIsBuilt);
@@ -170,11 +170,18 @@ namespace Bender.Core.Layouts
                     }
                     else if (!(Matrix is null))
                     {
-                        result = BuildMatrix();
+                        if (PrintFormat.IsString())
+                        {
+                            result = BuildStringMatrix();
+                        }
+                        else
+                        {
+                            result = BuildNumericMatrix();
+                        }
                     }
                     else if (!(Structure is null))
                     {
-                        result = BuildStructure();
+                        result = BuildStructure(context);
                     }
                     else
                     {
@@ -293,7 +300,7 @@ namespace Bender.Core.Layouts
         private BNode BuildEnumeration()
         {
             Ensure.IsNotNull(nameof(Enumeration), Enumeration);
-            
+
             var number = new Number(this, _rawData);
 
             if (Enumeration.Values.TryGetValue(number.si, out var enumValue))
@@ -311,38 +318,85 @@ namespace Bender.Core.Layouts
         ///     Parse and create Matrix for this element
         /// </summary>
         /// <returns>Parsed node</returns>
-        private BNode BuildMatrix()
+        private BNode BuildNumericMatrix()
         {
-            var rows = (Size / Matrix.Columns) / Matrix.Units;
+            Ensure.IsNotNull(nameof(Matrix), Matrix);
+
+            var rows = (_rawData.Length / Matrix.Columns) / Matrix.Units;
             var matrix = new Number[rows, Matrix.Columns];
-            var chunks = _rawData.AsChunks(Matrix.Units).ToList();
+
+            var chunks = _rawData.AsChunks(Matrix.Units).ToArray();
             for (var row = 0; row < rows; ++row)
             {
                 for (var col = 0; col < Matrix.Columns; ++col)
                 {
-                    matrix[row, col] = new Number(Matrix.Units, IsSigned, IsLittleEndian, PrintFormat,
-                        chunks[row * Matrix.Columns + col]);
+                    var segment = chunks[row * Matrix.Columns + col];
+
+                    matrix[row, col] = new Number(Matrix.Units, IsSigned, IsLittleEndian, PrintFormat, segment);
                 }
             }
 
             return new BMatrix<Number>(this, matrix);
         }
-        
+
+        /// <summary>
+        ///     Parse and create Matrix for this element
+        /// </summary>
+        /// <returns>Parsed node</returns>
+        private BNode BuildStringMatrix()
+        {
+            Ensure.IsNotNull(nameof(Matrix), Matrix);
+
+            var rows = (_rawData.Length / Matrix.Columns) / Matrix.Units;
+            var matrix = new BString[rows, Matrix.Columns];
+
+            var chunks = _rawData.AsChunks(Matrix.Units).ToArray();
+            for (var row = 0; row < rows; ++row)
+            {
+                for (var col = 0; col < Matrix.Columns; ++col)
+                {
+                    var segment = chunks[row * Matrix.Columns + col];
+                    matrix[row, col] = new BString(this, PrintFormat == Bender.PrintFormat.Ascii
+                        ? Encoding.ASCII.GetString(segment)
+                        : Encoding.Unicode.GetString(segment));
+                }
+            }
+
+            return new BMatrix<BString>(this, matrix);
+        }
+
         /// <summary>
         ///     Parse and create structure for this element
         /// </summary>
         /// <returns>Parsed node</returns>
-        private BNode BuildStructure()
+        private BNode BuildStructure(ReaderContext context)
         {
-            using var stream = new MemoryStream(_rawData);
-            using var reader = new BinaryReader(stream);
+            Ensure.IsNotNull(nameof(Structure), Structure);
+            Ensure.IsNotNull(nameof(context), context);
+
+            var childReader = new ReaderContext(_rawData);
 
             var structure = new BStructure(this);
+
             foreach (var child in Structure.Elements)
             {
-                var fieldBytes = reader.ReadBytes(child.Units);
-                            
-                var node = child.BuildNode(fieldBytes);
+                BNode node;
+
+                if (child.IsDeferred)
+                {
+                    var pointer = childReader.ReadBinaryPointer();
+
+                    var fieldBytes = context.DeferredRead(pointer);
+
+                    node = child.BuildNode(context, fieldBytes);
+                }
+                else
+                {
+                    var fieldBytes = childReader.ReadBytes(child.Units);
+
+                    node = child.BuildNode(childReader, fieldBytes);
+                }
+
 
                 structure.Fields.Add(node);
             }

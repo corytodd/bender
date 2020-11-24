@@ -161,5 +161,15 @@
 
             return result;
         }
+
+        /// <summary>
+        ///     Returns true if format is a string type (non-numeric)
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static bool IsString(this Bender.PrintFormat format)
+        {
+            return format == Bender.PrintFormat.Ascii || format == Bender.PrintFormat.Unicode;
+        }
     }
 }

@@ -173,26 +173,20 @@
         private ParseTree<BNode> HandleElement(Element el, ParseTree<BNode> tree)
         {
             var buff = ReadNextElement(el);
-            if (buff is null)
-            {
-                Log.Warn("'{0}' is an invalid deferred object", el.Name);
 
-                tree.AddChild(new BError(el.Name, "Error: Invalid deferred object"));
+            if (el.IsDeferred && buff.Length == 0)
+            {
+                Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
+
+                tree.AddChild(new BString(el, "Empty"));
             }
             else
             {
-                if (el.IsDeferred && buff.Length == 0)
-                {
-                    Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
+                var node = el.BuildNode(_reader, buff);
 
-                    tree.AddChild(new BString(el, "Empty"));
-                }
-                else
-                {
-                    tree.AddChild(el.BuildNode(buff));
-                }
+                tree.AddChild(node);
             }
-
+            
             return tree;
         }
 
@@ -236,7 +230,7 @@
         /// <returns></returns>
         private byte[] ReadBytes(int count, string section)
         {
-            ReaderLog.Info("{0,4}@0x{1:X4}/0x{2:X4} ({3})", count, _reader.Position, _reader.Length, 
+            ReaderLog.Info("{0,4}@0x{1:X4}/0x{2:X4} ({3})", count, _reader.Position, _reader.Length,
                 section);
 
             return _reader.ReadBytes(count);
