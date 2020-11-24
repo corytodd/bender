@@ -59,10 +59,6 @@ namespace Bender.Core
             void RenderNode(BNode node)
             {
                 node?.Render(stream);
-            }
-
-            void EndLine()
-            {
                 stream.WriteLine();
             }
 
@@ -70,7 +66,7 @@ namespace Bender.Core
             stream.Write(LineDelimiter);
             stream.Write(Environment.NewLine);
 
-            bender.Tree.Traverse(RenderNode, EndLine);
+            bender.Tree.Traverse(RenderNode);
         }
     }
 }

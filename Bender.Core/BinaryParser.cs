@@ -46,7 +46,8 @@
             Ensure.IsNotNull(nameof(binary), binary);
             Ensure.IsValid(nameof(binary), !binary.Empty);
 
-            var bender = new Bender();
+            var rootElement = new Element {Name = "root"};
+            var bender = new Bender(new BPrimitive<Phrase>(rootElement, new Phrase(_spec.Name)));
 
             try
             {
@@ -91,6 +92,12 @@
             _reader = new ReaderContext(binaryReader);
 
             ReaderLog.Debug("New reader created. Total size == {0}", _reader.Length);
+
+            // Visit all elements an ensure their nested types are built
+            foreach (var el in _spec.Elements)
+            {
+                LocateComplexTypes(el);
+            }
 
             // Iterates over the order specified in 'layout'
             var layoutQ = new Queue<string>(_spec.Layout);
@@ -138,9 +145,6 @@
             }
             else
             {
-                // Recurse element to discover all nested an non-trivial definitions
-                LocateComplexTypes(el);
-
                 if (el.IsArrayCount)
                 {
                     var buff = ReadElementData(el);
@@ -171,20 +175,18 @@
         {
             var buff = ReadElementData(el);
 
-            BNode node;
-
             if (el.IsDeferred && buff.Length == 0)
             {
                 Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
 
-                node = new BPrimitive<Phrase>(el,  new Phrase("Empty"));
+                var node = new BPrimitive<Phrase>(el,  new Phrase("Empty"));
+
+                tree.AddChild(node);
             }
             else
             {
-                node = el.BuildNode(_reader, buff);
+                el.BuildNode(_reader, tree, buff);
             }
-            
-            tree.AddChild(node);
         }
 
         /// <summary>

@@ -54,7 +54,7 @@ namespace Bender.Core.Nodes
         /// <inheritdoc />
         public override void Render(StreamWriter stream)
         {
-            stream.Write($"{Name} : ");
+            stream.Write($"{Name} => ");
 
             stream.Write("[ ");
             for (var row = 0; row < RowCount; ++row)

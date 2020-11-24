@@ -26,11 +26,6 @@ namespace Bender.Core.Layouts
         private byte[] _rawData;
 
         /// <summary>
-        /// Parsed form of <see cref="_rawData"/>
-        /// </summary>
-        private List<IRenderable> _payload = new();
-
-        /// <summary>
         /// Human friendly name of this element
         /// </summary>
         public string Name { get; set; }
@@ -132,16 +127,12 @@ namespace Bender.Core.Layouts
         public int Size => IsDeferred ? 8 : Units;
 
         /// <summary>
-        /// Parsedf data associated with this element
-        /// </summary>
-        public IEnumerable<IRenderable> Payload => _payload;
-
-        /// <summary>
         /// Set raw data associated with this element
         /// </summary>
         /// <param name="context">Data provider context</param>
+        /// <param name="tree">Tree context</param>
         /// <param name="data">Data this element should interpret</param>
-        public BNode BuildNode(ReaderContext context, byte[] data)
+        public BNode BuildNode(ReaderContext context, ParseTree<BNode> tree, byte[] data)
         {
             Ensure.IsNotNull(nameof(data), data);
 
@@ -149,6 +140,7 @@ namespace Bender.Core.Layouts
             Array.Copy(data, _rawData, _rawData.Length);
 
             BNode result = null;
+            bool addChild = true;
 
             // Do not try to format the data if spec says to elide
             if (Elide)
@@ -165,7 +157,11 @@ namespace Bender.Core.Layouts
                     }
                     else if (!(Matrix is null))
                     {
-                        if (PrintFormat.IsString())
+                        if (_rawData.Length == 0)
+                        {
+                            result = new BPrimitive<Phrase>(this, new Phrase("Empty matrix"));
+                        }
+                        else if (PrintFormat.IsString())
                         {
                             result = BuildStringMatrix();
                         }
@@ -176,20 +172,22 @@ namespace Bender.Core.Layouts
                     }
                     else if (!(Structure is null))
                     {
-                        result = BuildStructure(context);
+                        result = BuildStructure(context, tree);
+                        
+                        // Structures already handle tree insertions
+                        addChild = false;
                     }
                     else
                     {
-                        result = PrintFormat switch
+                        IRenderable renderable = PrintFormat switch
                         {
-                            Bender.PrintFormat.BigInt => new BPrimitive<Phrase>(this,
-                                new Phrase(string.Join("", data.Select(b => $"{b:X2}")))),
-                            Bender.PrintFormat.Ascii => new BPrimitive<Phrase>(this,
-                                new Phrase(Encoding.ASCII.GetString(data))),
-                            Bender.PrintFormat.Unicode => new BPrimitive<Phrase>(this,
-                                new Phrase(Encoding.Unicode.GetString(data))),
-                            _ => new BPrimitive<Number>(this, new Number(this, data))
+                            Bender.PrintFormat.BigInt => new Phrase(string.Join("", data.Select(b => $"{b:X2}"))),
+                            Bender.PrintFormat.Ascii =>  new Phrase(Encoding.ASCII.GetString(data)),
+                            Bender.PrintFormat.Unicode => new Phrase(Encoding.Unicode.GetString(data)),
+                            _ => new Number(this, data)
                         };
+
+                        result = new BPrimitive<IRenderable>(this, renderable);
                     }
                 }
                 catch (Exception ex)
@@ -198,10 +196,10 @@ namespace Bender.Core.Layouts
                 }
             }
 
-            _payload = new List<IRenderable>
+            if (addChild)
             {
-                result
-            };
+                tree.AddChild(result);
+            }
 
             return result;
         }
@@ -389,7 +387,7 @@ namespace Bender.Core.Layouts
         ///     Parse and create structure for this element
         /// </summary>
         /// <returns>Parsed node</returns>
-        private BNode BuildStructure(ReaderContext context)
+        private BNode BuildStructure(ReaderContext context, ParseTree<BNode> tree)
         {
             Ensure.IsNotNull(nameof(Structure), Structure);
             Ensure.IsNotNull(nameof(context), context);
@@ -398,25 +396,24 @@ namespace Bender.Core.Layouts
 
             var structure = new BStructure(this);
 
+            var subTree = tree.AddChild(structure);
+
             foreach (var field in Structure.Elements)
             {
                 byte[] fieldBytes;
-                BNode node;
 
                 if (field.IsDeferred)
                 {
                     var pointer = childReader.ReadBinaryPointer();
 
                     fieldBytes = context.DeferredRead(pointer);
-
-                    node = field.BuildNode(context, fieldBytes);
                 }
                 else
                 {
                     fieldBytes = childReader.ReadBytes(field.Units);
                 }
 
-                node = field.BuildNode(context, fieldBytes);
+                var node = field.BuildNode(context, subTree, fieldBytes);
 
                 structure.Fields.Add(node);
             }

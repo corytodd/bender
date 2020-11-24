@@ -40,16 +40,7 @@ namespace Bender.Core.Nodes
         /// <inheritdoc />
         public override void Render(StreamWriter stream)
         {
-            stream.Write($"{Name} : [");
-
-            foreach (var field in Fields)
-            {
-                field.Render(stream);
-                
-                stream.Write(", ");
-            }
-
-            stream.Write("]");
+            stream.Write($"{Name} => ");
         }
     }
 }

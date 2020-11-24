@@ -30,7 +30,8 @@ namespace Bender.Core.Tests
         public void CanFormatElement(byte[] buff, string expected)
         {
             var context = new ReaderContext(buff);
-            var actual = TestElement.BuildNode(context, buff);
+            var tree = new ParseTree<BNode>();
+            var actual = TestElement.BuildNode(context, tree, buff);
 
             var asPrimitive = actual as BPrimitive<Phrase>;
             Assert.NotNull(asPrimitive);
