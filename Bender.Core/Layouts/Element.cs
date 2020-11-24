@@ -187,6 +187,8 @@ namespace Bender.Core.Layouts
                     {
                         result = PrintFormat switch
                         {
+                            Bender.PrintFormat.BigInt => new BPrimitive<Phrase>(this,
+                                new Phrase(string.Join("", data.Select(b => $"{b:X2}")))),
                             Bender.PrintFormat.Ascii => new BPrimitive<Phrase>(this,
                                 new Phrase(Encoding.ASCII.GetString(data))),
                             Bender.PrintFormat.Unicode => new BPrimitive<Phrase>(this,
@@ -330,7 +332,7 @@ namespace Bender.Core.Layouts
             {
                 return new BMatrix<Number>(this, new Number[0, 0]);
             }
-            
+
             var rows = (_rawData.Length / cols) / units;
             var matrix = new Number[rows, cols];
 
@@ -355,14 +357,14 @@ namespace Bender.Core.Layouts
         private BNode BuildStringMatrix()
         {
             Ensure.IsNotNull(nameof(Matrix), Matrix);
-            
+
             var cols = Matrix.Columns;
             var units = Matrix.Units;
             if (cols == 0 || units == 0)
             {
                 return new BMatrix<Number>(this, new Number[0, 0]);
             }
-            
+
             var rows = (_rawData.Length / cols) / units;
             var matrix = new BPrimitive<Phrase>[rows, cols];
 
@@ -372,10 +374,10 @@ namespace Bender.Core.Layouts
                 for (var col = 0; col < cols; ++col)
                 {
                     var segment = chunks[row * cols + col];
-                    matrix[row, col] = new BPrimitive<Phrase>(this, 
+                    matrix[row, col] = new BPrimitive<Phrase>(this,
                         new Phrase(PrintFormat == Bender.PrintFormat.Ascii
-                        ? Encoding.ASCII.GetString(segment)
-                        : Encoding.Unicode.GetString(segment)));
+                            ? Encoding.ASCII.GetString(segment)
+                            : Encoding.Unicode.GetString(segment)));
                 }
             }
 
