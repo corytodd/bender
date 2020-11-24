@@ -143,7 +143,7 @@
 
                 if (el.IsArrayCount)
                 {
-                    var buff = ReadNextElement(el);
+                    var buff = ReadElementData(el);
                     var count = new Number(el, buff);
                     var repeatedSection = fnGetSection();
 
@@ -163,31 +163,28 @@
         }
 
         /// <summary>
-        /// Process the fields of this element to build a formatted field
+        /// Parse element into node and append to tree
         /// </summary>
         /// <param name="el">Data definition</param>
         /// <param name="tree">Receives parsed nodes</param>
-        /// <returns>Formatted result from element</returns>
-        /// <exception cref="ParseException">Raised if data from offset does not have enough bytes to make a
-        /// number with width bytes</exception>
-        private ParseTree<BNode> HandleElement(Element el, ParseTree<BNode> tree)
+        private void HandleElement(Element el, ParseTree<BNode> tree)
         {
-            var buff = ReadNextElement(el);
+            var buff = ReadElementData(el);
+
+            BNode node;
 
             if (el.IsDeferred && buff.Length == 0)
             {
                 Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
 
-                tree.AddChild(new BPrimitive<Phrase>(el,  new Phrase("Empty")));
+                node = new BPrimitive<Phrase>(el,  new Phrase("Empty"));
             }
             else
             {
-                var node = el.BuildNode(_reader, buff);
-
-                tree.AddChild(node);
+                node = el.BuildNode(_reader, buff);
             }
             
-            return tree;
+            tree.AddChild(node);
         }
 
         /// <summary>
@@ -195,7 +192,7 @@
         /// </summary>
         /// <param name="el">Definition of what to read</param>
         /// <returns>Raw data the spec file says belongs to this element</returns>
-        private byte[] ReadNextElement(Element el)
+        private byte[] ReadElementData(Element el)
         {
             byte[] buff;
 

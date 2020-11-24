@@ -326,24 +326,28 @@ namespace Bender.Core.Layouts
         {
             Ensure.IsNotNull(nameof(Matrix), Matrix);
 
-            var cols = Matrix.Columns;
-            var units = Matrix.Units;
-            if (cols == 0 || units == 0)
+            if (Matrix.Units == 0)
             {
-                return new BMatrix<Number>(this, new Number[0, 0]);
+                throw new ParseException("Matrix Units must be non-zero");
             }
 
-            var rows = (_rawData.Length / cols) / units;
+            // If columns are not provided, infer it from
+            // the length of raw data and matrix units
+            var cols = Matrix.Columns == 0
+                ? _rawData.Length / Matrix.Units
+                : Matrix.Columns;
+
+            var rows = (_rawData.Length / cols) / Matrix.Units;
             var matrix = new Number[rows, cols];
 
-            var chunks = _rawData.AsChunks(units).ToArray();
+            var chunks = _rawData.AsChunks(Matrix.Units).ToArray();
             for (var row = 0; row < rows; ++row)
             {
                 for (var col = 0; col < cols; ++col)
                 {
                     var segment = chunks[row * cols + col];
 
-                    matrix[row, col] = new Number(units, IsSigned, IsLittleEndian, PrintFormat, segment);
+                    matrix[row, col] = new Number(Matrix.Units, IsSigned, IsLittleEndian, PrintFormat, segment);
                 }
             }
 
@@ -358,30 +362,34 @@ namespace Bender.Core.Layouts
         {
             Ensure.IsNotNull(nameof(Matrix), Matrix);
 
-            var cols = Matrix.Columns;
-            var units = Matrix.Units;
-            if (cols == 0 || units == 0)
+            if (Matrix.Units == 0)
             {
-                return new BMatrix<Number>(this, new Number[0, 0]);
+                throw new ParseException("Matrix Units must be non-zero");
             }
 
-            var rows = (_rawData.Length / cols) / units;
-            var matrix = new BPrimitive<Phrase>[rows, cols];
+            // If columns are not provided, infer it from
+            // the length of raw data and matrix units
+            var cols = Matrix.Columns == 0
+                ? _rawData.Length / Matrix.Units
+                : Matrix.Columns;
 
-            var chunks = _rawData.AsChunks(units).ToArray();
+            var rows = (_rawData.Length / cols) / Matrix.Units;
+            var matrix = new Phrase[rows, cols];
+
+            var chunks = _rawData.AsChunks(Matrix.Units).ToArray();
             for (var row = 0; row < rows; ++row)
             {
                 for (var col = 0; col < cols; ++col)
                 {
                     var segment = chunks[row * cols + col];
-                    matrix[row, col] = new BPrimitive<Phrase>(this,
-                        new Phrase(PrintFormat == Bender.PrintFormat.Ascii
-                            ? Encoding.ASCII.GetString(segment)
-                            : Encoding.Unicode.GetString(segment)));
+
+                    matrix[row, col] = new Phrase(PrintFormat == Bender.PrintFormat.Ascii
+                        ? Encoding.ASCII.GetString(segment)
+                        : Encoding.Unicode.GetString(segment));
                 }
             }
 
-            return new BMatrix<BPrimitive<Phrase>>(this, matrix);
+            return new BMatrix<Phrase>(this, matrix);
         }
 
         /// <summary>
