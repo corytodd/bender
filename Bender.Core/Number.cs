@@ -304,12 +304,6 @@ namespace Bender.Core
         private readonly Bender.PrintFormat _printFormat;
 
         /// <inheritdoc />
-        public override string ToString()
-        {
-            return sl.ToString();
-        }
-
-        /// <inheritdoc />
         public string Format()
         {
             switch (_printFormat)
@@ -349,6 +343,12 @@ namespace Bender.Core
         public void Render(StreamWriter stream)
         {
             stream.Write(Format());
+        }
+        
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return Format();
         }
     }
 }

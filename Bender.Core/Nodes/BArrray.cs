@@ -2,7 +2,6 @@ namespace Bender.Core.Nodes
 {
     using System.Collections;
     using System.Collections.Generic;
-    using System.IO;
     using Rendering;
     using Layouts;
 
@@ -52,16 +51,6 @@ namespace Bender.Core.Nodes
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
-        }
-
-        /// <inheritdoc />
-        public override void Render(StreamWriter stream)
-        {
-            stream.Write($"{Name} => ");
-            foreach (var t in _data)
-            {
-                t.Render(stream);
-            }
         }
     }
 }

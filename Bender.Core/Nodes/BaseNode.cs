@@ -1,7 +1,6 @@
 namespace Bender.Core.Nodes
 {
     using System.Diagnostics;
-    using System.IO;
     using Layouts;
 
     /// <summary>
@@ -25,14 +24,5 @@ namespace Bender.Core.Nodes
 
         /// <inheritdoc />
         public string Name { get; }
-
-        /// <inheritdoc />
-        public virtual string Format()
-        {
-            return ToString();
-        }
-
-        /// <inheritdoc />
-        public abstract void Render(StreamWriter stream);
     }
 }

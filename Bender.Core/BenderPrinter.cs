@@ -5,6 +5,7 @@ namespace Bender.Core
     using System;
     using System.IO;
     using Nodes;
+    using Rendering;
 
     /// <summary>
     /// Pretty printer for Benders
@@ -12,8 +13,7 @@ namespace Bender.Core
     public class BenderPrinter
     {
         // '-' means left align
-        private static readonly string DefaultRowFormat = "{0,-20} {1,-16}" + Environment.NewLine;
-        private static readonly string DefaultHeader = string.Format(DefaultRowFormat, "Element", "Value");
+        private static readonly string DefaultHeader = string.Empty;
         private static readonly string DefaultLineDelimiter = new string('=', 80);
 
         /// <summary>
@@ -22,7 +22,6 @@ namespace Bender.Core
         public BenderPrinter()
         {
             Header = DefaultHeader;
-            RowFormat = DefaultRowFormat;
             LineDelimiter = DefaultLineDelimiter;
         }
 
@@ -30,13 +29,7 @@ namespace Bender.Core
         /// Gets or Sets the formatted Element table header
         /// </summary>
         public string Header { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the raw format. If you change this, consider
-        /// also updating Header.
-        /// </summary>
-        public string RowFormat { get; set; }
-
+        
         /// <summary>
         /// Long delimiter for splitting textual regions. Default
         /// is a 80 character string of '='
@@ -56,10 +49,11 @@ namespace Bender.Core
             Ensure.IsNotNull(nameof(stream), stream);
             Ensure.IsValid(nameof(stream), stream.BaseStream.CanWrite, $"{nameof(stream)} cannot be written");
 
+            var renderProvider = new DefaultRenderProvider(stream);
+            
             void RenderNode(BNode node)
             {
-                node?.Render(stream);
-                stream.WriteLine();
+                renderProvider.Render(node);
             }
 
             stream.Write(Header);
