@@ -158,7 +158,7 @@ namespace Bender.Core.Layouts
             // Do not try to format the data if spec says to elide
             if (Elide)
             {
-                result = new BString(this, $"Elided {data.Length} bytes");
+                result = new BPrimitive<Phrase>(this, new Phrase($"Elided {data.Length} bytes"));
             }
             else
             {
@@ -187,8 +187,10 @@ namespace Bender.Core.Layouts
                     {
                         result = PrintFormat switch
                         {
-                            Bender.PrintFormat.Ascii => new BString(this, Encoding.ASCII.GetString(data)),
-                            Bender.PrintFormat.Unicode => new BString(this, Encoding.Unicode.GetString(data)),
+                            Bender.PrintFormat.Ascii => new BPrimitive<Phrase>(this,
+                                new Phrase(Encoding.ASCII.GetString(data))),
+                            Bender.PrintFormat.Unicode => new BPrimitive<Phrase>(this,
+                                new Phrase(Encoding.Unicode.GetString(data))),
                             _ => new BPrimitive<Number>(this, new Number(this, data))
                         };
                     }
@@ -305,7 +307,7 @@ namespace Bender.Core.Layouts
 
             if (Enumeration.Values.TryGetValue(number.si, out var enumValue))
             {
-                return new BString(this, enumValue);
+                return new BPrimitive<Phrase>(this, new Phrase(enumValue));
             }
             else
             {
@@ -322,17 +324,24 @@ namespace Bender.Core.Layouts
         {
             Ensure.IsNotNull(nameof(Matrix), Matrix);
 
-            var rows = (_rawData.Length / Matrix.Columns) / Matrix.Units;
-            var matrix = new Number[rows, Matrix.Columns];
+            var cols = Matrix.Columns;
+            var units = Matrix.Units;
+            if (cols == 0 || units == 0)
+            {
+                return new BMatrix<Number>(this, new Number[0, 0]);
+            }
+            
+            var rows = (_rawData.Length / cols) / units;
+            var matrix = new Number[rows, cols];
 
-            var chunks = _rawData.AsChunks(Matrix.Units).ToArray();
+            var chunks = _rawData.AsChunks(units).ToArray();
             for (var row = 0; row < rows; ++row)
             {
-                for (var col = 0; col < Matrix.Columns; ++col)
+                for (var col = 0; col < cols; ++col)
                 {
-                    var segment = chunks[row * Matrix.Columns + col];
+                    var segment = chunks[row * cols + col];
 
-                    matrix[row, col] = new Number(Matrix.Units, IsSigned, IsLittleEndian, PrintFormat, segment);
+                    matrix[row, col] = new Number(units, IsSigned, IsLittleEndian, PrintFormat, segment);
                 }
             }
 
@@ -346,23 +355,31 @@ namespace Bender.Core.Layouts
         private BNode BuildStringMatrix()
         {
             Ensure.IsNotNull(nameof(Matrix), Matrix);
+            
+            var cols = Matrix.Columns;
+            var units = Matrix.Units;
+            if (cols == 0 || units == 0)
+            {
+                return new BMatrix<Number>(this, new Number[0, 0]);
+            }
+            
+            var rows = (_rawData.Length / cols) / units;
+            var matrix = new BPrimitive<Phrase>[rows, cols];
 
-            var rows = (_rawData.Length / Matrix.Columns) / Matrix.Units;
-            var matrix = new BString[rows, Matrix.Columns];
-
-            var chunks = _rawData.AsChunks(Matrix.Units).ToArray();
+            var chunks = _rawData.AsChunks(units).ToArray();
             for (var row = 0; row < rows; ++row)
             {
-                for (var col = 0; col < Matrix.Columns; ++col)
+                for (var col = 0; col < cols; ++col)
                 {
-                    var segment = chunks[row * Matrix.Columns + col];
-                    matrix[row, col] = new BString(this, PrintFormat == Bender.PrintFormat.Ascii
+                    var segment = chunks[row * cols + col];
+                    matrix[row, col] = new BPrimitive<Phrase>(this, 
+                        new Phrase(PrintFormat == Bender.PrintFormat.Ascii
                         ? Encoding.ASCII.GetString(segment)
-                        : Encoding.Unicode.GetString(segment));
+                        : Encoding.Unicode.GetString(segment)));
                 }
             }
 
-            return new BMatrix<BString>(this, matrix);
+            return new BMatrix<BPrimitive<Phrase>>(this, matrix);
         }
 
         /// <summary>
@@ -378,25 +395,25 @@ namespace Bender.Core.Layouts
 
             var structure = new BStructure(this);
 
-            foreach (var child in Structure.Elements)
+            foreach (var field in Structure.Elements)
             {
+                byte[] fieldBytes;
                 BNode node;
 
-                if (child.IsDeferred)
+                if (field.IsDeferred)
                 {
                     var pointer = childReader.ReadBinaryPointer();
 
-                    var fieldBytes = context.DeferredRead(pointer);
+                    fieldBytes = context.DeferredRead(pointer);
 
-                    node = child.BuildNode(context, fieldBytes);
+                    node = field.BuildNode(context, fieldBytes);
                 }
                 else
                 {
-                    var fieldBytes = childReader.ReadBytes(child.Units);
-
-                    node = child.BuildNode(childReader, fieldBytes);
+                    fieldBytes = childReader.ReadBytes(field.Units);
                 }
 
+                node = field.BuildNode(context, fieldBytes);
 
                 structure.Fields.Add(node);
             }

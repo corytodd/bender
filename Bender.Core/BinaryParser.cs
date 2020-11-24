@@ -178,7 +178,7 @@
             {
                 Log.Info("'{0}' was declared deferred but is defined as empty", el.Name);
 
-                tree.AddChild(new BString(el, "Empty"));
+                tree.AddChild(new BPrimitive<Phrase>(el,  new Phrase("Empty")));
             }
             else
             {
