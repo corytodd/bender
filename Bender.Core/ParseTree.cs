@@ -70,8 +70,7 @@ namespace Bender.Core
         ///     Breadth first traversal of tree from current node
         /// </summary>
         /// <param name="visitNode">Called for each non-null child</param>
-        /// <param name="endGeneration">Called after all children of a node are visited</param>
-        public void Traverse(Action<T> visitNode, Action endGeneration)
+        public void Traverse(Action<T> visitNode)
         {
             if (!(Value is null))
             {
@@ -80,10 +79,8 @@ namespace Bender.Core
 
             foreach (var child in _children)
             {
-                child.Traverse(visitNode, endGeneration);
+                child.Traverse(visitNode);
             }
-
-            endGeneration();
         }
     }
 }

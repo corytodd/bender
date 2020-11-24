@@ -10,9 +10,9 @@
         /// <summary>
         /// Create a new Bender with this reference spec
         /// </summary>
-        public Bender()
+        public Bender(BNode node)
         {
-            Tree = new ParseTree<BNode>();
+            Tree = new ParseTree<BNode>(node);
         }
 
         /// <summary>
