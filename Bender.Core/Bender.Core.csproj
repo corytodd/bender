@@ -10,7 +10,7 @@
   <PropertyGroup>
     <Title>Bender.Core</Title>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>default</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Platforms>AnyCPU</Platforms>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Cory Todd</Authors>

@@ -7,7 +7,7 @@ namespace Bender.Core
     ///     An IRenderable wrapper around string. For lack
     ///     of a better term, Phrase just means string.
     /// </summary>
-    public class Phrase : IRenderable
+    public record Phrase : IRenderable
     {
         /// <summary>
         ///     Create a new phrase
@@ -33,51 +33,6 @@ namespace Bender.Core
         public void Render(StreamWriter stream)
         {
             stream.Write(Value);
-        }
-        
-        /// <inheritdoc />
-        protected bool Equals(Phrase other)
-        {
-            return Value == other.Value;
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj.GetType() != this.GetType())
-            {
-                return false;
-            }
-
-            return Equals((Phrase) obj);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return Value.GetHashCode();
-        }
-
-        /// <inheritdoc />
-        public static bool operator ==(Phrase? left, Phrase? right)
-        {
-            return Equals(left, right);
-        }
-
-        /// <inheritdoc />
-        public static bool operator !=(Phrase? left, Phrase? right)
-        {
-            return !Equals(left, right);
         }
     }
 }
