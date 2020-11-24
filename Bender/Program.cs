@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bender.Core;
+using System.Reflection;
 
 namespace Bender
 {
-    using System.Reflection;
 
     internal class Program
     {
@@ -20,7 +20,7 @@ namespace Bender
             }
 
             var ret = Run(opts);
-            Environment.Exit(ret);  
+            Environment.Exit(ret);
         }
 
         private static int Run(Options opts)
@@ -50,11 +50,11 @@ namespace Bender
             {
                 return 1;
             }
-            
+
             try
             {
                 var bender = new BinaryParser(spec).Parse(binary);
-                WriteToConsole(spec, bender);               
+                WriteToConsole(spec, bender);
                 return 0;
             }
             catch (ParseException ex)
@@ -72,28 +72,26 @@ namespace Bender
         private static void WriteToConsole(SpecFile spec, Core.Bender bender)
         {
             Console.WriteLine("Binary File - {0}{1}", spec.Name, Environment.NewLine);
-            using (var stream = new MemoryStream())
+            using var stream = new MemoryStream();
+            var sw = new StreamWriter(Console.OpenStandardOutput())
             {
+                AutoFlush = true
+            };
+            Console.SetOut(sw);
 
+            try
+            {
                 var printer = new BenderPrinter();
-                printer.WriteStream(bender, stream);
-
-                // Stream content to console
-                using (var reader = new StreamReader(stream))
-                {
-                    while (!reader.EndOfStream)
-                    {
-                        Console.WriteLine(reader.ReadLine());
-                    }
-                }
+                printer.WriteStream(bender, sw);
             }
-
-            Console.WriteLine();
+            finally
+            {
+                sw.Dispose();
+            }
         }
 
         private static SpecFile GetSpecFile(Options opts)
         {
-            var parser = new SpecParser();
             var paths = new List<string>();
             var specs = new List<SpecFile>();
 
@@ -111,7 +109,7 @@ namespace Bender
             {
                 try
                 {
-                    specs.Add(parser.Parse(DataFile.From(p)));
+                    specs.Add(SpecFile.Parse(DataFile.From(p)));
                 }
                 catch (ParseException ex)
                 {
@@ -134,21 +132,24 @@ namespace Bender
             }
 
             // Try to find spec for provided binary, no leading '.'
-            var binext = Path.GetExtension(opts.BinaryFile).Remove(0, 1);
-            var result = string.IsNullOrEmpty(opts.SpecFile) ? specs.FirstOrDefault(s => s.Extensions.Contains(binext)) : specs.FirstOrDefault();
+            var binExtension = Path.GetExtension(opts.BinaryFile)?.Remove(0, 1);
+            var result = string.IsNullOrEmpty(opts.SpecFile)
+                ? specs.FirstOrDefault(s => s.Extensions.Contains(binExtension))
+                : specs.FirstOrDefault();
 
             if (result == null)
             {
                 Console.WriteLine("No specification file found for \"{0}\" type. Try specifying " +
-                                  "a spec file with the -s flag or a spec root with the -r flag.", binext);
+                                  "a spec file with the -s flag or a spec root with the -r flag.", binExtension);
             }
 
             return result;
         }
-        
+
         /// <summary>
         /// Get version of this assembly
         /// </summary>
-        private static string Version => typeof(Program).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+        private static string Version =>
+            typeof(Program).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
     }
 }

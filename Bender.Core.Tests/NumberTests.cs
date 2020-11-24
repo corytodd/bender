@@ -2,6 +2,8 @@ using Xunit;
 
 namespace Bender.Core.Tests
 {
+    using Layouts;
+
     public class NumberTests
     {
         [Fact]

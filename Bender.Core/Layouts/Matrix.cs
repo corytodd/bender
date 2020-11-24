@@ -1,13 +1,12 @@
-﻿namespace Bender.Core
+﻿namespace Bender.Core.Layouts
 {
-    using System;
     using System.Collections.Generic;
     using System.Text;
-    using System.Linq;
 
     /// <summary>
     /// Represents a format type arranging data into rows and columns
     /// </summary>
+    // ReSharper disable once ClassNeverInstantiated.Global - Serialized object
     public class Matrix : ILayout
     {
         /// <summary>
@@ -19,6 +18,7 @@
         /// Gets or Sets the units, or how many bytes are used for each
         /// digit in the matrix.
         /// </summary>
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public int Units { get; set; }
 
         /// <inheritdoc />

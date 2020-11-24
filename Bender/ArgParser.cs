@@ -105,10 +105,13 @@
                 }
             }
 
-            if (!satisfied.Equals(_mRequired)) return result;
+            if (!satisfied.Equals(_mRequired))
+            {
+                return result;
+            }
+
             result.Okay = false;
-            result.Message = string.Format("Missing expected parameters: {0}",
-                string.Join(",", _mRequired.Except(satisfied)));
+            result.Message = $"Missing expected parameters: {string.Join(",", _mRequired.Except(satisfied))}";
 
             return result;
         }

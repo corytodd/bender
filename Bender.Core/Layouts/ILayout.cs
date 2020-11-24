@@ -1,4 +1,4 @@
-namespace Bender.Core
+namespace Bender.Core.Layouts
 {
     using System.Collections.Generic;
 

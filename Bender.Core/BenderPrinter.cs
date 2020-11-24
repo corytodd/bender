@@ -1,9 +1,11 @@
 ﻿// ReSharper disable MemberCanBePrivate.Global - This is a library class, consumers may instantiate it
+
 namespace Bender.Core
 {
     using System;
     using System.IO;
-    
+    using Nodes;
+
     /// <summary>
     /// Pretty printer for Benders
     /// </summary>
@@ -48,49 +50,27 @@ namespace Bender.Core
         /// <param name="bender">Data to write</param>
         /// <param name="stream">Where data is being written to</param>
         /// <exception cref="ArgumentException">Raised is bender or stream are null or if stream cannot be written</exception>
-        public void WriteStream(Bender bender, Stream stream)
+        public void WriteStream(Bender bender, StreamWriter stream)
         {
-            if (bender == null)
+            Ensure.IsNotNull(nameof(bender), bender);
+            Ensure.IsNotNull(nameof(stream), stream);
+            Ensure.IsValid(nameof(stream), stream.BaseStream.CanWrite, $"{nameof(stream)} cannot be written");
+
+            void RenderNode(BNode node)
             {
-                throw new ArgumentException("{0} cannot be null", nameof(bender));
+                node?.Render(stream);
             }
 
-            if (stream == null || !stream.CanWrite)
+            void EndLine()
             {
-                throw new ArgumentException("{0} cannot be written", nameof(stream));
+                stream.WriteLine();
             }
 
-            // Helper function wraps stream write operation
-            void WriteBytes(string s)
-            {
-                var bytes = System.Text.Encoding.UTF8.GetBytes(s);
-                stream.Write(bytes, 0, bytes.Length);
-            }
+            stream.Write(Header);
+            stream.Write(LineDelimiter);
+            stream.Write(Environment.NewLine);
 
-            WriteBytes(Header);
-            WriteBytes(LineDelimiter);
-            WriteBytes(Environment.NewLine);
-
-            foreach (var f in bender.FormattedFields)
-            {
-                // Only print the name on the first row of this formatted element
-                var isFirst = true;
-                foreach (var v in f.Value)
-                {
-                    if (isFirst)
-                    {
-                        isFirst = false;
-                        WriteBytes(string.Format(RowFormat, f.Name, v));
-                    }
-                    else
-                    {
-                        WriteBytes(string.Format(RowFormat, string.Empty, v));
-                    }
-
-                }
-            }
-
-            stream.Position = 0;
+            bender.Tree.Traverse(RenderNode, EndLine);
         }
     }
 }

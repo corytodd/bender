@@ -1,26 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Xunit;
 
 namespace Bender.Core.Tests
 {
+    using Layouts;
+
     public class SpecParserTests
     {
         [Fact]
         public void TestInvalidFile()
         {
             var df = DataFile.FromAscii(TestData.TestInvalidYAML);
-            var parser = new SpecParser();
-            Assert.Throws<ParseException>(() => parser.Parse(df));
+            Assert.Throws<ParseException>(() => SpecFile.Parse(df));
         }
 
         [Fact]
         public void TestValidFile()
         {
             var df = DataFile.From(Properties.Resources.simple_layout);
-            var parser = new SpecParser();
-            var result = parser.Parse(df);
+            var result = SpecFile.Parse(df);
 
             Assert.False(string.IsNullOrEmpty(result.ToString()));
             Assert.Equal("bender.v1", result.Format);

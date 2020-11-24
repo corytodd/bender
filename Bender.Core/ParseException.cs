@@ -9,7 +9,9 @@
     public class ParseException : Exception
     {
         /// <inheritdoc />
-        public ParseException(string fmt, params object[] args) : base(string.Format(fmt, args)) { }
+        public ParseException(string fmt, params object[] args) : base(string.Format(fmt, args))
+        {
+        }
     }
 
     /// <inheritdoc />

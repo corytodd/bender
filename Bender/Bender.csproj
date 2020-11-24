@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <SemVer>0.6.6.0</SemVer>
+    <SemVer>0.7.0.0</SemVer>
     <Suffix></Suffix>
     <Year>2020</Year>
   </PropertyGroup>
@@ -11,7 +11,7 @@
     <AssemblyName>bender</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>default</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Platforms>AnyCPU</Platforms>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Cory Todd</Authors>

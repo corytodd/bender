@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <SemVer>0.6.6.0</SemVer>
+    <SemVer>0.7.0.0</SemVer>
     <Suffix></Suffix>
     <Year>2020</Year>
   </PropertyGroup>
@@ -9,7 +9,7 @@
   <PropertyGroup>
     <Title>Bender.Core</Title>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>default</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Platforms>AnyCPU</Platforms>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Cory Todd</Authors>
@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <!-- https://github.com/aaubry/YamlDotNet/issues/492 blocks upgrade -->
+    <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="YamlDotNet" Version="[8.1.0]" />
   </ItemGroup>
 

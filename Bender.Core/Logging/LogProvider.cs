@@ -39,6 +39,7 @@
 #pragma warning disable 1591
 
 using System.Diagnostics.CodeAnalysis;
+// ReSharper disable All
 
 [assembly: SuppressMessage("Microsoft.Design", "CA1020:AvoidNamespacesWithFewTypes", Scope = "namespace", Target = "PTalk.Core.Logging")]
 [assembly: SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Scope = "member", Target = "PTalk.Core.Logging.Logger.#Invoke(PTalk.Core.Logging.LogLevel,System.Func`1<System.String>,System.Exception,System.Object[])")]

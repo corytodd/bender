@@ -1,36 +1,41 @@
 namespace Bender.Core.Tests
 {
     using System.Collections.Generic;
+    using Layouts;
+    using Nodes;
     using Xunit;
 
     public class EnumerationTests
     {
-        private static readonly Enumeration _enumeration = new Enumeration
+        private static readonly Element TestElement = new()
         {
-            Name = "Test Enumeration",
-            Values = new Dictionary<int, string>
+            Enumeration = new Enumeration
             {
-                {0, "None"},
-                {1, "First"},
-                {2, "Second"},
-            }
-        };
-
-        private static readonly Element _element = new Element
-        {
-            Enumeration = "Test Enumeration",
+                Name = "Test Enumeration",
+                Values = new Dictionary<int, string>
+                {
+                    {0, "Foo"},
+                    {1, "Bar"},
+                    {2, "Baz"}
+                }
+            },
             Name = "Element w/ Enumeration",
             Units = 1
         };
-        
+
         [Theory]
-        [InlineData(new byte[]{0}, "None")]
-        [InlineData(new byte[]{1}, "First")]
-        [InlineData(new byte[]{2}, "Second")]
+        [InlineData(new byte[] {0}, "Foo")]
+        [InlineData(new byte[] {1}, "Bar")]
+        [InlineData(new byte[] {2}, "Baz")]
         public void CanFormatElement(byte[] buff, string expected)
         {
-            var actual = _element.TryFormatEnumeration(_enumeration, buff);
-            Assert.Equal(expected, actual);
+            var context = new ReaderContext(buff);
+            var actual = TestElement.BuildNode(context, buff);
+
+            var asPrimitive = actual as BPrimitive<Phrase>;
+            Assert.NotNull(asPrimitive);
+
+            Assert.Equal(new Phrase(expected), asPrimitive.Value);
         }
     }
 }

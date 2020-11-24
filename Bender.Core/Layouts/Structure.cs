@@ -1,6 +1,7 @@
 ﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global - This is a library class, consumers may use all properties
 // ReSharper disable UnusedAutoPropertyAccessor.Global - This is a library class, consumers may use all properties
-namespace Bender.Core
+
+namespace Bender.Core.Layouts
 {
     using System.Collections.Generic;
     using System.Linq;

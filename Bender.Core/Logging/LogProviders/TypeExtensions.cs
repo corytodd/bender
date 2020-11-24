@@ -1,3 +1,4 @@
+#pragma warning disable 8603
 namespace Bender.Core.Logging.LogProviders
 {
     using System;
