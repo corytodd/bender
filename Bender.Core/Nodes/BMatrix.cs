@@ -56,13 +56,18 @@ namespace Bender.Core.Nodes
         {
             stream.Write($"{Name} : ");
 
+            stream.Write("[ ");
             for (var row = 0; row < RowCount; ++row)
             {
+                stream.Write("[ ");
                 for (var col = 0; col < ColCount; ++col)
                 {
                     this[row, col].Render(stream);
+                    stream.Write(", ");
                 }
+                stream.Write(" ]");
             }
+            stream.Write(" ]");
         }
     }
 }

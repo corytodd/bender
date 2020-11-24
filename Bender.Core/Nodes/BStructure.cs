@@ -44,7 +44,8 @@ namespace Bender.Core.Nodes
 
             foreach (var field in Fields)
             {
-                stream.Write(field);
+                field.Render(stream);
+                
                 stream.Write(", ");
             }
 
