@@ -31,7 +31,7 @@ namespace Bender.Core.Tests
         {
             var context = new ReaderContext(buff);
             var tree = new ParseTree<BNode>();
-            var actual = TestElement.BuildNode(context, tree, buff);
+            var actual = TestElement.BuildNode(context, tree, buff, true);
 
             var asPrimitive = actual as BPrimitive<Phrase>;
             Assert.NotNull(asPrimitive);

@@ -11,25 +11,25 @@ namespace Bender.Core
         /// <summary>
         ///     Create a new binary pointer
         /// </summary>
-        /// <param name="size">Size in bytes</param>
         /// <param name="offset">Offset relative to start</param>
-        public BinaryPointer(uint size, uint offset)
+        /// <param name="size">Size in bytes</param>
+        public BinaryPointer(uint offset, uint size)
         {
-            SizeBytes = size;
             Offset = offset;
+            SizeBytes = size;
         }
         
         /// <summary>
-        ///     Size of object in bytes
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly uint SizeBytes;
-
-        /// <summary>
         ///     Location of object relative to start of file
         /// </summary>
-        [FieldOffset(4)]
+        [FieldOffset(0)]
         public readonly uint Offset;
+
+        /// <summary>
+        ///     Size of object in bytes
+        /// </summary>
+        [FieldOffset(4)]
+        public readonly uint SizeBytes;
 
         /// <inheritdoc />
         public override string ToString()

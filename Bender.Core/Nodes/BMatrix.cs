@@ -1,6 +1,5 @@
 namespace Bender.Core.Nodes
 {
-    using System.IO;
     using Layouts;
     using Rendering;
 
@@ -49,25 +48,6 @@ namespace Bender.Core.Nodes
         public override string ToString()
         {
             return $"{Name} : ({RowCount}x{ColCount})";
-        }
-
-        /// <inheritdoc />
-        public override void Render(StreamWriter stream)
-        {
-            stream.Write($"{Name} => ");
-
-            stream.Write("[ ");
-            for (var row = 0; row < RowCount; ++row)
-            {
-                stream.Write("[ ");
-                for (var col = 0; col < ColCount; ++col)
-                {
-                    this[row, col].Render(stream);
-                    stream.Write(", ");
-                }
-                stream.Write(" ]");
-            }
-            stream.Write(" ]");
         }
     }
 }

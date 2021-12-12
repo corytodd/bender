@@ -34,5 +34,11 @@ namespace Bender.Core
         {
             stream.Write(Value);
         }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return Format();
+        }
     }
 }

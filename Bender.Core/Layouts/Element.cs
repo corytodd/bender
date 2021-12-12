@@ -132,7 +132,8 @@ namespace Bender.Core.Layouts
         /// <param name="context">Data provider context</param>
         /// <param name="tree">Tree context</param>
         /// <param name="data">Data this element should interpret</param>
-        public BNode BuildNode(ReaderContext context, ParseTree<BNode> tree, byte[] data)
+        /// <param name="addChild">True to automatically add node to tree</param>
+        public BNode BuildNode(ReaderContext context, ParseTree<BNode> tree, byte[] data, bool addChild)
         {
             Ensure.IsNotNull(nameof(data), data);
 
@@ -140,7 +141,6 @@ namespace Bender.Core.Layouts
             Array.Copy(data, _rawData, _rawData.Length);
 
             BNode result = null;
-            bool addChild = true;
 
             // Do not try to format the data if spec says to elide
             if (Elide)
@@ -161,20 +161,19 @@ namespace Bender.Core.Layouts
                         {
                             result = new BPrimitive<Phrase>(this, new Phrase("Empty matrix"));
                         }
-                        else if (PrintFormat.IsString())
-                        {
-                            result = BuildStringMatrix();
-                        }
                         else
                         {
-                            result = BuildNumericMatrix();
+                            result = BuildMatrix(context, tree);
+                            
+                            // A Matrix may contain a structure which adds itself to the parse tree automatically
+                            addChild = Structure is null;
                         }
                     }
                     else if (!(Structure is null))
                     {
                         result = BuildStructure(context, tree);
                         
-                        // Structures already handle tree insertions
+                        // Structure adds itself to the parse tree automatically
                         addChild = false;
                     }
                     else
@@ -310,18 +309,11 @@ namespace Bender.Core.Layouts
         }
 
         /// <summary>
-        ///     Parse and create Matrix for this element
+        ///     Create an empty matrix for the current PrintFormat
         /// </summary>
-        /// <returns>Parsed node</returns>
-        private BNode BuildNumericMatrix()
-        {
-            Ensure.IsNotNull(nameof(Matrix), Matrix);
-
-            if (Matrix.Units == 0)
-            {
-                throw new ParseException("Matrix Units must be non-zero");
-            }
-
+        /// <returns>Empty 2D array</returns>
+        private IRenderable[,] BuildEmptyArray()
+        {           
             // If columns are not provided, infer it from
             // the length of raw data and matrix units
             var cols = Matrix.Columns == 0
@@ -329,27 +321,27 @@ namespace Bender.Core.Layouts
                 : Matrix.Columns;
 
             var rows = (_rawData.Length / cols) / Matrix.Units;
-            var matrix = new Number[rows, cols];
-
-            var chunks = _rawData.AsChunks(Matrix.Units).ToArray();
-            for (var row = 0; row < rows; ++row)
+            
+            if (PrintFormat.IsString() || !(Structure is null))
             {
-                for (var col = 0; col < cols; ++col)
-                {
-                    var segment = chunks[row * cols + col];
-
-                    matrix[row, col] = new Number(Matrix.Units, IsSigned, IsLittleEndian, PrintFormat, segment);
-                }
+                return new Phrase[rows, cols];
             }
+            else
+            {
+                return new Number[rows, cols];
+            }
+        }
 
-            return new BMatrix<Number>(this, matrix);
+        private BMatrix<IRenderable> FillMatrix<T>(IRenderable[,] data)
+        {
+            return new BMatrix<IRenderable>(this,data);
         }
 
         /// <summary>
         ///     Parse and create Matrix for this element
         /// </summary>
         /// <returns>Parsed node</returns>
-        private BNode BuildStringMatrix()
+        private BNode BuildMatrix(ReaderContext context, ParseTree<BNode> tree)
         {
             Ensure.IsNotNull(nameof(Matrix), Matrix);
 
@@ -358,14 +350,9 @@ namespace Bender.Core.Layouts
                 throw new ParseException("Matrix Units must be non-zero");
             }
 
-            // If columns are not provided, infer it from
-            // the length of raw data and matrix units
-            var cols = Matrix.Columns == 0
-                ? _rawData.Length / Matrix.Units
-                : Matrix.Columns;
-
-            var rows = (_rawData.Length / cols) / Matrix.Units;
-            var matrix = new Phrase[rows, cols];
+            var matrix = BuildEmptyArray();
+            var rows = matrix.GetLength(0);
+            var cols = matrix.GetLength(1);
 
             var chunks = _rawData.AsChunks(Matrix.Units).ToArray();
             for (var row = 0; row < rows; ++row)
@@ -374,15 +361,30 @@ namespace Bender.Core.Layouts
                 {
                     var segment = chunks[row * cols + col];
 
-                    matrix[row, col] = new Phrase(PrintFormat == Bender.PrintFormat.Ascii
-                        ? Encoding.ASCII.GetString(segment)
-                        : Encoding.Unicode.GetString(segment));
+                    if (!(Structure is null))
+                    {
+                        // Let structure append itself to the tree
+                        BuildStructure(context, tree);
+                        
+                        // We need a placeholder 
+                        matrix[row, col] = new Phrase(string.Empty);
+                    }
+                    else if (PrintFormat.IsString())
+                    {
+                        matrix[row, col] = new Phrase(PrintFormat == Bender.PrintFormat.Ascii
+                            ? Encoding.ASCII.GetString(segment)
+                            : Encoding.Unicode.GetString(segment));
+                    }
+                    else
+                    {
+                        matrix[row, col] = new Number(Matrix.Units, IsSigned, IsLittleEndian, PrintFormat, segment);
+                    }
                 }
             }
-
-            return new BMatrix<Phrase>(this, matrix);
+            
+            return new BMatrix<IRenderable>(this, matrix);
         }
-
+        
         /// <summary>
         ///     Parse and create structure for this element
         /// </summary>
@@ -413,7 +415,7 @@ namespace Bender.Core.Layouts
                     fieldBytes = childReader.ReadBytes(field.Units);
                 }
 
-                var node = field.BuildNode(context, subTree, fieldBytes);
+                var node = field.BuildNode(context, subTree, fieldBytes, false);
 
                 structure.Fields.Add(node);
             }

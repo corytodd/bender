@@ -2,13 +2,12 @@ namespace Bender.Core.Nodes
 {
     using System.Diagnostics.CodeAnalysis;
     using Layouts;
-    using Rendering;
 
     /// <summary>
     ///     A BenderNode associates an <see cref="Element"/> with parsed data
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public interface BNode : IRenderable
+    public interface BNode
     {
         /// <summary>
         ///     Parent Element describes node layout

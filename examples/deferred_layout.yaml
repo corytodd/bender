@@ -1,0 +1,61 @@
+---
+format: bender.v1
+# Unique name for this layout
+name: deferredlayout
+# Friendly description of what your binary file does
+description: >
+    A demonstration of deferred objects
+    
+# List of known extensions for this type
+extensions:
+    - test
+    - simple
+
+base_element: &base_element
+    name: Undefined
+    elide: no
+    units: 4              # Bytes wide (1, 2, 4, and 8 for numbers, any positive integer otherwise)
+    signed: no            # Is integer signed
+    format: ascii         # binary, decimal, octal, hex, ascii, unicode, bigint, float
+    little_endian: yes    # byte storage order
+    matrix:               # Matrix definition, optional
+    structure:            # Structure definition, optional
+    enumeration:          # Enumeration definition, optional
+    is_deferred: false    # Is this pointing to more data
+    is_array_count: false # Is this a count of the following object?
+
+structures:
+    - name: MyStruct
+      elements:
+        - <<: *base_element
+          name: Foo
+          units: 2
+          format: hex
+          little_endian: no
+        - <<: *base_element
+          name: Bar
+          units: 2
+          format: decimal
+
+elements:
+    # A name descriptor for a sequence of bytes
+    - <<: *base_element
+      name: Magic Number
+      units: 8     
+        
+    - <<: *base_element
+      name: FooBar
+      structure: MyStruct
+      units: 4
+      is_deferred: true
+      
+    - <<: *base_element
+      name: Counter
+      units: 4
+      format: decimal                 
+        
+
+layout:
+    - Magic Number
+    - FooBar
+    - Counter

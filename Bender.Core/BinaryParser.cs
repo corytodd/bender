@@ -185,7 +185,7 @@
             }
             else
             {
-                el.BuildNode(_reader, tree, buff);
+                el.BuildNode(_reader, tree, buff, true);
             }
         }
 

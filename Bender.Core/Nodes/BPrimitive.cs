@@ -1,6 +1,5 @@
 namespace Bender.Core.Nodes
 {
-    using System.IO;
     using Layouts;
     using Rendering;
 
@@ -29,12 +28,6 @@ namespace Bender.Core.Nodes
         public override string ToString()
         {
             return $"{Name} : {Value.Format()}";
-        }
-
-        /// <inheritdoc />
-        public override void Render(StreamWriter stream)
-        {
-            stream.Write(this);
         }
     }
 }

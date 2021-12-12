@@ -12,7 +12,7 @@ namespace Bender.Core
     /// Number wrapper holds any number type
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
-    public readonly struct Number : IRenderable
+    public record Number : IRenderable
     {
         /// <summary>
         /// Converts raw buffer data into a numeric type. This handles 
@@ -138,15 +138,7 @@ namespace Bender.Core
         {
             return sl == other;
         }
-
-        /// <summary>
-        /// Returns true if values are equal
-        /// </summary>
-        public override bool Equals(object obj)
-        {
-            return obj is int other && Equals(other);
-        }
-
+        
         /// <inheritdoc />
         public override int GetHashCode()
         {
@@ -304,12 +296,6 @@ namespace Bender.Core
         private readonly Bender.PrintFormat _printFormat;
 
         /// <inheritdoc />
-        public override string ToString()
-        {
-            return sl.ToString();
-        }
-
-        /// <inheritdoc />
         public string Format()
         {
             switch (_printFormat)
@@ -324,7 +310,7 @@ namespace Bender.Core
                 case Bender.PrintFormat.BigInt:
                     var width = (_width * 2).NextPowerOf2();
                     var hex = Convert.ToString(sl, 16).PadLeft(width, '0').ToUpper();
-                    return $"{hex}";
+                    return $"0x{hex}";
 
                 case Bender.PrintFormat.Float:
                     var result = _width switch
@@ -349,6 +335,12 @@ namespace Bender.Core
         public void Render(StreamWriter stream)
         {
             stream.Write(Format());
+        }
+        
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return Format();
         }
     }
 }
