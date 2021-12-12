@@ -1,38 +1,37 @@
-namespace Bender.Core.Nodes
+namespace Bender.Core.Nodes;
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Layouts;
+
+/// <summary>
+///     A recursive node structure
+/// </summary>
+public class BStructure : BaseNode
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using Layouts;
+    /// <summary>
+    ///     Create a new structure
+    /// </summary>
+    /// <param name="el">Parent</param>
+    public BStructure(Element el) : base(el)
+    {
+        Fields = new List<BNode>();
+    }
 
     /// <summary>
-    ///     A recursive node structure
+    ///     Top-level struct members
     /// </summary>
-    public class BStructure : BaseNode
+    public List<BNode> Fields { get; }
+
+    /// <inheritdoc />
+    public override string ToString()
     {
-        /// <summary>
-        ///     Create a new structure
-        /// </summary>
-        /// <param name="el">Parent</param>
-        public BStructure(Element el) : base(el)
-        {
-            Fields = new List<BNode>();
-        }
+        var sb = new StringBuilder();
+        sb.Append($"{Name} : [");
+        sb.Append(string.Join(", ", Fields.Select(n => n.Name)));
+        sb.Append("]");
 
-        /// <summary>
-        ///     Top-level struct members
-        /// </summary>
-        public List<BNode> Fields { get; }
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.Append($"{Name} : [");
-            sb.Append(string.Join(", ", Fields.Select(n => n.Name)));
-            sb.Append("]");
-
-            return sb.ToString();
-        }
+        return sb.ToString();
     }
 }

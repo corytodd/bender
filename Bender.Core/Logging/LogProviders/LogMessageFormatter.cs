@@ -1,4 +1,5 @@
 // ReSharper disable All
+
 #pragma warning disable 8600
 #pragma warning disable 8602
 namespace Bender.Core.Logging.LogProviders
@@ -12,6 +13,7 @@ namespace Bender.Core.Logging.LogProviders
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
+
     internal static class LogMessageFormatter
     {
         private static readonly Regex Pattern = new Regex(@"(?<!{){@?(?<arg>[^ :{}]+)(?<format>:[^}]+)?}",

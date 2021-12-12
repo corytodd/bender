@@ -1,22 +1,21 @@
-namespace Bender.Core.Rendering
+namespace Bender.Core.Rendering;
+
+using System.IO;
+
+/// <summary>
+///     A type that can render itself
+/// </summary>
+public interface IRenderable
 {
-    using System.IO;
+    /// <summary>
+    ///     Format self
+    /// </summary>
+    /// <returns>Formatted string</returns>
+    string Format();
 
     /// <summary>
-    ///     A type that can render itself
+    ///     Write self to stream
     /// </summary>
-    public interface IRenderable
-    {
-        /// <summary>
-        ///     Format self
-        /// </summary>
-        /// <returns>Formatted string</returns>
-        string Format();
-
-        /// <summary>
-        ///     Write self to stream
-        /// </summary>
-        /// <param name="stream">Receives rendered data</param>
-        void Render(StreamWriter stream);
-    }
+    /// <param name="stream">Receives rendered data</param>
+    void Render(StreamWriter stream);
 }

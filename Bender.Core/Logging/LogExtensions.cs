@@ -1,4 +1,5 @@
 // ReSharper disable All
+
 #pragma warning disable 8603
 #pragma warning disable 8625
 #pragma warning disable 1591

@@ -8,23 +8,23 @@ namespace Bender.Core.Layouts
     using System.Text;
 
     /// <summary>
-    /// Structure represents a struct in binary form
+    ///     Structure represents a struct in binary form
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global - This is a library class, consumers may instantiate this
     public class Structure : ILayout
     {
         /// <summary>
-        /// Gets or Sets name of this structure
+        ///     Gets or Sets name of this structure
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or Sets ordered list of elements in this structure
+        ///     Gets or Sets ordered list of elements in this structure
         /// </summary>
         public IList<Element> Elements { get; set; } = new List<Element>();
 
         /// <summary>
-        /// Returns the size in bytes of this structure
+        ///     Returns the size in bytes of this structure
         /// </summary>
         public int Size => Elements.Select(x => x.Size).Sum();
 

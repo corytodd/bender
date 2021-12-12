@@ -10,75 +10,75 @@ namespace Bender.Core
     using YamlDotNet.Serialization.NamingConventions;
 
     /// <summary>
-    /// Represents YAML specification for Bender files
+    ///     Represents YAML specification for Bender files
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global
     public class SpecFile
     {
         /// <summary>
-        /// Identify this file as a Bender file
-        /// Will always be in the format: bender.vX
-        /// where X is the schema revision
+        ///     Identify this file as a Bender file
+        ///     Will always be in the format: bender.vX
+        ///     where X is the schema revision
         /// </summary>
         public string Format { get; set; } = string.Empty;
 
         /// <summary>
-        /// Friendly name for what this bender is describing
+        ///     Friendly name for what this bender is describing
         /// </summary>
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
-        /// Detailed description of bender
+        ///     Detailed description of bender
         /// </summary>
         public string Description { get; set; } = string.Empty;
 
         /// <summary>
-        /// List of file extension known to associate with this specification
+        ///     List of file extension known to associate with this specification
         /// </summary>
         public IList<string> Extensions { get; set; } = new List<string>();
 
         /// <summary>
-        /// Default based element
+        ///     Default based element
         /// </summary>
         [YamlMember(Alias = "base_element", ApplyNamingConventions = false)]
         public Element BaseElement { get; set; } = new Element();
 
         /// <summary>
-        /// List of named structures
+        ///     List of named structures
         /// </summary>
         public IList<Structure> Structures { get; set; } = new List<Structure>();
 
         /// <summary>
-        /// List of defined enumeration mappings
+        ///     List of defined enumeration mappings
         /// </summary>
         public IList<Enumeration> Enumerations { get; set; } = new List<Enumeration>();
 
         /// <summary>
-        /// Ordered list of elements in this file
+        ///     Ordered list of elements in this file
         /// </summary>
         public IList<Element> Elements { get; set; } = new List<Element>();
 
         /// <summary>
-        /// Gets or Sets ordered layout tags
+        ///     Gets or Sets ordered layout tags
         /// </summary>
         public IList<string> Layout { get; set; } = new List<string>();
 
         /// <summary>
-        /// Pretty print in tabular form:
-        /// Name : Description
-        /// -------------------------------
-        /// Extensions:
-        ///    - .something
-        ///    - .other
-        /// Default Element:
-        ///    key : value
-        ///    key : value
-        /// Default Matrix:
-        ///    key : value
-        ///    key : value       
-        /// ...
-        /// Elements:
-        ///   ...
+        ///     Pretty print in tabular form:
+        ///     Name : Description
+        ///     -------------------------------
+        ///     Extensions:
+        ///     - .something
+        ///     - .other
+        ///     Default Element:
+        ///     key : value
+        ///     key : value
+        ///     Default Matrix:
+        ///     key : value
+        ///     key : value
+        ///     ...
+        ///     Elements:
+        ///     ...
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -121,7 +121,7 @@ namespace Bender.Core
         }
 
         /// <summary>
-        /// Parses DataFile as a SpecFile
+        ///     Parses DataFile as a SpecFile
         /// </summary>
         /// <param name="file">File to read</param>
         /// <exception cref="ParseException">Raised if file cannot be parsed</exception>
@@ -158,7 +158,7 @@ namespace Bender.Core
         }
 
         /// <summary>
-        /// Format a layout
+        ///     Format a layout
         /// </summary>
         /// <param name="layout">Layout to format</param>
         /// <param name="sbOut">Receives formatted layout</param>
@@ -173,7 +173,7 @@ namespace Bender.Core
         }
 
         /// <summary>
-        /// Format a collection of layouts and separate with a newline
+        ///     Format a collection of layouts and separate with a newline
         /// </summary>
         /// <param name="layouts">Layouts to format</param>
         /// <param name="sbOut">Receives formatted layout</param>

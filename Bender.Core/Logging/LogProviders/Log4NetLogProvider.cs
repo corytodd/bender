@@ -1,4 +1,5 @@
 // ReSharper disable All
+
 #pragma warning disable 8603
 #pragma warning disable 8602
 #pragma warning disable 8604
@@ -17,6 +18,7 @@ namespace Bender.Core.Logging.LogProviders
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
+
     internal class Log4NetLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;

@@ -1,4 +1,5 @@
 // ReSharper disable All
+
 #pragma warning disable 8618
 #pragma warning disable 8601
 namespace Bender.Core.Logging.LogProviders
@@ -9,6 +10,7 @@ namespace Bender.Core.Logging.LogProviders
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
+
     internal static class TraceEventTypeValues
     {
         internal static readonly Type Type;
@@ -24,11 +26,11 @@ namespace Bender.Core.Logging.LogProviders
             var assembly = typeof(Uri).Assembly;
             Type = assembly.GetType("System.Diagnostics.TraceEventType");
             if (Type == null) return;
-            Verbose = (int) Enum.Parse(Type, "Verbose", false);
-            Information = (int) Enum.Parse(Type, "Information", false);
-            Warning = (int) Enum.Parse(Type, "Warning", false);
-            Error = (int) Enum.Parse(Type, "Error", false);
-            Critical = (int) Enum.Parse(Type, "Critical", false);
+            Verbose = (int)Enum.Parse(Type, "Verbose", false);
+            Information = (int)Enum.Parse(Type, "Information", false);
+            Warning = (int)Enum.Parse(Type, "Warning", false);
+            Error = (int)Enum.Parse(Type, "Error", false);
+            Critical = (int)Enum.Parse(Type, "Critical", false);
         }
     }
 }

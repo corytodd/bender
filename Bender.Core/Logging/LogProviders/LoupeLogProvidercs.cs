@@ -1,4 +1,5 @@
 // ReSharper disable All
+
 #pragma warning disable 8603
 #pragma warning disable 8625
 namespace Bender.Core.Logging.LogProviders
@@ -8,6 +9,7 @@ namespace Bender.Core.Logging.LogProviders
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
+
     internal class LoupeLogProvider : LogProviderBase
     {
         /// <summary>
@@ -78,7 +80,7 @@ namespace Bender.Core.Logging.LogProviders
                 logMessageSeverityType, typeof(string), typeof(int), typeof(Exception), typeof(bool),
                 logWriteModeType, typeof(string), typeof(string), typeof(string), typeof(string), typeof(object[]));
 
-            var callDelegate = (WriteDelegate) method.CreateDelegate(typeof(WriteDelegate));
+            var callDelegate = (WriteDelegate)method.CreateDelegate(typeof(WriteDelegate));
             return callDelegate;
         }
 

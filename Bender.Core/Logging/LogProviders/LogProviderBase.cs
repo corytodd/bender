@@ -1,4 +1,5 @@
 // ReSharper disable All
+
 #pragma warning disable 1591
 namespace Bender.Core.Logging.LogProviders
 {
@@ -7,13 +8,14 @@ namespace Bender.Core.Logging.LogProviders
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
+
     public abstract class LogProviderBase : ILogProvider
     {
-        private static readonly IDisposable NoopDisposableInstance = new DisposableAction();
-        private readonly Lazy<OpenMdc> _lazyOpenMdcMethod;
-
         protected const string ErrorInitializingProvider =
             "Unable to log due to problem initializing the log provider. See inner exception for details.";
+
+        private static readonly IDisposable NoopDisposableInstance = new DisposableAction();
+        private readonly Lazy<OpenMdc> _lazyOpenMdcMethod;
 
         private readonly Lazy<OpenNdc> _lazyOpenNdcMethod;
 
