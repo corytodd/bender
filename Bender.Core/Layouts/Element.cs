@@ -132,7 +132,8 @@ namespace Bender.Core.Layouts
         /// <param name="context">Data provider context</param>
         /// <param name="tree">Tree context</param>
         /// <param name="data">Data this element should interpret</param>
-        public BNode BuildNode(ReaderContext context, ParseTree<BNode> tree, byte[] data)
+        /// <param name="addChild">True to automatically add node to tree</param>
+        public BNode BuildNode(ReaderContext context, ParseTree<BNode> tree, byte[] data, bool addChild)
         {
             Ensure.IsNotNull(nameof(data), data);
 
@@ -140,7 +141,6 @@ namespace Bender.Core.Layouts
             Array.Copy(data, _rawData, _rawData.Length);
 
             BNode result = null;
-            bool addChild = true;
 
             // Do not try to format the data if spec says to elide
             if (Elide)
@@ -174,7 +174,7 @@ namespace Bender.Core.Layouts
                     {
                         result = BuildStructure(context, tree);
                         
-                        // Structures already handle tree insertions
+                        // Structure adds itself to the parse tree automatically
                         addChild = false;
                     }
                     else
@@ -413,7 +413,7 @@ namespace Bender.Core.Layouts
                     fieldBytes = childReader.ReadBytes(field.Units);
                 }
 
-                var node = field.BuildNode(context, subTree, fieldBytes);
+                var node = field.BuildNode(context, subTree, fieldBytes, false);
 
                 structure.Fields.Add(node);
             }

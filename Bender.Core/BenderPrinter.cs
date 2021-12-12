@@ -29,7 +29,7 @@ namespace Bender.Core
         /// Gets or Sets the formatted Element table header
         /// </summary>
         public string Header { get; set; }
-        
+
         /// <summary>
         /// Long delimiter for splitting textual regions. Default
         /// is a 80 character string of '='
@@ -50,7 +50,8 @@ namespace Bender.Core
             Ensure.IsValid(nameof(stream), stream.BaseStream.CanWrite, $"{nameof(stream)} cannot be written");
 
             var renderProvider = new DefaultRenderProvider(stream);
-            
+
+
             void RenderNode(BNode node)
             {
                 renderProvider.Render(node);

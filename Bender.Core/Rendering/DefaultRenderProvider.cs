@@ -10,6 +10,7 @@ namespace Bender.Core.Rendering
     public class DefaultRenderProvider : IRenderProvider
     {
         private readonly StreamWriter _streamWriter;
+        private int _tabDepth = 0;
         
         /// <summary>
         /// Create a new render provider
@@ -32,10 +33,23 @@ namespace Bender.Core.Rendering
                     Render(matrix);
                     break;
                 
+                case BStructure structure:
+                    Render(structure);
+                    break;
+                
+                case BPrimitive<IRenderable> primitive:
+                    Render(primitive);
+                    break;
+
                 default:
-                    _streamWriter.WriteLine(node);
+                    _streamWriter.WriteLine($"{new string('\t', _tabDepth)}{node}");
                     break;
             }
+        }
+
+        private void Render(BPrimitive<IRenderable> primitive)
+        {
+            _streamWriter.WriteLine($"{new string('\t', _tabDepth)}{primitive}");
         }
 
         /// <summary>
@@ -44,7 +58,8 @@ namespace Bender.Core.Rendering
         /// <param name="matrix">Matrix to render</param>
         private void Render(BMatrix<Number> matrix)
         {
-            _streamWriter.WriteLine($"{matrix.Name} : ");
+            _streamWriter.WriteLine($"{new string('\t', _tabDepth)}{matrix.Name} : ");
+            ++_tabDepth;
             for(var row=0; row<matrix.RowCount; ++row)
             {
                 var values = new List<string>(matrix.ColCount);
@@ -52,7 +67,24 @@ namespace Bender.Core.Rendering
                 {
                     values.Add(matrix[row, col].Format());
                 }
-                _streamWriter.WriteLine($"[{string.Join(',', values)}]");
+                _streamWriter.WriteLine($"{new string('\t', _tabDepth)}[{string.Join(',', values)}]");
+            }
+
+            --_tabDepth;
+        }
+        /// <summary>
+        /// Specialized structure renderer
+        /// </summary>
+        /// <param name="structure">Structure to render</param>
+
+        private void Render(BStructure structure)
+        {
+            _streamWriter.WriteLine($"{new string('\t', _tabDepth)}{structure.Name} : ");
+            foreach (var field in structure.Fields)
+            {
+                ++_tabDepth;
+                Render(field);
+                --_tabDepth;
             }
         }
     }

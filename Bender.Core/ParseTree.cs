@@ -2,6 +2,7 @@ namespace Bender.Core
 {
     using System;
     using System.Collections.Generic;
+    using Nodes;
 
     /// <summary>
     ///     Tree data structure
@@ -75,6 +76,13 @@ namespace Bender.Core
             if (!(Value is null))
             {
                 visitNode(Value);
+
+                // Structures iterate over their own fields
+                // so we can early return here.
+                if (Value is BStructure)
+                {
+                    return;
+                }
             }
 
             foreach (var child in _children)
