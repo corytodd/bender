@@ -318,7 +318,7 @@ namespace Bender.Core
                 case Bender.PrintFormat.BigInt:
                     var width = (_width * 2).NextPowerOf2();
                     var hex = Convert.ToString(sl, 16).PadLeft(width, '0').ToUpper();
-                    return $"{hex}";
+                    return $"0x{hex}";
 
                 case Bender.PrintFormat.Float:
                     var result = _width switch
