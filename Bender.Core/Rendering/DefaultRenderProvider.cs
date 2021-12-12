@@ -29,14 +29,10 @@ namespace Bender.Core.Rendering
         {
             switch (node)
             {
-                case BMatrix<Number> matrix:
+                case BMatrix<IRenderable> matrix:
                     Render(matrix);
                     break;
                 
-                case BMatrix<Phrase> matrix:
-                    Render(matrix);
-                    break;
-
                 case BStructure structure:
                     Render(structure);
                     break;

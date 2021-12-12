@@ -12,7 +12,7 @@ namespace Bender.Core
     /// Number wrapper holds any number type
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
-    public readonly struct Number : IRenderable
+    public record Number : IRenderable
     {
         /// <summary>
         /// Converts raw buffer data into a numeric type. This handles 
@@ -138,15 +138,7 @@ namespace Bender.Core
         {
             return sl == other;
         }
-
-        /// <summary>
-        /// Returns true if values are equal
-        /// </summary>
-        public override bool Equals(object obj)
-        {
-            return obj is int other && Equals(other);
-        }
-
+        
         /// <inheritdoc />
         public override int GetHashCode()
         {
