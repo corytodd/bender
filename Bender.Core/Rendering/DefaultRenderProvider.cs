@@ -10,7 +10,7 @@ namespace Bender.Core.Rendering
     public class DefaultRenderProvider : IRenderProvider
     {
         private readonly StreamWriter _streamWriter;
-        private int _tabDepth = 0;
+        private int _tabDepth;
         
         /// <summary>
         /// Create a new render provider
@@ -33,6 +33,10 @@ namespace Bender.Core.Rendering
                     Render(matrix);
                     break;
                 
+                case BMatrix<Phrase> matrix:
+                    Render(matrix);
+                    break;
+
                 case BStructure structure:
                     Render(structure);
                     break;
@@ -56,7 +60,7 @@ namespace Bender.Core.Rendering
         /// Specialized matrix renderer
         /// </summary>
         /// <param name="matrix">Matrix to render</param>
-        private void Render(BMatrix<Number> matrix)
+        private void Render<T>(BMatrix<T> matrix) where T : IRenderable
         {
             _streamWriter.WriteLine($"{new string('\t', _tabDepth)}{matrix.Name} : ");
             ++_tabDepth;
