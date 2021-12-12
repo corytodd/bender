@@ -1,16 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <SemVer>0.7.1.0</SemVer>
+    <SemVer>0.7.2.0</SemVer>
     <Suffix></Suffix>
-    <Year>2020</Year>
+    <Year>2021</Year>
   </PropertyGroup>
 
   <PropertyGroup>
     <Title>Bender</Title>
     <AssemblyName>bender</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <Platforms>AnyCPU</Platforms>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

@@ -1,43 +1,43 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <SemVer>0.7.1.0</SemVer>
-    <Suffix></Suffix>
-    <Year>2020</Year>
-  </PropertyGroup>
+    <PropertyGroup>
+        <SemVer>0.7.2.0</SemVer>
+        <Suffix></Suffix>
+        <Year>2021</Year>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <Title>Bender.Core</Title>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>preview</LangVersion>
-    <Platforms>AnyCPU</Platforms>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Cory Todd</Authors>
-    <Company>Ardonyx LLC</Company>
-    <Description>Arbitrary binary file viewer library</Description>
-    <Copyright>$(Year) Ardonyx LLC</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>$(SemVer)$(Suffix)</Version>
-    <RepositoryUrl>https://github.com/ardonyx/bender</RepositoryUrl>      
-    <RepositoryType>git</RepositoryType>
-    <AssemblyVersion>$(SemVer)</AssemblyVersion>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <FileVersion>$(SemVer)</FileVersion>
-    <IncludeSource>true</IncludeSource>
-    <IncludeSymbols>true</IncludeSymbols>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
+    <PropertyGroup>
+        <Title>Bender.Core</Title>
+        <TargetFramework>net6.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <Platforms>AnyCPU</Platforms>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>Cory Todd</Authors>
+        <Company>Ardonyx LLC</Company>
+        <Description>Arbitrary binary file viewer library</Description>
+        <Copyright>$(Year) Ardonyx LLC</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Version>$(SemVer)$(Suffix)</Version>
+        <RepositoryUrl>https://github.com/ardonyx/bender</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <AssemblyVersion>$(SemVer)</AssemblyVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <FileVersion>$(SemVer)</FileVersion>
+        <IncludeSource>true</IncludeSource>
+        <IncludeSymbols>true</IncludeSymbols>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <!-- https://github.com/aaubry/YamlDotNet/issues/492 blocks upgrade -->
-    <PackageReference Include="System.Memory" Version="4.5.4" />
-    <PackageReference Include="YamlDotNet" Version="[8.1.0]" />
-  </ItemGroup>
+    <ItemGroup>
+        <!-- https://github.com/aaubry/YamlDotNet/issues/492 blocks upgrade -->
+        <PackageReference Include="System.Memory" Version="4.5.4"/>
+        <PackageReference Include="YamlDotNet" Version="[8.1.0]"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Logging" />
-  </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Logging"/>
+    </ItemGroup>
 
 </Project>

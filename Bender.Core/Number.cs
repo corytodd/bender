@@ -9,16 +9,100 @@ namespace Bender.Core
     using Rendering;
 
     /// <summary>
-    /// Number wrapper holds any number type
+    ///     Number wrapper holds any number type
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     public record Number : IRenderable
     {
         /// <summary>
-        /// Converts raw buffer data into a numeric type. This handles 
-        /// sign conversion. Data is not checked for length validity, the caller
-        /// must take caution to ensure data has exactly the number of bytes for the
-        /// format prescribed by the element specification.
+        ///     True if floating point
+        /// </summary>
+        [FieldOffset(13)]
+        private readonly bool _isFloat;
+
+        /// <summary>
+        ///     True if signed
+        /// </summary>
+        [FieldOffset(12)]
+        private readonly bool _isSigned;
+
+        /// <summary>
+        ///     How number format should be handled
+        /// </summary>
+        [FieldOffset(14)]
+        private readonly Bender.PrintFormat _printFormat;
+
+        /// <summary>
+        ///     Count of bytes stored
+        /// </summary>
+        [FieldOffset(8)]
+        private readonly int _width;
+
+        /// <summary>
+        ///     Double precision float
+        /// </summary>
+        [FieldOffset(0)]
+        public readonly double fd;
+
+        /// <summary>
+        ///     Single precision float
+        /// </summary>
+        [FieldOffset(0)]
+        public readonly float fs;
+
+        /// <summary>
+        ///     Signed byte
+        /// </summary>
+        [FieldOffset(0)]
+        public readonly sbyte sb;
+
+        /// <summary>
+        ///     signed int
+        /// </summary>
+        [FieldOffset(0)]
+        public readonly int si;
+
+        /// <summary>
+        ///     Signed long
+        /// </summary>
+        [FieldOffset(0)]
+        public readonly long sl;
+
+        /// <summary>
+        ///     Signed short
+        /// </summary>
+        [FieldOffset(0)]
+        public readonly short ss;
+
+        /// <summary>
+        ///     Unsigned byte
+        /// </summary>
+        [FieldOffset(0)]
+        public readonly byte ub;
+
+        /// <summary>
+        ///     unsigned int
+        /// </summary>
+        [FieldOffset(0)]
+        public readonly uint ui;
+
+        /// <summary>
+        ///     Unsigned long
+        /// </summary>
+        [FieldOffset(0)]
+        public readonly ulong ul;
+
+        /// <summary>
+        ///     Unsigned short
+        /// </summary>
+        [FieldOffset(0)]
+        public readonly ushort us;
+
+        /// <summary>
+        ///     Converts raw buffer data into a numeric type. This handles
+        ///     sign conversion. Data is not checked for length validity, the caller
+        ///     must take caution to ensure data has exactly the number of bytes for the
+        ///     format prescribed by the element specification.
         /// </summary>
         /// <param name="el">Element spec</param>
         /// <param name="data">Raw data</param>
@@ -29,10 +113,10 @@ namespace Bender.Core
         }
 
         /// <summary>
-        /// Converts raw buffer data into a numeric type. This handles 
-        /// sign conversion. Data is not checked for length validity, the caller
-        /// must take caution to ensure data has exactly the number of bytes for the
-        /// format prescribed by the element specification.
+        ///     Converts raw buffer data into a numeric type. This handles
+        ///     sign conversion. Data is not checked for length validity, the caller
+        ///     must take caution to ensure data has exactly the number of bytes for the
+        ///     format prescribed by the element specification.
         /// </summary>
         /// <param name="units">Interpret data at this width</param>
         /// <param name="isSigned">True if value is signed</param>
@@ -76,7 +160,7 @@ namespace Bender.Core
                 case 1:
                     if (_isSigned)
                     {
-                        sl = (sbyte) data[0];
+                        sl = (sbyte)data[0];
                     }
                     else
                     {
@@ -131,170 +215,6 @@ namespace Bender.Core
             }
         }
 
-        /// <summary>
-        /// Returns true if values are equal
-        /// </summary>
-        public bool Equals(int other)
-        {
-            return sl == other;
-        }
-        
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            // ReSharper disable once NonReadonlyMemberInGetHashCode
-            return si;
-        }
-
-        /// <summary>
-        /// Returns true if values are equal
-        /// </summary>
-        public static bool operator ==(Number left, int right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        /// Returns true if values are equal
-        /// </summary>
-        public static bool operator ==(int left, Number right)
-        {
-            return right.Equals(left);
-        }
-
-        /// <summary>
-        /// Returns true if values are not equal
-        /// </summary>
-        public static bool operator !=(Number left, int right)
-        {
-            return !left.Equals(right);
-        }
-
-        /// <summary>
-        /// Returns true if values are not equal
-        /// </summary>
-        public static bool operator !=(int left, Number right)
-        {
-            return !right.Equals(left);
-        }
-
-        /// <summary>
-        /// Performs a signed compare
-        /// </summary>
-        public static bool operator <(Number left, int right)
-        {
-            return left.si < right;
-        }
-
-        /// <summary>
-        /// Performs a signed compare
-        /// </summary>
-        public static bool operator >(Number left, int right)
-        {
-            return left.si > right;
-        }
-
-
-        /// <summary>
-        /// Performs a signed compare
-        /// </summary>
-        public static bool operator <(int left, Number right)
-        {
-            return left < right.si;
-        }
-
-        /// <summary>
-        /// Performs a signed compare
-        /// </summary>
-        public static bool operator >(int left, Number right)
-        {
-            return left > right.si;
-        }
-
-        /// <summary>
-        /// Unsigned byte
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly byte ub;
-
-        /// <summary>
-        /// Signed byte
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly sbyte sb;
-
-        /// <summary>
-        /// Unsigned short
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly ushort us;
-
-        /// <summary>
-        /// Signed short
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly short ss;
-
-        /// <summary>
-        /// unsigned int
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly uint ui;
-
-        /// <summary>
-        /// signed int
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly int si;
-
-        /// <summary>
-        /// Unsigned long
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly ulong ul;
-
-        /// <summary>
-        /// Signed long
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly long sl;
-
-        /// <summary>
-        /// Single precision float
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly float fs;
-
-        /// <summary>
-        /// Double precision float
-        /// </summary>
-        [FieldOffset(0)]
-        public readonly double fd;
-
-        /// <summary>
-        /// Count of bytes stored
-        /// </summary>
-        [FieldOffset(8)]
-        private readonly int _width;
-
-        /// <summary>
-        /// True if signed
-        /// </summary>
-        [FieldOffset(12)]
-        private readonly bool _isSigned;
-
-        /// <summary>
-        /// True if floating point
-        /// </summary>
-        [FieldOffset(13)]
-        private readonly bool _isFloat;
-
-        /// <summary>
-        /// How number format should be handled
-        /// </summary>
-        [FieldOffset(14)]
-        private readonly Bender.PrintFormat _printFormat;
-
         /// <inheritdoc />
         public string Format()
         {
@@ -336,7 +256,87 @@ namespace Bender.Core
         {
             stream.Write(Format());
         }
-        
+
+        /// <summary>
+        ///     Returns true if values are equal
+        /// </summary>
+        public bool Equals(int other)
+        {
+            return sl == other;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
+            return si;
+        }
+
+        /// <summary>
+        ///     Returns true if values are equal
+        /// </summary>
+        public static bool operator ==(Number left, int right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Returns true if values are equal
+        /// </summary>
+        public static bool operator ==(int left, Number right)
+        {
+            return right.Equals(left);
+        }
+
+        /// <summary>
+        ///     Returns true if values are not equal
+        /// </summary>
+        public static bool operator !=(Number left, int right)
+        {
+            return !left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Returns true if values are not equal
+        /// </summary>
+        public static bool operator !=(int left, Number right)
+        {
+            return !right.Equals(left);
+        }
+
+        /// <summary>
+        ///     Performs a signed compare
+        /// </summary>
+        public static bool operator <(Number left, int right)
+        {
+            return left.si < right;
+        }
+
+        /// <summary>
+        ///     Performs a signed compare
+        /// </summary>
+        public static bool operator >(Number left, int right)
+        {
+            return left.si > right;
+        }
+
+
+        /// <summary>
+        ///     Performs a signed compare
+        /// </summary>
+        public static bool operator <(int left, Number right)
+        {
+            return left < right.si;
+        }
+
+        /// <summary>
+        ///     Performs a signed compare
+        /// </summary>
+        public static bool operator >(int left, Number right)
+        {
+            return left > right.si;
+        }
+
         /// <inheritdoc />
         public override string ToString()
         {

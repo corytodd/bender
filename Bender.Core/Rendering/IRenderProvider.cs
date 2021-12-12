@@ -1,16 +1,15 @@
-namespace Bender.Core.Rendering
-{
-    using Nodes;
+namespace Bender.Core.Rendering;
 
+using Nodes;
+
+/// <summary>
+///     Node renderer
+/// </summary>
+public interface IRenderProvider
+{
     /// <summary>
-    ///     Node renderer
+    ///     Renders a node
     /// </summary>
-    public interface IRenderProvider
-    {
-        /// <summary>
-        /// Renders a node
-        /// </summary>
-        /// <param name="node">Node to render</param>
-        void Render(BNode node);
-    }
+    /// <param name="node">Node to render</param>
+    void Render(BNode node);
 }

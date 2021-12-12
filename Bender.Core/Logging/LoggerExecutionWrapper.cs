@@ -1,4 +1,5 @@
 // ReSharper disable All
+
 #pragma warning disable 8603
 #pragma warning disable 8625
 #pragma warning disable 8618
@@ -10,6 +11,7 @@ namespace Bender.Core.Logging
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
+
     internal class LoggerExecutionWrapper : ILog
     {
         internal const string FailedToGenerateLogMessage = "Failed to generate log message";

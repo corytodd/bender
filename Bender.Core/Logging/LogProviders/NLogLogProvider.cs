@@ -1,4 +1,5 @@
 // ReSharper disable All
+
 #pragma warning disable 8603
 #pragma warning disable 8604
 #pragma warning disable 8618
@@ -14,6 +15,7 @@ namespace Bender.Core.Logging.LogProviders
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
+
     internal class NLogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
@@ -195,7 +197,7 @@ namespace Bender.Core.Logging.LogProviders
                             methodType != null && methodType.DeclaringType == typeof(LogExtensions))
                             callsiteLoggerType = typeof(LogExtensions);
                         else if (methodType == typeof(LoggerExecutionWrapper) || methodType != null &&
-                            methodType.DeclaringType == typeof(LoggerExecutionWrapper))
+                                 methodType.DeclaringType == typeof(LoggerExecutionWrapper))
                             callsiteLoggerType = typeof(LoggerExecutionWrapper);
                         var nlogLevel = TranslateLevel(logLevel);
                         var nlogEvent = s_logEventInfoFact(_logger.Name, nlogLevel, formatMessage, formatParameters,

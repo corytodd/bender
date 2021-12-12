@@ -1,9 +1,8 @@
 #pragma warning disable 8625
 #pragma warning disable 1591
-namespace Bender.Core.Logging
-{
-    using System;
+namespace Bender.Core.Logging;
 
-    public delegate bool Logger(LogLevel logLevel, Func<string> messageFunc, Exception exception = null,
-        params object[] formatParameters);
-}
+using System;
+
+public delegate bool Logger(LogLevel logLevel, Func<string> messageFunc, Exception exception = null,
+    params object[] formatParameters);
